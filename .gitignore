@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment files
+.env
+.env.*
+*.env
+env.example
+.env.example
+*.env.example
+**/env.example
+**/.env.example
+**/.env
+**/.env.*
+
+# Documentation
+docs/
+**/docs/
+*.doc
+*.docx
+
+# Readmes (per user instruction: do not push frontend and backend readme)
+frontend/README.md
+backend/README.md
+README.md
+
+# Agent, Ide & Workflow files
+.github/
+.agents/
+**/.agents/
+.gemini/
+**/.gemini/
+
+# Build artifacts & logs
+dist/
+dist-ssr/
+build/
+*.log
+logs/
+coverage/
+
+# OS and Editor metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

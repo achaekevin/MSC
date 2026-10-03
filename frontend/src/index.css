@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 27 67 50;
+    --color-secondary: 217 119 6;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  body {
+    @apply bg-warm-50 text-charcoal-800 antialiased min-h-screen flex flex-col font-sans;
+    font-size: 1.0625rem; /* 17px base for comfortable senior-friendly reading */
+    line-height: 1.65;
+  }
+
+  /* Improve keyboard navigation focus indicators */
+  :focus-visible {
+    @apply outline-none ring-2 ring-forest-700 ring-offset-2 ring-offset-warm-50;
+  }
+
+  /* Typography headings */
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-charcoal-900 font-semibold tracking-tight;
+  }
+
+  /* Selection style */
+  ::selection {
+    @apply bg-forest-800 text-warm-50;
+  }
+}
+
+@layer utilities {
+  /* Reduce motion if requested by user system settings */
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

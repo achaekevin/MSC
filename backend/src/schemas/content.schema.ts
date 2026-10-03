@@ -1,0 +1,160 @@
+import { z } from 'zod';
+
+// Reusable Content Status and Source enums
+export const contentStatusEnum = z.enum([
+  'DRAFT',
+  'IN_REVIEW',
+  'CHANGES_REQUESTED',
+  'APPROVED',
+  'PUBLISHED',
+  'ARCHIVED'
+]);
+
+export const contentSourceEnum = z.enum([
+  'OFFICIAL_PROFILE',
+  'CLIENT',
+  'PLACEHOLDER',
+  'DEVELOPER'
+]);
+
+// Organization update schema
+export const updateOrganizationSchema = z.object({
+  name: z.string().min(2).max(150).optional(),
+  formerName: z.string().max(150).optional().nullable(),
+  tagline: z.string().max(250).optional(),
+  address: z.string().min(5).optional(),
+  county: z.string().min(2).optional(),
+  country: z.string().min(2).optional(),
+  email: z.string().email().optional(),
+  phone: z.string().optional().nullable(),
+  helpline: z.string().optional().nullable(),
+  vision: z.string().min(10).optional(),
+  mission: z.string().min(10).optional(),
+  values: z.string().optional(), // JSON string array
+  history: z.string().min(10).optional(),
+  geographicScope: z.string().min(5).optional(),
+  legalStatus: z.string().min(5).optional(),
+  coreGoal: z.string().min(10).optional()
+});
+
+// Program creation and update
+export const createProgramSchema = z.object({
+  title: z.string().min(3).max(200),
+  summary: z.string().min(10).max(1000),
+  description: z.string().min(20),
+  objectives: z.array(z.string()).min(1),
+  activities: z.array(z.string()).min(1),
+  targetPopulation: z.array(z.string()).min(1),
+  thematicArea: z.string().optional(),
+  approach: z.string().optional(),
+  iconName: z.string().default('HeartHandshake'),
+  image: z.string().url('Image must be a valid URL'),
+  imageAlt: z.string().min(3).max(200),
+  metricsHighlight: z.string().optional(),
+  relatedSlugs: z.array(z.string()).optional(),
+  displayOrder: z.number().int().default(0),
+  source: contentSourceEnum.default('OFFICIAL_PROFILE'),
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional()
+});
+
+export const updateProgramSchema = createProgramSchema.partial();
+
+// News article creation and update
+export const createNewsSchema = z.object({
+  title: z.string().min(5).max(250),
+  summary: z.string().min(10).max(1000),
+  content: z.union([z.string().min(20), z.array(z.string()).min(1)]),
+  featuredImage: z.string().url('Featured image must be a valid URL'),
+  imageAlt: z.string().min(3).max(200),
+  authorName: z.string().default('MSC Communications Unit'),
+  authorRole: z.string().default('Communications & Outreach'),
+  category: z.string().default('Community Story'),
+  tags: z.array(z.string()).default([]),
+  isFeatured: z.boolean().default(false),
+  source: contentSourceEnum.default('OFFICIAL_PROFILE'),
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional()
+});
+
+export const updateNewsSchema = createNewsSchema.partial();
+
+// Event creation and update
+export const createEventSchema = z.object({
+  title: z.string().min(3).max(200),
+  description: z.string().min(10),
+  location: z.string().min(3).max(200),
+  county: z.string().default('Nyamira'),
+  category: z.string().default('Community Outreach'),
+  startDate: z.string().refine(val => !isNaN(Date.parse(val)), 'Invalid start date format'),
+  endDate: z.string().refine(val => !isNaN(Date.parse(val)), 'Invalid end date format').optional(),
+  timeString: z.string().default('09:00 AM - 03:00 PM EAT'),
+  isRegistrationOpen: z.boolean().default(true),
+  registrationUrl: z.string().url().optional().or(z.literal('')),
+  image: z.string().url().optional().or(z.literal('')),
+  organizer: z.string().default('Mwancha Senior Community'),
+  source: contentSourceEnum.default('OFFICIAL_PROFILE')
+});
+
+export const updateEventSchema = createEventSchema.partial();
+
+// Team member creation and update
+export const createTeamMemberSchema = z.object({
+  name: z.string().min(2).max(100),
+  position: z.string().min(2).max(150),
+  department: z.string().min(2).max(100),
+  biography: z.string().max(2000).optional(),
+  photo: z.string().url().optional().or(z.literal('')),
+  responsibilities: z.string().max(1000).optional(),
+  displayOrder: z.number().int().default(0),
+  isActive: z.boolean().default(true),
+  isPlaceholder: z.boolean().default(true),
+  source: contentSourceEnum.default('PLACEHOLDER')
+});
+
+export const updateTeamMemberSchema = createTeamMemberSchema.partial();
+
+// Impact metric creation and update
+export const createImpactMetricSchema = z.object({
+  name: z.string().min(2).max(150),
+  value: z.string().min(1).max(50),
+  unit: z.string().max(50).optional(),
+  description: z.string().max(500).optional(),
+  category: z.string().default('beneficiaries'),
+  icon: z.string().default('Users'),
+  source: contentSourceEnum.default('OFFICIAL_PROFILE'),
+  sourceDocument: z.string().default('MSC Organizational Profile 2024'),
+  reportingPeriod: z.string().default('2024–2026'),
+  displayOrder: z.number().int().default(0)
+});
+
+export const updateImpactMetricSchema = createImpactMetricSchema.partial();
+
+// Testimonial creation and update schemas
+export const createTestimonialSchema = z.object({
+  name: z.string().min(2).max(100),
+  roleRelationship: z.string().min(2).max(100),
+  quote: z.string().min(10).max(1000),
+  photo: z.string().url().optional().or(z.literal('')),
+  source: contentSourceEnum.default('CLIENT'),
+  consentGiven: z.boolean().default(false),
+  displayOrder: z.number().int().default(0)
+});
+
+export const updateTestimonialSchema = createTestimonialSchema.partial();
+
+// Success story creation and update schemas
+export const createStorySchema = z.object({
+  title: z.string().min(5).max(200),
+  summary: z.string().min(10).max(500),
+  story: z.string().min(50),
+  images: z.array(z.string().url()).optional().default([]),
+  beneficiaryConsent: z.boolean().default(false),
+  privacyStatus: z.enum(['anonymized', 'identified_with_consent']).default('anonymized'),
+  location: z.string().default('Nyamira County'),
+  date: z.string().refine(val => !isNaN(Date.parse(val)), 'Invalid date format').optional(),
+  source: contentSourceEnum.default('OFFICIAL_PROFILE')
+});
+
+export const updateStorySchema = createStorySchema.partial();
+

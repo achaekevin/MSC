@@ -1,0 +1,1063 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------
+// ENUMS (Section 18 & 19)
+// ----------------------------------------------------
+
+enum UserRole {
+  SUPER_ADMIN
+  CONTENT_ADMIN
+  EDITOR
+  REVIEWER
+  FORM_MANAGER
+}
+
+enum ContentStatus {
+  DRAFT
+  IN_REVIEW
+  CHANGES_REQUESTED
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ContentSource {
+  OFFICIAL_PROFILE
+  CLIENT
+  PLACEHOLDER
+  DEVELOPER
+}
+
+enum FormStatus {
+  NEW
+  UNDER_REVIEW
+  CONTACTED
+  ACCEPTED
+  DECLINED
+  APPROVED
+  ARCHIVED
+}
+
+enum ContactStatus {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+// ----------------------------------------------------
+// AUTHENTICATION & ACCESS CONTROL (Section 6 - 12)
+// ----------------------------------------------------
+
+model User {
+  id                  String               @id @default(uuid())
+  firstName           String?              @db.VarChar(100)
+  lastName            String?              @db.VarChar(100)
+  name                String               @db.VarChar(200)
+  email               String               @unique @db.VarChar(255)
+  phone               String?              @db.VarChar(50)
+  passwordHash        String               @db.VarChar(255)
+  role                UserRole             @default(EDITOR)
+  isActive            Boolean              @default(true)
+  lastLoginAt         DateTime?
+  failedLoginAttempts Int                  @default(0)
+  lockoutUntil        DateTime?
+  lockUntil           DateTime?
+  passwordChangedAt   DateTime             @default(now())
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  deletedAt           DateTime?
+
+  // Relations
+  userRoles           UserRoleAssignment[]
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  auditLogs           AuditLog[]
+  contentReviewsSubmitted ContentReview[]  @relation("ReviewsSubmitted")
+  contentReviewsReviewed  ContentReview[]  @relation("ReviewsConducted")
+  contentRevisions    ContentRevision[]
+  clientApprovals     ClientApproval[]
+  notifications       Notification[]
+
+  assignedVolunteers   VolunteerApplication[]   @relation("AssignedVolunteerApplications")
+  assignedPartnerships PartnershipApplication[] @relation("AssignedPartnershipApplications")
+  assignedContacts     ContactSubmission[]      @relation("AssignedContactSubmissions")
+
+  // Audit creator & updater references
+  orgsUpdated          Organization[]           @relation("OrgUpdatedBy")
+  orgValuesCreated     OrganizationValue[]      @relation("OrgValueCreatedBy")
+  orgValuesUpdated     OrganizationValue[]      @relation("OrgValueUpdatedBy")
+  programsCreated      Program[]                @relation("ProgramCreatedBy")
+  programsUpdated      Program[]                @relation("ProgramUpdatedBy")
+  metricsCreated       ImpactMetric[]           @relation("MetricCreatedBy")
+  metricsUpdated       ImpactMetric[]           @relation("MetricUpdatedBy")
+  teamMembersCreated   TeamMember[]             @relation("TeamCreatedBy")
+  teamMembersUpdated   TeamMember[]             @relation("TeamUpdatedBy")
+  newsAuthored         NewsArticle[]            @relation("NewsAuthor")
+  newsUpdated          NewsArticle[]            @relation("NewsUpdatedBy")
+  eventsCreated        Event[]                  @relation("EventCreatedBy")
+  eventsUpdated        Event[]                  @relation("EventUpdatedBy")
+  albumsCreated        GalleryAlbum[]           @relation("AlbumCreatedBy")
+  albumsUpdated        GalleryAlbum[]           @relation("AlbumUpdatedBy")
+  mediaUploaded        Media[]                  @relation("UserUploadedMedia")
+  testimonialsCreated  Testimonial[]            @relation("TestimonialCreatedBy")
+  testimonialsUpdated  Testimonial[]            @relation("TestimonialUpdatedBy")
+  storiesCreated       SuccessStory[]           @relation("StoryCreatedBy")
+  storiesUpdated       SuccessStory[]           @relation("StoryUpdatedBy")
+  donationsCreated     DonationConfiguration[]  @relation("DonationCreatedBy")
+  donationsUpdated     DonationConfiguration[]  @relation("DonationUpdatedBy")
+
+  @@index([email])
+  @@index([isActive])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model Role {
+  id              String               @id @default(uuid())
+  name            String               @unique @db.VarChar(100)
+  description     String?              @db.Text
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  userRoles       UserRoleAssignment[]
+  rolePermissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id              String               @id @default(uuid())
+  name            String               @unique @db.VarChar(100)
+  description     String?              @db.Text
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model UserRoleAssignment {
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  createdAt    DateTime   @default(now())
+
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  token     String    @unique @db.VarChar(500)
+  tokenHash String?   @db.VarChar(255)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([userId, expiresAt, revokedAt])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique @db.VarChar(255)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, expiresAt])
+  @@map("password_reset_tokens")
+}
+
+// ----------------------------------------------------
+// ORGANIZATION & GOVERNANCE (Section 13 - 17)
+// ----------------------------------------------------
+
+model Organization {
+  id              String                      @id @default(uuid())
+  name            String                      @default("Mwancha Senior Community") @db.VarChar(150)
+  formerName      String?                     @default("Mwancha Home for the Elderly") @db.VarChar(150)
+  tagline         String                      @default("Dignity, Care & Wellbeing for Older Persons") @db.VarChar(255)
+  description     String?                     @db.Text
+  legalStatus     String                      @default("Community-based Non-Governmental Organization registered in Kenya") @db.VarChar(255)
+  address         String                      @db.Text
+  postalCode      String?                     @default("40506") @db.VarChar(50)
+  county          String                      @default("Nyamira") @db.VarChar(100)
+  country         String                      @default("Kenya") @db.VarChar(100)
+  email           String                      @default("info@mwanchasenior.org") @db.VarChar(255)
+  phone           String?                     @db.VarChar(100)
+  helpline        String?                     @db.VarChar(100)
+  vision          String                      @db.Text
+  mission         String                      @db.Text
+  values          String?                     @db.Text
+  history         String?                     @db.Text
+  coreGoal        String                      @db.Text
+  geographicScope String                      @default("Grassroots footprint in Nyamira County with national Kenyan advocacy mandate") @db.VarChar(255)
+  isActive        Boolean                     @default(true)
+  status          ContentStatus               @default(APPROVED)
+  source          ContentSource               @default(OFFICIAL_PROFILE)
+  approvalRequired Boolean                    @default(false)
+  publishedAt     DateTime?                   @default(now())
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+  updatedById     String?
+
+  updatedBy            User?                       @relation("OrgUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  organizationValues   OrganizationValue[]
+  organizationHistory  OrganizationHistory[]
+  organizationContacts OrganizationContact[]
+  structureNodes       OrganizationStructureNode[]
+  impactMetrics        ImpactMetric[]
+
+  @@map("organizations")
+}
+
+model OrganizationValue {
+  id             String        @id @default(uuid())
+  organizationId String
+  name           String        @db.VarChar(150)
+  description    String        @db.Text
+  displayOrder   Int           @default(0)
+  status         ContentStatus @default(APPROVED)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  createdById    String?
+  updatedById    String?
+
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy      User?         @relation("OrgValueCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy      User?         @relation("OrgValueUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@map("organization_values")
+}
+
+model OrganizationHistory {
+  id             String       @id @default(uuid())
+  organizationId String
+  year           String       @db.VarChar(50)
+  title          String       @db.VarChar(200)
+  description    String       @db.Text
+  displayOrder   Int          @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("organization_history")
+}
+
+model OrganizationContact {
+  id             String       @id @default(uuid())
+  organizationId String
+  type           String       @db.VarChar(50) // EMAIL, PHONE, ADDRESS, SOCIAL, WEBSITE
+  label          String       @db.VarChar(100)
+  value          String       @db.Text
+  isPrimary      Boolean      @default(false)
+  isPublic       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("organization_contacts")
+}
+
+model OrganizationStructureNode {
+  id              String                      @id @default(uuid())
+  organizationId  String?
+  parentId        String?
+  name            String?                     @db.VarChar(150)
+  title           String                      @db.VarChar(200)
+  roleType        String?                     @db.VarChar(100)
+  description     String?                     @db.Text
+  displayOrder    Int                         @default(0)
+  status          ContentStatus               @default(APPROVED)
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+
+  organization    Organization?               @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parent          OrganizationStructureNode?  @relation("NodeHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children        OrganizationStructureNode[] @relation("NodeHierarchy")
+  teamMemberRoles TeamMemberRole[]
+
+  @@index([organizationId])
+  @@index([parentId])
+  @@map("organization_structure_nodes")
+}
+
+// ----------------------------------------------------
+// PROGRAMS & IMPACT (Section 20 - 24)
+// ----------------------------------------------------
+
+model ProgramCategory {
+  id           String    @id @default(uuid())
+  name         String    @unique @db.VarChar(150)
+  slug         String    @unique @db.VarChar(150)
+  description  String?   @db.Text
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  programs     Program[]
+
+  @@map("program_categories")
+}
+
+model Program {
+  id                  String              @id @default(uuid())
+  categoryId          String?
+  title               String              @db.VarChar(255)
+  slug                String              @unique @db.VarChar(255)
+  summary             String              @db.Text
+  description         String              @db.LongText
+  objectives          String?             @db.Text // JSON compatibility
+  activities          String?             @db.Text // JSON compatibility
+  targetPopulation    String?             @db.Text
+  thematicArea        String?             @db.VarChar(150)
+  approach            String?             @db.Text
+  iconName            String              @default("HeartHandshake") @db.VarChar(100)
+  image               String              @db.VarChar(500)
+  imageAlt            String              @default("Mwancha community program outreach") @db.VarChar(255)
+  metricsHighlight    String?             @db.VarChar(255)
+  relatedSlugs        String?             @db.Text
+  status              ContentStatus       @default(APPROVED)
+  source              ContentSource       @default(OFFICIAL_PROFILE)
+  approvalRequired    Boolean             @default(false)
+  featured            Boolean             @default(false)
+  displayOrder        Int                 @default(0)
+  seoTitle            String?             @db.VarChar(255)
+  seoDescription      String?             @db.Text
+  publishedAt         DateTime?           @default(now())
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  deletedAt           DateTime?
+  createdById         String?
+  updatedById         String?
+
+  category            ProgramCategory?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdBy           User?               @relation("ProgramCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy           User?               @relation("ProgramUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  programObjectives   ProgramObjective[]
+  programActivities   ProgramActivity[]
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([status, publishedAt])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@map("programs")
+}
+
+model ProgramObjective {
+  id           String   @id @default(uuid())
+  programId    String
+  objective    String   @db.Text
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  program      Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([programId])
+  @@map("program_objectives")
+}
+
+model ProgramActivity {
+  id           String   @id @default(uuid())
+  programId    String
+  activity     String   @db.Text
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  program      Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([programId])
+  @@map("program_activities")
+}
+
+model ImpactMetric {
+  id               String        @id @default(uuid())
+  organizationId   String?
+  name             String        @db.VarChar(150)
+  value            String        @db.VarChar(50)
+  unit             String?       @db.VarChar(50)
+  description      String?       @db.Text
+  category         String        @default("beneficiaries") @db.VarChar(50)
+  icon             String        @default("Users") @db.VarChar(50)
+  source           ContentSource @default(OFFICIAL_PROFILE)
+  sourceDocument   String        @default("MSC Organizational Profile 2024") @db.VarChar(200)
+  reportingPeriod  String        @default("2024–2026") @db.VarChar(50)
+  status           ContentStatus @default(APPROVED)
+  approvalRequired Boolean       @default(false)
+  displayOrder     Int           @default(0)
+  publishedAt      DateTime?     @default(now())
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  deletedAt        DateTime?
+  createdById      String?
+  updatedById      String?
+
+  organization     Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdBy        User?         @relation("MetricCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy        User?         @relation("MetricUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([displayOrder])
+  @@index([deletedAt])
+  @@map("impact_metrics")
+}
+
+// ----------------------------------------------------
+// TEAM & HUMAN RESOURCES (Section 25 & 26)
+// ----------------------------------------------------
+
+model TeamMember {
+  id               String             @id @default(uuid())
+  firstName        String?            @db.VarChar(100)
+  lastName         String?            @db.VarChar(100)
+  name             String             @db.VarChar(200)
+  position         String             @db.VarChar(150)
+  department       String             @db.VarChar(100)
+  biography        String?            @db.Text
+  photo            String?            @db.VarChar(500)
+  photoMediaId     String?
+  responsibilities String?            @db.Text
+  displayOrder     Int                @default(0)
+  isActive         Boolean            @default(true)
+  isPlaceholder    Boolean            @default(true)
+  status           ContentStatus      @default(APPROVED)
+  source           ContentSource      @default(PLACEHOLDER)
+  approvalRequired Boolean            @default(true)
+  publishedAt      DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  deletedAt        DateTime?
+  createdById      String?
+  updatedById      String?
+
+  photoMedia       Media?             @relation("TeamMemberPhoto", fields: [photoMediaId], references: [id], onDelete: SetNull)
+  createdBy        User?              @relation("TeamCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy        User?              @relation("TeamUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  memberRoles      TeamMemberRole[]
+
+  @@index([status])
+  @@index([isActive])
+  @@index([deletedAt])
+  @@map("team_members")
+}
+
+model TeamMemberRole {
+  teamMemberId    String
+  structureNodeId String
+
+  teamMember      TeamMember                @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+  structureNode   OrganizationStructureNode @relation(fields: [structureNodeId], references: [id], onDelete: Cascade)
+
+  @@id([teamMemberId, structureNodeId])
+  @@map("team_member_roles")
+}
+
+// ----------------------------------------------------
+// NEWS & ARTICLES (Section 27 - 30)
+// ----------------------------------------------------
+
+model NewsCategory {
+  id          String        @id @default(uuid())
+  name        String        @unique @db.VarChar(150)
+  slug        String        @unique @db.VarChar(150)
+  description String?       @db.Text
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  articles    NewsArticle[]
+
+  @@map("news_categories")
+}
+
+model NewsArticle {
+  id               String           @id @default(uuid())
+  categoryId       String?
+  title            String           @db.VarChar(255)
+  slug             String           @unique @db.VarChar(255)
+  summary          String           @db.Text
+  content          String           @db.LongText
+  featuredImage    String           @db.VarChar(500)
+  featuredMediaId  String?
+  imageAlt         String           @default("Mwancha community outreach and elder care news") @db.VarChar(255)
+  authorId         String?
+  authorName       String           @default("MSC Communications Unit") @db.VarChar(150)
+  authorRole       String           @default("Communications & Outreach") @db.VarChar(150)
+  category         String           @default("Community Story") @db.VarChar(100)
+  tags             String           @db.Text // JSON string array
+  isFeatured       Boolean          @default(false)
+  status           ContentStatus    @default(APPROVED)
+  source           ContentSource    @default(OFFICIAL_PROFILE)
+  approvalRequired Boolean          @default(false)
+  publishedAt      DateTime?        @default(now())
+  seoTitle         String?          @db.VarChar(255)
+  seoDescription   String?          @db.Text
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  deletedAt        DateTime?
+  updatedById      String?
+
+  categoryRelation NewsCategory?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  featuredMedia    Media?           @relation("NewsFeaturedMedia", fields: [featuredMediaId], references: [id], onDelete: SetNull)
+  author           User?            @relation("NewsAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  updatedBy        User?            @relation("NewsUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  articleTags      NewsArticleTag[]
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([status, publishedAt])
+  @@index([authorId])
+  @@index([deletedAt])
+  @@map("news_articles")
+}
+
+model NewsTag {
+  id          String           @id @default(uuid())
+  name        String           @unique @db.VarChar(100)
+  slug        String           @unique @db.VarChar(100)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  articleTags NewsArticleTag[]
+
+  @@map("news_tags")
+}
+
+model NewsArticleTag {
+  articleId String
+  tagId     String
+
+  article   NewsArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       NewsTag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+  @@map("news_article_tags")
+}
+
+// ----------------------------------------------------
+// EVENTS & OUTREACH (Section 31 & 32)
+// ----------------------------------------------------
+
+model Event {
+  id                   String              @id @default(uuid())
+  title                String              @db.VarChar(255)
+  slug                 String              @unique @db.VarChar(255)
+  description          String              @db.Text
+  location             String              @db.VarChar(255)
+  county               String              @default("Nyamira") @db.VarChar(100)
+  category             String              @default("Community Outreach") @db.VarChar(100)
+  startDate            DateTime
+  endDate              DateTime?
+  timeString           String              @default("09:00 AM - 03:00 PM EAT") @db.VarChar(100)
+  isRegistrationOpen   Boolean             @default(true)
+  registrationRequired Boolean             @default(false)
+  registrationUrl      String?             @db.VarChar(500)
+  image                String?             @db.VarChar(500)
+  featuredMediaId      String?
+  organizer            String              @default("Mwancha Senior Community") @db.VarChar(200)
+  status               ContentStatus       @default(APPROVED)
+  source               ContentSource       @default(OFFICIAL_PROFILE)
+  approvalRequired     Boolean             @default(false)
+  publishedAt          DateTime?           @default(now())
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  deletedAt            DateTime?
+  createdById          String?
+  updatedById          String?
+
+  featuredMedia        Media?              @relation("EventFeaturedMedia", fields: [featuredMediaId], references: [id], onDelete: SetNull)
+  createdBy            User?               @relation("EventCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy            User?               @relation("EventUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  registrations        EventRegistration[]
+
+  @@index([startDate])
+  @@index([status])
+  @@index([status, publishedAt])
+  @@index([deletedAt])
+  @@map("events")
+}
+
+model EventRegistration {
+  id        String   @id @default(uuid())
+  eventId   String
+  name      String   @db.VarChar(200)
+  email     String   @db.VarChar(255)
+  phone     String?  @db.VarChar(50)
+  notes     String?  @db.Text
+  status    String   @default("CONFIRMED") @db.VarChar(50)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([eventId, email])
+  @@map("event_registrations")
+}
+
+// ----------------------------------------------------
+// GALLERY & MEDIA (Section 33 - 35)
+// ----------------------------------------------------
+
+model GalleryAlbum {
+  id                    String              @id @default(uuid())
+  name                  String              @db.VarChar(200)
+  title                 String?             @db.VarChar(200)
+  slug                  String              @unique @db.VarChar(200)
+  description           String?             @db.Text
+  coverMediaId          String?
+  status                ContentStatus       @default(APPROVED)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  deletedAt             DateTime?
+  createdById           String?
+  updatedById           String?
+
+  coverMedia            Media?              @relation("AlbumCoverMedia", fields: [coverMediaId], references: [id], onDelete: SetNull)
+  createdBy             User?               @relation("AlbumCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy             User?               @relation("AlbumUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  mediaItems            Media[]
+  albumMediaAssignments GalleryAlbumMedia[]
+
+  @@index([status])
+  @@index([deletedAt])
+  @@map("gallery_albums")
+}
+
+model Media {
+  id                 String              @id @default(uuid())
+  albumId            String?
+  publicId           String              @unique @db.VarChar(255)
+  cloudinaryPublicId String?             @db.VarChar(255)
+  title              String?             @db.VarChar(255)
+  url                String              @db.VarChar(500)
+  secureUrl          String              @db.VarChar(500)
+  resourceType       String              @default("image") @db.VarChar(50)
+  mimeType           String              @default("image/jpeg") @db.VarChar(100)
+  format             String?             @db.VarChar(50)
+  fileName           String              @db.VarChar(255)
+  originalName       String?             @db.VarChar(255)
+  fileSize           Int
+  bytes              Int?
+  width              Int?
+  height             Int?
+  altText            String?             @db.VarChar(255)
+  caption            String?             @db.Text
+  description        String?             @db.Text
+  photographer       String?             @db.VarChar(150)
+  category           String              @default("community") @db.VarChar(100)
+  consentSafeguarded Boolean             @default(true)
+  consentConfirmed   Boolean             @default(true)
+  source             ContentSource       @default(OFFICIAL_PROFILE)
+  approvalRequired   Boolean             @default(false)
+  status             ContentStatus       @default(APPROVED)
+  publishedAt        DateTime?           @default(now())
+  uploadedById       String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  deletedAt          DateTime?
+
+  album              GalleryAlbum?       @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  uploadedBy         User?               @relation("UserUploadedMedia", fields: [uploadedById], references: [id], onDelete: SetNull)
+  albumAssignments   GalleryAlbumMedia[]
+
+  teamMemberPhotos   TeamMember[]        @relation("TeamMemberPhoto")
+  newsArticles       NewsArticle[]       @relation("NewsFeaturedMedia")
+  events             Event[]             @relation("EventFeaturedMedia")
+  albumsCover        GalleryAlbum[]      @relation("AlbumCoverMedia")
+  testimonials       Testimonial[]       @relation("TestimonialPhoto")
+  successStories     SuccessStory[]      @relation("StoryFeaturedMedia")
+  successStoryMedia  SuccessStoryMedia[]
+
+  @@index([albumId])
+  @@index([status])
+  @@index([resourceType])
+  @@index([uploadedById])
+  @@index([deletedAt])
+  @@map("media")
+}
+
+model GalleryAlbumMedia {
+  albumId      String
+  mediaId      String
+  displayOrder Int          @default(0)
+  createdAt    DateTime     @default(now())
+
+  album        GalleryAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  media        Media        @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@id([albumId, mediaId])
+  @@map("gallery_album_media")
+}
+
+// ----------------------------------------------------
+// PUBLIC ENGAGEMENT & FORMS (Section 36 - 41)
+// ----------------------------------------------------
+
+model VolunteerApplication {
+  id              String     @id @default(uuid())
+  referenceNumber String     @default(uuid()) @unique @db.VarChar(100)
+  fullName        String?    @db.VarChar(200)
+  firstName       String?    @db.VarChar(100)
+  lastName        String?    @db.VarChar(100)
+  email           String     @db.VarChar(255)
+  phone           String     @db.VarChar(50)
+  county          String?    @db.VarChar(100)
+  subCounty       String?    @db.VarChar(100)
+  location        String?    @db.VarChar(150)
+  areaOfInterest  String?    @db.VarChar(150)
+  interests       String?    @db.Text // JSON string array
+  availability    String     @db.VarChar(100)
+  experience      String?    @db.Text
+  message         String?    @db.Text
+  consent         Boolean    @default(true)
+  status          FormStatus @default(NEW)
+  adminNotes      String?    @db.Text
+  reviewNotes     String?    @db.Text
+  assignedToId    String?
+  submittedAt     DateTime   @default(now())
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  deletedAt       DateTime?
+
+  assignedTo      User?      @relation("AssignedVolunteerApplications", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([status])
+  @@index([status, createdAt])
+  @@map("volunteer_applications")
+}
+
+model PartnershipApplication {
+  id                   String     @id @default(uuid())
+  referenceNumber      String     @default(uuid()) @unique @db.VarChar(100)
+  organizationName     String     @db.VarChar(200)
+  contactPerson        String     @db.VarChar(150)
+  email                String     @db.VarChar(255)
+  phone                String     @db.VarChar(50)
+  organizationType     String     @db.VarChar(100)
+  partnershipInterests String     @db.Text // JSON string array
+  website              String?    @db.VarChar(255)
+  message              String     @db.Text
+  consent              Boolean    @default(true)
+  status               FormStatus @default(NEW)
+  adminNotes           String?    @db.Text
+  reviewNotes          String?    @db.Text
+  assignedToId         String?
+  submittedAt          DateTime   @default(now())
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  deletedAt            DateTime?
+
+  assignedTo           User?      @relation("AssignedPartnershipApplications", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([status])
+  @@index([status, createdAt])
+  @@map("partnership_applications")
+}
+
+model ContactSubmission {
+  id              String        @id @default(uuid())
+  referenceNumber String        @default(uuid()) @unique @db.VarChar(100)
+  name            String        @db.VarChar(200)
+  email           String        @db.VarChar(255)
+  phone           String?       @db.VarChar(50)
+  subject         String        @db.VarChar(255)
+  message         String        @db.Text
+  consent         Boolean       @default(true)
+  status          ContactStatus @default(NEW)
+  adminNotes      String?       @db.Text
+  internalNotes   String?       @db.Text
+  assignedToId    String?
+  submittedAt     DateTime      @default(now())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?
+
+  assignedTo      User?         @relation("AssignedContactSubmissions", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([status])
+  @@index([status, createdAt])
+  @@map("contact_submissions")
+}
+
+model Testimonial {
+  id               String        @id @default(uuid())
+  name             String        @db.VarChar(200)
+  roleRelationship String?       @db.VarChar(150)
+  role             String?       @db.VarChar(150)
+  quote            String        @db.Text
+  photo            String?       @db.VarChar(500)
+  photoMediaId     String?
+  source           ContentSource @default(CLIENT)
+  consentGiven     Boolean       @default(true)
+  consent          Boolean?      @default(true)
+  status           ContentStatus @default(DRAFT)
+  approvalRequired Boolean       @default(true)
+  displayOrder     Int           @default(0)
+  publishedAt      DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  deletedAt        DateTime?
+  createdById      String?
+  updatedById      String?
+
+  photoMedia       Media?        @relation("TestimonialPhoto", fields: [photoMediaId], references: [id], onDelete: SetNull)
+  createdBy        User?         @relation("TestimonialCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy        User?         @relation("TestimonialUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([deletedAt])
+  @@map("testimonials")
+}
+
+model SuccessStory {
+  id                 String              @id @default(uuid())
+  title              String              @db.VarChar(255)
+  slug               String              @unique @db.VarChar(255)
+  summary            String              @db.Text
+  story              String              @db.LongText
+  location           String              @default("Nyamira County") @db.VarChar(150)
+  date               DateTime?           @default(now())
+  storyDate          DateTime?           @default(now())
+  images             String?             @db.Text // JSON string array
+  beneficiaryConsent Boolean             @default(false)
+  privacyStatus      String              @default("anonymized") @db.VarChar(50)
+  privacyLevel       String?             @default("anonymized") @db.VarChar(50)
+  status             ContentStatus       @default(DRAFT)
+  source             ContentSource       @default(OFFICIAL_PROFILE)
+  approvalRequired   Boolean             @default(true)
+  featuredMediaId    String?
+  publishedAt        DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  deletedAt          DateTime?
+  createdById        String?
+  updatedById        String?
+
+  featuredMedia      Media?              @relation("StoryFeaturedMedia", fields: [featuredMediaId], references: [id], onDelete: SetNull)
+  createdBy          User?               @relation("StoryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy          User?               @relation("StoryUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  storyMedia         SuccessStoryMedia[]
+
+  @@index([status])
+  @@index([deletedAt])
+  @@map("success_stories")
+}
+
+model SuccessStoryMedia {
+  successStoryId String
+  mediaId        String
+  displayOrder   Int          @default(0)
+
+  successStory   SuccessStory @relation(fields: [successStoryId], references: [id], onDelete: Cascade)
+  media          Media        @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@id([successStoryId, mediaId])
+  @@map("success_story_media")
+}
+
+// ----------------------------------------------------
+// DONATIONS (Section 42)
+// ----------------------------------------------------
+
+model DonationConfiguration {
+  id               String        @id @default(uuid())
+  paymentProvider  String?       @db.VarChar(50)
+  provider         String?       @db.VarChar(50)
+  name             String?       @db.VarChar(150)
+  accountReference String?       @db.VarChar(100)
+  details          String?       @db.Text
+  instructions     String        @db.Text
+  currency         String        @default("KES") @db.VarChar(10)
+  minimumAmount    Decimal?      @db.Decimal(12, 2)
+  isConfigured     Boolean       @default(false)
+  isActive         Boolean       @default(false)
+  statusMessage    String?       @db.VarChar(255)
+  status           ContentStatus @default(CHANGES_REQUESTED)
+  source           ContentSource @default(PLACEHOLDER)
+  approvalRequired Boolean       @default(true)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  createdById      String?
+  updatedById      String?
+
+  createdBy        User?         @relation("DonationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy        User?         @relation("DonationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@map("donation_configurations")
+}
+
+// ----------------------------------------------------
+// WORKFLOW, AUDIT & COMMUNICATION (Section 43 - 48)
+// ----------------------------------------------------
+
+model ContentRevision {
+  id           String   @id @default(uuid())
+  entityType   String   @db.VarChar(100)
+  entityId     String   @db.VarChar(100)
+  version      Int      @default(1)
+  previousData String?  @db.LongText
+  previousVal  String?  @db.LongText
+  newData      String?  @db.LongText
+  newVal       String?  @db.LongText
+  changeNote   String?  @db.Text
+  changedById  String?
+  createdAt    DateTime @default(now())
+
+  changedBy    User?    @relation(fields: [changedById], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([entityType, entityId, createdAt])
+  @@map("content_revisions")
+}
+
+model ContentReview {
+  id           String        @id @default(uuid())
+  entityType   String        @db.VarChar(100)
+  entityId     String        @db.VarChar(100)
+  submittedById String?
+  reviewedById  String?
+  reviewerId    String?       @db.VarChar(100)
+  status        ContentStatus @default(IN_REVIEW)
+  currentStatus ContentStatus?
+  previousStatus ContentStatus?
+  requestedAction String?       @db.VarChar(100)
+  notes          String?       @db.Text
+  reviewNotes  String?       @db.Text
+  submittedAt  DateTime      @default(now())
+  reviewedAt   DateTime?
+  decidedAt    DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  submittedBy  User?         @relation("ReviewsSubmitted", fields: [submittedById], references: [id], onDelete: SetNull)
+  reviewedBy   User?         @relation("ReviewsConducted", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([entityType, entityId, status])
+  @@map("content_reviews")
+}
+
+model ClientApproval {
+  id            String        @id @default(uuid())
+  entityType    String        @default("SITE_WIDE") @db.VarChar(100)
+  entityId      String        @default("GLOBAL") @db.VarChar(100)
+  version       String        @default("1.0.0") @db.VarChar(50)
+  approvedBy    String        @db.VarChar(150)
+  approvalScope String?       @db.VarChar(100)
+  scope         String?       @db.VarChar(100)
+  notes         String?       @db.Text
+  status        ContentStatus @default(APPROVED)
+  approvedAt    DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  userId        String?
+
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@map("client_approvals")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String?
+  type      String    @default("INFO") @db.VarChar(50)
+  title     String    @db.VarChar(200)
+  message   String    @db.Text
+  link      String?   @db.VarChar(500)
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model EmailLog {
+  id                String   @id @default(uuid())
+  recipient         String   @db.VarChar(255)
+  subject           String   @db.VarChar(255)
+  template          String   @db.VarChar(100)
+  provider          String   @default("Resend") @db.VarChar(50)
+  providerMessageId String?  @db.VarChar(255)
+  status            String   @default("SENT") @db.VarChar(50)
+  errorMessage      String?  @db.Text
+  sentAt            DateTime @default(now())
+  createdAt         DateTime @default(now())
+
+  @@index([recipient])
+  @@index([status])
+  @@index([createdAt])
+  @@map("email_logs")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String   @db.VarChar(100)
+  entity     String?  @db.VarChar(100)
+  entityType String?  @db.VarChar(100)
+  entityId   String?  @db.VarChar(100)
+  oldData    String?  @db.LongText
+  newData    String?  @db.LongText
+  ipAddress  String?  @db.VarChar(50)
+  userAgent  String?  @db.VarChar(255)
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
