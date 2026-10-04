@@ -3,11 +3,38 @@ import { Container } from '../components/ui/Container';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
 import { SectionHeading } from '../components/ui/SectionHeading';
 import { ImpactStatCard } from '../components/cards/ImpactStatCard';
-import { VERIFIED_IMPACT_METRICS, IMPACT_PILLARS } from '../data/impactData';
+import { useImpactMetrics } from '../contexts/CMSContext';
 import { Button } from '../components/ui/Button';
 import { ShieldCheck, HeartHandshake, FileCheck, CheckCircle } from 'lucide-react';
+import { PageLoader } from '../components/ui/Skeleton';
 
 export const ImpactPage: React.FC = () => {
+  const { metrics, organizedMetrics, categories, isLoading, error } = useImpactMetrics();
+
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
+  if (error) {
+    return (
+      <div className="pb-20">
+        <section className="bg-warm-100/80 border-b border-warm-200 py-12">
+          <Container>
+            <Breadcrumb items={[{ label: 'Our Impact' }]} />
+            <div className="max-w-3xl text-left mt-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-charcoal-900 font-display">
+                Impact Data Temporarily Unavailable
+              </h1>
+              <p className="mt-4 text-lg text-charcoal-700 leading-relaxed">
+                We're working to restore access to our impact metrics. Please try again later.
+              </p>
+            </div>
+          </Container>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="pb-20 space-y-16">
       {/* Header */}
@@ -28,7 +55,7 @@ export const ImpactPage: React.FC = () => {
         </Container>
       </section>
 
-      {/* Verified Core Metrics */}
+      {/* Dynamic Core Metrics */}
       <section>
         <Container>
           <div className="mb-10 text-left">
@@ -40,67 +67,78 @@ export const ImpactPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {VERIFIED_IMPACT_METRICS.map((metric) => (
-              <ImpactStatCard key={metric.id} metric={metric} />
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* Programmatic Impact Pillars */}
-      <section className="bg-warm-100/50 py-16 border-y border-warm-200">
-        <Container>
-          <SectionHeading
-            centered
-            badge="Longitudinal Transformation"
-            title="Pillars of Dignified Transformation"
-            subtitle="How our interventions produce tangible improvements in the daily lives of older persons and OVC households."
-          />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-left">
-            {IMPACT_PILLARS.map((pillar, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-3xl p-8 border border-warm-200 shadow-sm flex flex-col justify-between"
-              >
-                <div>
-                  <div className="w-10 h-10 rounded-xl bg-forest-100 text-forest-800 flex items-center justify-center font-bold text-sm mb-4">
-                    0{idx + 1}
-                  </div>
-                  <h3 className="text-xl font-bold text-charcoal-900 font-display mb-2.5">
-                    {pillar.title}
-                  </h3>
-                  <p className="text-sm sm:text-base text-charcoal-600 leading-relaxed">
-                    {pillar.description}
-                  </p>
+          {metrics.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {metrics.map((metric) => (
+                <ImpactStatCard key={metric.id} metric={metric} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="max-w-md mx-auto">
+                <div className="rounded-full bg-gray-100 p-3 w-16 h-16 mx-auto mb-4">
+                  <FileCheck className="w-10 h-10 text-gray-600" />
                 </div>
+                <h3 className="text-lg font-medium text-gray-900">No Impact Metrics Available</h3>
+                <p className="text-gray-600 mt-2">
+                  Impact metrics are being updated. Please check back soon.
+                </p>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </Container>
       </section>
 
-      {/* Dynamic Data Notice / Client Placeholder */}
+      {/* Organized Metrics by Category */}
+      {categories.length > 0 && Object.keys(organizedMetrics).map(category => (
+        <section key={category}>
+          <Container>
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-charcoal-900 font-display capitalize">
+                {category} Impact
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {organizedMetrics[category].map((metric) => (
+                <ImpactStatCard key={metric.id} metric={metric} />
+              ))}
+            </div>
+          </Container>
+        </section>
+      ))}
+
+      {/* Impact Commitment Statement */}
       <section>
         <Container>
-          <div className="bg-white rounded-3xl p-8 sm:p-10 border border-warm-200 shadow-card text-left max-w-4xl mx-auto space-y-4">
-            <div className="flex items-center gap-3 text-forest-800">
-              <FileCheck className="w-6 h-6 text-earth-600" />
-              <h3 className="text-xl font-bold text-charcoal-900 font-display">
-                Data Integrity & MEAL Architecture
-              </h3>
-            </div>
-            <p className="text-sm sm:text-base text-charcoal-700 leading-relaxed">
-              Mwancha Senior Community deploys a rigorous Monitoring, Evaluation, Accountability & Learning (MEAL) framework. Detailed disaggregated statistics (such as county distribution, gender metrics, and longitudinal healthcare adherence rates) are reviewed periodically with local authorities and will be updated here as subsequent field evaluation rounds conclude.
-            </p>
-            <div className="p-4 rounded-xl bg-warm-100 border border-warm-300 text-xs sm:text-sm text-charcoal-600 italic">
-              "Impact data will be updated here following verified MEAL quarterly survey publication."
-            </div>
-            <div className="pt-2">
-              <Button to="/partner" variant="outline" size="sm">
-                Request Programmatic MEAL Brief
-              </Button>
+          <div className="bg-forest-50 border border-forest-200 rounded-2xl p-8 sm:p-12">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+              <div className="flex-shrink-0">
+                <div className="bg-forest-600 text-white p-4 rounded-2xl">
+                  <ShieldCheck className="h-8 w-8" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl sm:text-2xl font-bold text-charcoal-900 mb-2">
+                  Commitment to Verified Reporting
+                </h3>
+                <p className="text-charcoal-700 leading-relaxed mb-4">
+                  Every impact statistic presented above has been verified through our community-based monitoring systems. We do not inflate figures or present aspirational targets as achievements.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <div className="flex items-center text-forest-800">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    <span className="text-sm font-medium">Verified household registries</span>
+                  </div>
+                  <div className="flex items-center text-forest-800">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    <span className="text-sm font-medium">Documented volunteer rolls</span>
+                  </div>
+                  <div className="flex items-center text-forest-800">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    <span className="text-sm font-medium">Source attribution</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </Container>

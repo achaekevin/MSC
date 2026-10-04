@@ -1,35 +1,64 @@
 import React, { useState, useEffect } from 'react';
 import { Container } from '../../components/ui/Container';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
-import { SectionHeading } from '../../components/ui/SectionHeading';
 import { EventCard } from '../../components/cards/EventCard';
 import { SkeletonCard } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { eventService } from '../../services/eventService';
 import { EventItem } from '../../types';
-import { Calendar, Users } from 'lucide-react';
+import { Calendar, Search } from 'lucide-react';
 
 export const EventsPage: React.FC = () => {
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [categories, setCategories] = useState<string[]>(['All', 'Community Outreach', 'Senior Engagement', 'Health Outreach', 'Stakeholder Meeting']);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'completed'>('upcoming');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
     let isMounted = true;
-    eventService.getAll().then((data) => {
+    Promise.all([
+      eventService.getAll(),
+      eventService.getCategories().catch(() => [])
+    ]).then(([eventsData, catsData]) => {
       if (isMounted) {
-        setEvents(data);
+        setEvents(eventsData);
+        if (catsData && catsData.length > 0) {
+          const names = Array.from(new Set(['All', ...catsData.map(c => c.name)]));
+          setCategories(names);
+        }
         setLoading(false);
       }
+    }).catch(() => {
+      if (isMounted) setLoading(false);
     });
+
     return () => {
       isMounted = false;
     };
   }, []);
 
-  const upcomingEvents = events.filter((e) => e.status === 'upcoming');
-  const completedEvents = events.filter((e) => e.status === 'completed');
-  const displayedEvents = activeTab === 'upcoming' ? upcomingEvents : completedEvents;
+  const now = new Date();
+  const isUpcoming = (e: EventItem) => {
+    if (e.startDate) return new Date(e.startDate) >= now;
+    if (e.date) return new Date(e.date) >= now;
+    return e.status === 'upcoming' || e.status === 'PUBLISHED';
+  };
+
+  const upcomingEvents = events.filter(isUpcoming);
+  const completedEvents = events.filter((e) => !isUpcoming(e));
+
+  const tabEvents = activeTab === 'upcoming' ? upcomingEvents : completedEvents;
+
+  const filteredEvents = tabEvents.filter((ev) => {
+    const matchesCat = selectedCategory === 'All' || ev.category === selectedCategory;
+    const matchesSearch =
+      ev.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ev.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ev.location.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCat && matchesSearch;
+  });
 
   return (
     <div className="pb-20 space-y-16">
@@ -51,49 +80,85 @@ export const EventsPage: React.FC = () => {
         </Container>
       </section>
 
-      {/* Tabs & Event Cards */}
+      {/* Tabs & Filters */}
       <section>
         <Container>
-          <div className="flex items-center gap-3 mb-10 border-b border-warm-200 pb-4">
-            <button
-              onClick={() => setActiveTab('upcoming')}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
-                activeTab === 'upcoming'
-                  ? 'bg-forest-800 text-warm-50 shadow-sm'
-                  : 'bg-white text-charcoal-700 border border-warm-200 hover:bg-warm-100'
-              }`}
-            >
-              Upcoming Forums ({upcomingEvents.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('completed')}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
-                activeTab === 'completed'
-                  ? 'bg-forest-800 text-warm-50 shadow-sm'
-                  : 'bg-white text-charcoal-700 border border-warm-200 hover:bg-warm-100'
-              }`}
-            >
-              Past Assemblies ({completedEvents.length})
-            </button>
+          {/* Main Upcoming vs Completed Tabs */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 border-b border-warm-200 pb-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setActiveTab('upcoming')}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                  activeTab === 'upcoming'
+                    ? 'bg-forest-800 text-warm-50 shadow-sm'
+                    : 'bg-white text-charcoal-700 border border-warm-200 hover:bg-warm-100'
+                }`}
+              >
+                Upcoming Forums ({upcomingEvents.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('completed')}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                  activeTab === 'completed'
+                    ? 'bg-forest-800 text-warm-50 shadow-sm'
+                    : 'bg-white text-charcoal-700 border border-warm-200 hover:bg-warm-100'
+                }`}
+              >
+                Past Assemblies ({completedEvents.length})
+              </button>
+            </div>
+
+            {/* Search Box */}
+            <div className="relative w-full sm:w-72">
+              <input
+                type="text"
+                placeholder="Search event or venue..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 rounded-xl border border-warm-300 text-sm focus:outline-none focus:ring-2 focus:ring-forest-600 bg-white"
+              />
+              <Search className="w-4 h-4 text-charcoal-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
           </div>
 
+          {/* Category Filter Pills */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap ${
+                  selectedCategory === cat
+                    ? 'bg-forest-800 text-warm-50'
+                    : 'bg-white text-charcoal-700 border border-warm-200 hover:bg-warm-100'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Cards Grid */}
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3].map((i) => (
                 <SkeletonCard key={i} />
               ))}
             </div>
-          ) : displayedEvents.length === 0 ? (
+          ) : filteredEvents.length === 0 ? (
             <EmptyState
               icon={<Calendar className="w-8 h-8 text-forest-700" />}
-              title={`No ${activeTab === 'upcoming' ? 'Upcoming' : 'Past'} Events Scheduled`}
-              description={`There are currently no ${activeTab} community barazas or public forums on the MSC calendar. Please check back regularly or subscribe to updates.`}
-              actionText="Contact Us for Inquiries"
-              actionHref="/contact"
+              title={`No ${activeTab === 'upcoming' ? 'Upcoming' : 'Past'} Events Match Filters`}
+              description={`There are currently no events matching your selected category and search criteria. Please adjust your filters or check back later.`}
+              actionText="Reset Filters"
+              onAction={() => {
+                setSelectedCategory('All');
+                setSearchQuery('');
+              }}
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {displayedEvents.map((event) => (
+              {filteredEvents.map((event) => (
                 <EventCard key={event.id} event={event} />
               ))}
             </div>

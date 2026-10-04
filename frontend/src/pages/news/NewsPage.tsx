@@ -13,30 +13,46 @@ import { Badge } from '../../components/ui/Badge';
 
 export const NewsPage: React.FC = () => {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const [categories, setCategories] = useState<string[]>(['All', 'Community Story', 'Organizational News', 'Advocacy']);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   useEffect(() => {
     let isMounted = true;
-    newsService.getAll().then((data) => {
+    Promise.all([
+      newsService.getAll(),
+      newsService.getCategories().catch(() => [])
+    ]).then(([newsData, catData]) => {
       if (isMounted) {
-        setArticles(data);
+        setArticles(newsData);
+        if (catData && catData.length > 0) {
+          const names = Array.from(new Set(['All', ...catData.map(c => c.name)]));
+          setCategories(names);
+        }
         setLoading(false);
       }
+    }).catch(() => {
+      if (isMounted) setLoading(false);
     });
+
     return () => {
       isMounted = false;
     };
   }, []);
 
-  const categories = ['All', 'Community Story', 'Organizational News', 'Advocacy'];
+  const getArticleCategoryName = (art: NewsArticle): string => {
+    if (!art.category) return '';
+    if (typeof art.category === 'string') return art.category;
+    return (art.category as any).name || '';
+  };
 
   const filteredArticles = articles.filter((art) => {
-    const matchesCat = selectedCategory === 'All' || art.category === selectedCategory;
+    const catName = getArticleCategoryName(art);
+    const matchesCat = selectedCategory === 'All' || catName === selectedCategory || (art as any).categoryName === selectedCategory;
     const matchesSearch =
       art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      art.summary.toLowerCase().includes(searchQuery.toLowerCase());
+      (art.summary && art.summary.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCat && matchesSearch;
   });
 

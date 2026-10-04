@@ -32,7 +32,9 @@ export const PROGRAMS_DATA: Program[] = [
     image: '/images/mwancha-facility-main.jpg',
     imageAlt: 'Mwancha Senior Community headquarters and residential facility in Kebirigo, Nyamira',
     metricsHighlight: 'Direct relief and case mapping across 1,203+ households',
-    relatedProgramSlugs: ['psychosocial-support', 'systems-strengthening']
+    relatedProgramSlugs: ['psychosocial-support', 'systems-strengthening'],
+    featured: true,
+    displayOrder: 1
   },
   {
     id: 'prog-2',
@@ -65,7 +67,9 @@ export const PROGRAMS_DATA: Program[] = [
     image: '/images/mwancha-pavilion-gathering.jpg',
     imageAlt: 'Mwancha traditional thatched gathering pavilion for communal socialization and elder counseling',
     metricsHighlight: 'Regular counseling circles and family mediation sessions',
-    relatedProgramSlugs: ['case-management', 'advocacy-sensitization']
+    relatedProgramSlugs: ['case-management', 'advocacy-sensitization'],
+    featured: true,
+    displayOrder: 2
   },
   {
     id: 'prog-3',
@@ -98,7 +102,9 @@ export const PROGRAMS_DATA: Program[] = [
     image: '/images/mwancha-community-grounds.jpg',
     imageAlt: 'Mwancha Senior Community outreach grounds and logistics base in Nyamira County',
     metricsHighlight: 'Grassroots barazas mobilizing local champions across sub-counties',
-    relatedProgramSlugs: ['systems-strengthening', 'psychosocial-support']
+    relatedProgramSlugs: ['systems-strengthening', 'psychosocial-support'],
+    featured: false,
+    displayOrder: 3
   },
   {
     id: 'prog-4',
@@ -131,7 +137,9 @@ export const PROGRAMS_DATA: Program[] = [
     image: '/images/mwancha-garden-pathway.jpg',
     imageAlt: 'Therapeutic botanical wellness garden pathway at Mwancha community center',
     metricsHighlight: 'Active linkage with 40 ward volunteers and local public authorities',
-    relatedProgramSlugs: ['case-management', 'meal']
+    relatedProgramSlugs: ['case-management', 'meal'],
+    featured: false,
+    displayOrder: 4
   },
   {
     id: 'prog-5',
@@ -164,6 +172,8 @@ export const PROGRAMS_DATA: Program[] = [
     image: '/images/mwancha-sustainable-farm.jpg',
     imageAlt: 'Community agricultural plot and sustainable crops supporting elderly nutrition at Mwancha',
     metricsHighlight: 'Longitudinal welfare tracking across 1,203+ beneficiary homes',
-    relatedProgramSlugs: ['case-management', 'systems-strengthening']
+    relatedProgramSlugs: ['case-management', 'systems-strengthening'],
+    featured: true,
+    displayOrder: 5
   }
 ];

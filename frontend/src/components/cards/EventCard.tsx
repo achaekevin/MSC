@@ -11,7 +11,16 @@ interface EventCardProps {
 }
 
 export const EventCard: React.FC<EventCardProps> = ({ event }) => {
-  const isPast = event.status === 'completed';
+  const eventDateStr = event.startDate || event.date;
+  const isPast = event.status === 'completed' || (eventDateStr ? new Date(eventDateStr) < new Date() : false);
+  const formattedDate = eventDateStr
+    ? new Date(eventDateStr).toLocaleDateString('en-KE', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    : 'Date TBD';
 
   return (
     <Card className="flex flex-col h-full group" padding="none">
@@ -22,6 +31,9 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
             alt={event.title}
             loading="lazy"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/images/mwancha-pavilion-gathering.jpg';
+            }}
           />
           <div className="absolute top-3 left-3 flex items-center gap-2">
             <Badge variant={isPast ? 'gray' : 'forest'}>
@@ -39,18 +51,11 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
           <div className="space-y-1.5 text-xs text-charcoal-600 mb-3">
             <div className="flex items-center gap-2">
               <Calendar className="w-3.5 h-3.5 text-forest-700" />
-              <span>
-                {new Date(event.date).toLocaleDateString('en-KE', {
-                  weekday: 'short',
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                })}
-              </span>
+              <span>{formattedDate}</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-3.5 h-3.5 text-forest-700" />
-              <span>{event.time}</span>
+              <span>{event.timeString || event.time || '09:00 AM - 03:00 PM'}</span>
             </div>
             <div className="flex items-center gap-2">
               <MapPin className="w-3.5 h-3.5 text-forest-700" />

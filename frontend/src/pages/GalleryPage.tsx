@@ -14,27 +14,37 @@ export const GalleryPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [activeItemIndex, setActiveItemIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    let isMounted = true;
-    galleryService.getAll().then((data) => {
-      if (isMounted) {
-        setItems(data);
-        setLoading(false);
-      }
-    });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const categories = [
+  const [categories, setCategories] = useState<string[]>([
     'All',
     'Community Outreach',
     'Psychosocial Sessions',
     'Advocacy',
     'Home Visits',
     'Sensitization'
-  ];
+  ]);
+
+  useEffect(() => {
+    let isMounted = true;
+    Promise.all([
+      galleryService.getAll(),
+      galleryService.getAlbums().catch(() => [])
+    ]).then(([galleryData, albumsData]) => {
+      if (isMounted) {
+        setItems(galleryData);
+        if (albumsData && albumsData.length > 0) {
+          const names = Array.from(new Set(['All', ...albumsData.map(a => a.name)]));
+          setCategories(names);
+        }
+        setLoading(false);
+      }
+    }).catch(() => {
+      if (isMounted) setLoading(false);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredItems =
     selectedCategory === 'All'
@@ -129,6 +139,9 @@ export const GalleryPage: React.FC = () => {
                       alt={item.title}
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-90"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/images/mwancha-facility-main.jpg';
+                      }}
                     />
                     <div className="absolute top-3 left-3">
                       <Badge variant="earth">{item.category}</Badge>

@@ -47,7 +47,17 @@ export const EventDetailPage: React.FC = () => {
     );
   }
 
-  const isPast = event.status === 'completed';
+  const eventDateStr = event.startDate || event.date;
+  const isPast = event.status === 'completed' || (eventDateStr ? new Date(eventDateStr) < new Date() : false);
+  const formattedDate = eventDateStr
+    ? new Date(eventDateStr).toLocaleDateString('en-KE', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    : 'Date TBD';
+  const isRegOpen = event.isRegistrationOpen ?? event.registrationOpen;
 
   return (
     <div className="pb-20 space-y-12">
@@ -74,18 +84,11 @@ export const EventDetailPage: React.FC = () => {
             <div className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-warm-200 text-sm text-charcoal-700">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-forest-700" />
-                <span>
-                  {new Date(event.date).toLocaleDateString('en-KE', {
-                    weekday: 'short',
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  })}
-                </span>
+                <span>{formattedDate}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-forest-700" />
-                <span>{event.time}</span>
+                <span>{event.timeString || event.time || '09:00 AM - 03:00 PM'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-forest-700" />
@@ -106,6 +109,9 @@ export const EventDetailPage: React.FC = () => {
                   src={event.image}
                   alt={event.title}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/images/mwancha-pavilion-gathering.jpg';
+                  }}
                 />
               </div>
             )}
@@ -118,7 +124,7 @@ export const EventDetailPage: React.FC = () => {
                 {event.description}
               </p>
 
-              {event.registrationOpen && !isPast && (
+              {isRegOpen && !isPast && (
                 <div className="pt-6 border-t border-warm-200">
                   {registered ? (
                     <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-center gap-2.5">
@@ -133,14 +139,25 @@ export const EventDetailPage: React.FC = () => {
                         <h4 className="font-bold text-charcoal-900 text-base">Community Attendance</h4>
                         <p className="text-xs sm:text-sm text-charcoal-600">Free admission for community members and local stakeholders.</p>
                       </div>
-                      <Button
-                        variant="secondary"
-                        size="md"
-                        onClick={() => setRegistered(true)}
-                        className="font-bold whitespace-nowrap"
-                      >
-                        Register for Forum
-                      </Button>
+                      {event.registrationUrl ? (
+                        <a
+                          href={event.registrationUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-5 py-2.5 rounded-xl bg-forest-800 text-warm-50 font-bold text-sm hover:bg-forest-900 shadow-sm transition-all"
+                        >
+                          Register for Forum
+                        </a>
+                      ) : (
+                        <Button
+                          variant="secondary"
+                          size="md"
+                          onClick={() => setRegistered(true)}
+                          className="font-bold whitespace-nowrap"
+                        >
+                          Register for Forum
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>

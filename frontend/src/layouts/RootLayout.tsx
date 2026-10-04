@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/navigation/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { ClientReviewBanner } from '../components/common/ClientReviewBanner';
+import { WhatsAppButton } from '../components/common/WhatsAppButton';
 
 export const RootLayout: React.FC = () => {
   const location = useLocation();
@@ -13,7 +14,7 @@ export const RootLayout: React.FC = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-warm-50 text-charcoal-900 selection:bg-forest-100 selection:text-forest-900">
+    <div className="min-h-screen flex flex-col bg-warm-50 text-charcoal-900 selection:bg-forest-100 selection:text-forest-900 relative">
       {/* 51.13 Development & Staging Client Review Banner */}
       <ClientReviewBanner />
 
@@ -32,6 +33,9 @@ export const RootLayout: React.FC = () => {
       <main id="main-content" className="flex-1 focus:outline-none">
         <Outlet />
       </main>
+
+      {/* Direct WhatsApp Contact Floating Action */}
+      <WhatsAppButton />
 
       {/* Site Footer */}
       <Footer />
