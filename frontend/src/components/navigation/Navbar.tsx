@@ -81,9 +81,9 @@ export const Navbar: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between min-h-[82px] md:min-h-[94px] py-2.5">
+        <div className="flex items-center justify-between min-h-[96px] md:min-h-[110px] py-3">
           {/* Organization Logo */}
-          <Logo />
+          <Logo size="md" />
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1 xl:gap-2" aria-label="Main Navigation">

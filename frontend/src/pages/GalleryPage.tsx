@@ -5,7 +5,7 @@ import { SectionHeading } from '../components/ui/SectionHeading';
 import { galleryService } from '../services/galleryService';
 import { GalleryItem } from '../types';
 import { SkeletonGallery } from '../components/ui/Skeleton';
-import { X, ChevronLeft, ChevronRight, MapPin, Calendar, AlertCircle } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, MapPin, Calendar, CheckCircle2 } from 'lucide-react';
 import { Badge } from '../components/ui/Badge';
 
 export const GalleryPage: React.FC = () => {
@@ -87,11 +87,11 @@ export const GalleryPage: React.FC = () => {
       {/* Categories & Grid */}
       <section>
         <Container>
-          {/* Transparent Demonstration Disclaimer Banner */}
-          <div className="mb-8 p-4 rounded-2xl bg-warm-100 border border-warm-300 text-left flex items-start gap-3 max-w-4xl">
-            <AlertCircle className="w-5 h-5 text-forest-800 flex-shrink-0 mt-0.5" />
-            <p className="text-xs sm:text-sm text-charcoal-700 leading-relaxed">
-              <strong>Source of Truth Notice:</strong> Current images are dignified placeholders utilized during preliminary frontend staging. They will be progressively replaced with approved, high-resolution photographs from official MSC field activities.
+          {/* Verified Field Photography Notice */}
+          <div className="mb-8 p-4 rounded-2xl bg-forest-50/90 border border-forest-200 text-left flex items-start gap-3 max-w-4xl shadow-xs">
+            <CheckCircle2 className="w-5 h-5 text-forest-700 flex-shrink-0 mt-0.5" />
+            <p className="text-xs sm:text-sm text-forest-900 leading-relaxed font-medium">
+              <strong>Verified Field Documentation:</strong> Photographic records depicting official Mwancha Senior Community infrastructure, residential care center, traditional gathering pavilion, wellness garden trail, and sustainable food plots in Kebirigo, Nyamira County.
             </p>
           </div>
 

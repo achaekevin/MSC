@@ -11,7 +11,8 @@ import {
   AlertTriangle,
   CheckCircle,
   Calendar,
-  Globe
+  Globe,
+  MapPin
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Container } from '../components/ui/Container';
@@ -119,13 +120,13 @@ export const HomePage: React.FC = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-forest-950/85 via-forest-950/25 to-transparent" />
 
                   {/* Official Emblem Badge */}
-                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-xl border border-warm-200/90 flex items-center gap-3.5 z-10">
-                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-white p-1.5 border border-warm-200 shadow-sm flex items-center justify-center flex-shrink-0">
+                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 shadow-xl border border-warm-200/90 flex items-center gap-3.5 sm:gap-4 z-10">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-22 md:h-22 rounded-xl bg-white p-1 border border-warm-200 shadow-sm flex items-center justify-center flex-shrink-0">
                       <img src="/logo.png" alt="Mwancha Senior Community Official Logo" className="w-full h-full object-contain" />
                     </div>
                     <div className="text-left pr-2">
-                      <p className="text-sm font-extrabold text-forest-900 leading-tight">Mwancha Senior Community</p>
-                      <p className="text-[11px] text-earth-700 font-bold uppercase tracking-wider mt-0.5">Verified Headquarters</p>
+                      <p className="text-sm sm:text-base font-black text-forest-900 leading-tight">Mwancha Senior Community</p>
+                      <p className="text-[11px] sm:text-xs text-earth-700 font-bold uppercase tracking-wider mt-0.5">Verified Headquarters</p>
                     </div>
                   </div>
 
@@ -202,6 +203,152 @@ export const HomePage: React.FC = () => {
                     "{MSC_ORGANIZATION.mission}"
                   </blockquote>
                 </div>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* =========================================================================
+          AUTHENTIC HEADQUARTERS & COMMUNITY FACILITY SHOWCASE
+          ========================================================================= */}
+      <section className="py-14 sm:py-20 bg-white">
+        <Container>
+          <SectionHeading
+            centered
+            badge="Verified Field Operations"
+            title="Our Community Headquarters & Grounds"
+            subtitle="Authentic photographs of Mwancha Senior Community in Kebirigo, Nyamira County, Kenya. Here, vulnerable elders find safe shelter, communal warmth, and therapeutic green spaces."
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-10">
+            {/* 1. Main Care Center */}
+            <div className="group rounded-3xl overflow-hidden bg-white border border-warm-200/90 shadow-card hover:shadow-card-hover transition-all">
+              <div className="aspect-[4/3] overflow-hidden bg-warm-200 relative">
+                <img
+                  src="/images/mwancha-facility-main.jpg"
+                  alt="Main Care Center Building - Mwancha Senior Community"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute top-3 left-3 bg-forest-900/85 backdrop-blur-xs text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  Care & Shelter
+                </div>
+              </div>
+              <div className="p-6 text-left">
+                <h3 className="font-extrabold text-charcoal-900 text-lg font-display mb-1.5">
+                  Main Center & Residence
+                </h3>
+                <p className="text-sm text-charcoal-600 leading-relaxed">
+                  Our two-story residential center in Kebirigo, providing safe housing, case administration, and palliative respite care.
+                </p>
+                <p className="text-xs text-earth-700 font-semibold mt-3 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5" /> Kebirigo, Nyamira County
+                </p>
+              </div>
+            </div>
+
+            {/* 2. Compound Grounds */}
+            <div className="group rounded-3xl overflow-hidden bg-white border border-warm-200/90 shadow-card hover:shadow-card-hover transition-all">
+              <div className="aspect-[4/3] overflow-hidden bg-warm-200 relative">
+                <img
+                  src="/images/mwancha-community-grounds.jpg"
+                  alt="Community Grounds and Compound - Mwancha Senior Community"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute top-3 left-3 bg-forest-900/85 backdrop-blur-xs text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  Field Operations
+                </div>
+              </div>
+              <div className="p-6 text-left">
+                <h3 className="font-extrabold text-charcoal-900 text-lg font-display mb-1.5">
+                  Community Compound & Outreach Hub
+                </h3>
+                <p className="text-sm text-charcoal-600 leading-relaxed">
+                  The central compound grounds serving as the base for mobile outreach, emergency food distribution, and community monitoring.
+                </p>
+                <p className="text-xs text-earth-700 font-semibold mt-3 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5" /> Field Operations Hub
+                </p>
+              </div>
+            </div>
+
+            {/* 3. Thatched Gathering Pavilion */}
+            <div className="group rounded-3xl overflow-hidden bg-white border border-warm-200/90 shadow-card hover:shadow-card-hover transition-all">
+              <div className="aspect-[4/3] overflow-hidden bg-warm-200 relative">
+                <img
+                  src="/images/mwancha-pavilion-gathering.jpg"
+                  alt="Traditional Thatched Gazebo Pavilion - Mwancha Senior Community"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute top-3 left-3 bg-earth-800/90 backdrop-blur-xs text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  Psychosocial Circles
+                </div>
+              </div>
+              <div className="p-6 text-left">
+                <h3 className="font-extrabold text-charcoal-900 text-lg font-display mb-1.5">
+                  Traditional Gathering Pavilion
+                </h3>
+                <p className="text-sm text-charcoal-600 leading-relaxed">
+                  Our authentic shaded thatched gazebo where elders assemble for peer fellowship, trauma counseling, and cultural storytelling.
+                </p>
+                <p className="text-xs text-earth-700 font-semibold mt-3 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5" /> Gathering Pavilion
+                </p>
+              </div>
+            </div>
+
+            {/* 4. Wellness Garden Pathway */}
+            <div className="group rounded-3xl overflow-hidden bg-white border border-warm-200/90 shadow-card hover:shadow-card-hover transition-all">
+              <div className="aspect-[4/3] overflow-hidden bg-warm-200 relative">
+                <img
+                  src="/images/mwancha-garden-pathway.jpg"
+                  alt="Lush Botanical Wellness Garden Pathway - Mwancha Senior Community"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute top-3 left-3 bg-forest-900/85 backdrop-blur-xs text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  Mental Wellness
+                </div>
+              </div>
+              <div className="p-6 text-left">
+                <h3 className="font-extrabold text-charcoal-900 text-lg font-display mb-1.5">
+                  Botanical Wellness Garden & Trail
+                </h3>
+                <p className="text-sm text-charcoal-600 leading-relaxed">
+                  Therapeutic green pathways lined with medicinal and indigenous flora designed to foster sensory stimulation and physical mobility.
+                </p>
+                <p className="text-xs text-earth-700 font-semibold mt-3 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5" /> Wellness Trail
+                </p>
+              </div>
+            </div>
+
+            {/* 5. Sustainable Agricultural Plot */}
+            <div className="group rounded-3xl overflow-hidden bg-white border border-warm-200/90 shadow-card hover:shadow-card-hover transition-all sm:col-span-2 lg:col-span-2">
+              <div className="aspect-[21/9] sm:aspect-[16/7] overflow-hidden bg-warm-200 relative">
+                <img
+                  src="/images/mwancha-sustainable-farm.jpg"
+                  alt="Sustainable Farm and Food Security Plot - Mwancha Senior Community"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute top-3 left-3 bg-forest-900/85 backdrop-blur-xs text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  Nutrition Security
+                </div>
+              </div>
+              <div className="p-6 text-left">
+                <h3 className="font-extrabold text-charcoal-900 text-lg font-display mb-1.5">
+                  Community Sustainable Agriculture & Fruit Orchard
+                </h3>
+                <p className="text-sm text-charcoal-600 leading-relaxed">
+                  Cultivating nutrient-dense organic produce, fruit trees, and food staples to provide balanced daily nutrition and food baskets for elderly residents and destitute rural households.
+                </p>
+                <p className="text-xs text-earth-700 font-semibold mt-3 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5" /> Organic Food Security Farm
+                </p>
               </div>
             </div>
           </div>
