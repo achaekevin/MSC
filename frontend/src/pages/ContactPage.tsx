@@ -9,6 +9,7 @@ import { contactService } from '../services/contactService';
 import { ContactMessage } from '../types';
 import { MSC_ORGANIZATION } from '../constants';
 import { Mail, MapPin, Clock, ShieldCheck } from 'lucide-react';
+import { SEO } from '../components/common/SEO';
 
 export const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState<ContactMessage>({
@@ -85,6 +86,10 @@ export const ContactPage: React.FC = () => {
 
   return (
     <div className="pb-20 space-y-16">
+      <SEO
+        title="Contact Us & Secretariat"
+        description="Contact Mwancha Senior Community (MSC). Email: mwachahomeforelderly@gmail.com, P.O. Box 21–40506, Kebirigo, Nyamira County, Kenya."
+      />
       {/* Header */}
       <section className="bg-warm-100/80 border-b border-warm-200 py-12">
         <Container>

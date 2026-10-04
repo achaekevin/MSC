@@ -7,6 +7,7 @@ import { useImpactMetrics } from '../contexts/CMSContext';
 import { Button } from '../components/ui/Button';
 import { ShieldCheck, HeartHandshake, FileCheck, CheckCircle } from 'lucide-react';
 import { PageLoader } from '../components/ui/Skeleton';
+import { SEO } from '../components/common/SEO';
 
 export const ImpactPage: React.FC = () => {
   const { metrics, organizedMetrics, categories, isLoading, error } = useImpactMetrics();
@@ -37,6 +38,10 @@ export const ImpactPage: React.FC = () => {
 
   return (
     <div className="pb-20 space-y-16">
+      <SEO
+        title="Documented Impact & Footprint"
+        description="Verified grassroots metrics: 1,203+ elderly and vulnerable households supported across Kenya with dignified care and psychosocial support."
+      />
       {/* Header */}
       <section className="bg-warm-100/80 border-b border-warm-200 py-12">
         <Container>

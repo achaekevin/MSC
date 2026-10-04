@@ -7,6 +7,7 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { eventService } from '../../services/eventService';
 import { EventItem } from '../../types';
 import { Calendar, Search } from 'lucide-react';
+import { SEO } from '../../components/common/SEO';
 
 export const EventsPage: React.FC = () => {
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -62,6 +63,10 @@ export const EventsPage: React.FC = () => {
 
   return (
     <div className="pb-20 space-y-16">
+      <SEO
+        title="Events & Community Barazas"
+        description="Stay informed about upcoming community sensitization dialogues, elder medical screenings, and stakeholder consultative assemblies."
+      />
       {/* Header */}
       <section className="bg-warm-100/80 border-b border-warm-200 py-12">
         <Container>

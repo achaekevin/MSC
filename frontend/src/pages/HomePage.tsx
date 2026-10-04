@@ -25,6 +25,7 @@ import { PROGRAMS_DATA } from '../data/programsData';
 import { VERIFIED_IMPACT_METRICS } from '../data/impactData';
 import { NEWS_ARTICLES_DATA } from '../data/newsData';
 import { fadeIn, fadeInUp, staggerContainer } from '../animations';
+import { SEO } from '../components/common/SEO';
 
 export const HomePage: React.FC = () => {
   const featuredPrograms = PROGRAMS_DATA.slice(0, 3);
@@ -32,6 +33,10 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="space-y-20 sm:space-y-24 pb-16">
+      <SEO
+        title="Home"
+        description="Mwancha Senior Community (MSC) is dedicated to advancing elder rights, holistic healthcare, social protection, and dignity for older persons across Kenya."
+      />
       {/* =========================================================================
           HERO SECTION
           ========================================================================= */}

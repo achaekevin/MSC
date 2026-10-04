@@ -7,6 +7,7 @@ import { GalleryItem } from '../types';
 import { SkeletonGallery } from '../components/ui/Skeleton';
 import { X, ChevronLeft, ChevronRight, MapPin, Calendar, CheckCircle2 } from 'lucide-react';
 import { Badge } from '../components/ui/Badge';
+import { SEO } from '../components/common/SEO';
 
 export const GalleryPage: React.FC = () => {
   const [items, setItems] = useState<GalleryItem[]>([]);
@@ -76,6 +77,10 @@ export const GalleryPage: React.FC = () => {
 
   return (
     <div className="pb-20 space-y-16">
+      <SEO
+        title="Field Media & Gallery"
+        description="Authentic photographic documentation of Mwancha Senior Community's community outreaches, elder psychosocial support sessions, and home visits."
+      />
       {/* Header */}
       <section className="bg-warm-100/80 border-b border-warm-200 py-12">
         <Container>

@@ -7,6 +7,7 @@ import { PageLoader, SkeletonCard } from '../../components/ui/Skeleton';
 import { usePrograms } from '../../contexts/CMSContext';
 import { Button } from '../../components/ui/Button';
 import { ShieldCheck, HeartHandshake } from 'lucide-react';
+import { SEO } from '../../components/common/SEO';
 
 export const ProgramsPage: React.FC = () => {
   const { programs, isLoading, error } = usePrograms();
@@ -91,6 +92,10 @@ export const ProgramsPage: React.FC = () => {
 
   return (
     <div className="pb-20 space-y-16">
+      <SEO
+        title="Programs & Strategic Interventions"
+        description="Explore Mwancha Senior Community's 5 core pillars of intervention: Case Management, Psychosocial Support, Advocacy, Systems Strengthening, and MEAL."
+      />
       {/* Header */}
       <section className="bg-warm-100/80 border-b border-warm-200 py-12">
         <Container>

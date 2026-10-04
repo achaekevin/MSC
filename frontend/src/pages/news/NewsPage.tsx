@@ -10,6 +10,7 @@ import { newsService } from '../../services/newsService';
 import { NewsArticle } from '../../types';
 import { Search, Calendar, ArrowRight } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
+import { SEO } from '../../components/common/SEO';
 
 export const NewsPage: React.FC = () => {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
@@ -61,6 +62,10 @@ export const NewsPage: React.FC = () => {
 
   return (
     <div className="pb-20 space-y-16">
+      <SEO
+        title="News & Field Stories"
+        description="Read verified reports, advocacy updates, and grassroots stories from Mwancha Senior Community's work with older citizens."
+      />
       {/* Header */}
       <section className="bg-warm-100/80 border-b border-warm-200 py-12">
         <Container>
