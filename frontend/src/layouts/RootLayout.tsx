@@ -35,7 +35,7 @@ export const RootLayout: React.FC = () => {
       </main>
 
       {/* Direct WhatsApp Contact Floating Action */}
-      <WhatsAppButton />
+      <WhatsAppButton phoneNumber="+254 790 629439" />
 
       {/* Site Footer */}
       <Footer />

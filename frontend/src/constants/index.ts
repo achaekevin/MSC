@@ -15,7 +15,9 @@ export const MSC_ORGANIZATION = {
   
   // Official Contact
   email: "mwachahomeforelderly@gmail.com",
-  phone: "", // Strictly left blank as not supplied in official profile - client to provide
+  phone: "+254 790 629439",
+  whatsapp: "+254 790 629439",
+  whatsappDigits: "254790629439",
   
   // Official Stated Vision
   vision: "To become a leading regional and global organization in spearheading the rights, welfare and wellbeing of the elderly in society.",

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, MapPin, Heart, ArrowRight } from 'lucide-react';
+import { Mail, MapPin, Heart, ArrowRight, Phone } from 'lucide-react';
 import { Logo } from '../common/Logo';
 import { Button } from '../ui/Button';
 import { MSC_ORGANIZATION } from '../../constants';
@@ -183,6 +183,17 @@ export const Footer: React.FC = () => {
                   {MSC_ORGANIZATION.email}
                 </a>
               </li>
+              {MSC_ORGANIZATION.phone && (
+                <li className="flex items-start gap-2.5">
+                  <Phone className="w-4 h-4 text-earth-400 mt-1 flex-shrink-0" />
+                  <a
+                    href={`tel:${MSC_ORGANIZATION.phone.replace(/[^0-9+]/g, '')}`}
+                    className="hover:text-earth-300 underline underline-offset-2"
+                  >
+                    {MSC_ORGANIZATION.phone}
+                  </a>
+                </li>
+              )}
             </ul>
 
             <div className="mt-6 pt-4 border-t border-forest-800/80">
