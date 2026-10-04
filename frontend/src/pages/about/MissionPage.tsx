@@ -71,7 +71,7 @@ export const MissionPage: React.FC = () => {
                 </blockquote>
               </div>
               <p className="mt-6 text-sm text-charcoal-600 leading-relaxed">
-                We aspire to a society where older citizens—irrespective of economic standing or physical frailty—are cherished, legally defended, and empowered to live purposeful lives.
+                We aspire to a society where older citizens, irrespective of economic standing or physical frailty, are cherished, legally defended, and empowered to live purposeful lives.
               </p>
             </div>
 

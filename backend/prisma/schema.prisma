@@ -423,7 +423,7 @@ model ImpactMetric {
   icon             String        @default("Users") @db.VarChar(50)
   source           ContentSource @default(OFFICIAL_PROFILE)
   sourceDocument   String        @default("MSC Organizational Profile 2024") @db.VarChar(200)
-  reportingPeriod  String        @default("2024–2026") @db.VarChar(50)
+  reportingPeriod  String        @default("2024-2026") @db.VarChar(50)
   status           ContentStatus @default(APPROVED)
   approvalRequired Boolean       @default(false)
   displayOrder     Int           @default(0)

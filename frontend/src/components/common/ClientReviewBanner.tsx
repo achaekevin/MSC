@@ -66,7 +66,7 @@ export const ClientReviewBanner: React.FC = () => {
               </span>
               <div>
                 <div className="font-extrabold tracking-wide uppercase text-xs flex items-center gap-2">
-                  <span>MSC Website — Client Review Version</span>
+                  <span>MSC Website: Client Review Version</span>
                   <span className="px-2 py-0.5 bg-charcoal-900 text-amber-300 text-[10px] rounded font-mono font-semibold">
                     DEV / STAGING ONLY
                   </span>

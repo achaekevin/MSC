@@ -42,7 +42,7 @@ export class ImpactService {
         icon: data.icon || 'Users',
         source: (data.source as ContentSource) || ContentSource.OFFICIAL_PROFILE,
         sourceDocument: data.sourceDocument || 'MSC Organizational Profile 2024',
-        reportingPeriod: data.reportingPeriod || '2024–2026',
+        reportingPeriod: data.reportingPeriod || '2024-2026',
         displayOrder: data.displayOrder ?? 0,
         status: ContentStatus.DRAFT,
         approvalRequired: true

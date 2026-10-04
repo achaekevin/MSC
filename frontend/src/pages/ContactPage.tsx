@@ -88,7 +88,7 @@ export const ContactPage: React.FC = () => {
     <div className="pb-20 space-y-16">
       <SEO
         title="Contact Us & Secretariat"
-        description="Contact Mwancha Senior Community (MSC). Email: mwachahomeforelderly@gmail.com, P.O. Box 21–40506, Kebirigo, Nyamira County, Kenya."
+        description="Contact Mwancha Senior Community (MSC). Email: mwachahomeforelderly@gmail.com, P.O. Box 21-40506, Kebirigo, Nyamira County, Kenya."
       />
       {/* Header */}
       <section className="bg-warm-100/80 border-b border-warm-200 py-12">
@@ -157,7 +157,7 @@ export const ContactPage: React.FC = () => {
                     </div>
                     <div>
                       <span className="font-bold text-charcoal-900 block mb-0.5">Operational Desk Hours</span>
-                      <span>Monday – Friday: 08:30 AM – 05:00 PM EAT</span>
+                      <span>Monday - Friday: 08:30 AM - 05:00 PM EAT</span>
                       <span className="block text-charcoal-500">Emergency case referrals accessible via ward volunteers</span>
                     </div>
                   </div>

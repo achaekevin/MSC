@@ -129,7 +129,7 @@ export const ContentApprovalDrawer: React.FC<ContentApprovalDrawerProps> = ({ is
               </h2>
             </div>
             <p className="text-xs text-forest-200 mt-1">
-              Section 51.11 — Frontend Content Approval UI Preparation & Client Staging Review
+              Section 51.11: Frontend Content Approval UI Preparation & Client Staging Review
             </p>
           </div>
           <button

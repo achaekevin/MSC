@@ -222,7 +222,7 @@ export class AuthService {
 
     await mailService.sendEmail({
       to: user.email,
-      subject: 'Mwancha Senior Community — Password Reset Request',
+      subject: 'Mwancha Senior Community: Password Reset Request',
       html: emailTemplates.passwordReset(user.name, resetUrl)
     });
 

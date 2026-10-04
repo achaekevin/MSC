@@ -160,15 +160,15 @@ export const HomePage: React.FC = () => {
       >
         {/* Full-Bleed Animated Facility Background Carousel Covering the Entire First Page */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             <motion.img
               key={activeFacility.id}
               src={activeFacility.image}
               alt={activeFacility.title}
-              initial={{ opacity: 0, scale: 1.12 }}
+              initial={{ opacity: 0, scale: 1.08 }}
               animate={{ opacity: 1, scale: 1.0 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
               className="absolute inset-0 w-full h-full object-cover object-center filter contrast-110 saturate-110"
               loading="eager"
             />
@@ -240,35 +240,32 @@ export const HomePage: React.FC = () => {
                 {MSC_ORGANIZATION.mission}
               </p>
 
-              {/* High-Contrast Action Buttons */}
+              {/* High-Contrast Action Buttons (Unified Green Palette) */}
               <div className="pt-2 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3">
-                <Button
+                <Link
                   to="/donate"
-                  variant="secondary"
-                  size="lg"
-                  icon={<Heart className="w-5 h-5 fill-charcoal-950" />}
-                  className="bg-amber-400 hover:bg-amber-300 text-charcoal-950 font-black shadow-2xl hover:scale-[1.02] border-2 border-amber-300 justify-center text-base"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 border-2 border-emerald-400"
                 >
-                  Support Our Work
-                </Button>
-                <Button
+                  <Heart className="w-5 h-5 fill-white text-white" />
+                  <span>Support Our Work</span>
+                </Link>
+
+                <Link
                   to="/about"
-                  variant="outline"
-                  size="lg"
-                  icon={<ArrowRight className="w-5 h-5" />}
-                  iconPosition="right"
-                  className="bg-black/40 hover:bg-white text-white hover:text-charcoal-950 border-2 border-white font-black shadow-xl backdrop-blur-md justify-center text-base transition-all"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 border-2 border-emerald-400"
                 >
-                  Explore Our Story
-                </Button>
+                  <span>Explore Our Story</span>
+                  <ArrowRight className="w-5 h-5 text-white" />
+                </Link>
+
                 <a
                   href={`https://wa.me/254790629439?text=${encodeURIComponent('Hello Mwancha Senior Community, I would like to inquire about your programs and support services.')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm shadow-xl hover:scale-[1.02] transition-all border-2 border-emerald-400"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 border-2 border-emerald-400"
                   aria-label="Direct WhatsApp inquiry with MSC"
                 >
-                  <MessageCircle className="w-4 h-4 fill-white" />
+                  <MessageCircle className="w-5 h-5 fill-white text-white" />
                   <span>WhatsApp Helpdesk</span>
                 </a>
               </div>

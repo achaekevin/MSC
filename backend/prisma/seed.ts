@@ -756,7 +756,7 @@ async function main() {
   // ====================================================
   const rolesStructure = [
     {
-      name: 'Chairperson — Board of Management',
+      name: 'Chairperson, Board of Management',
       position: 'Chairperson, Board of Management',
       department: 'Board of Management',
       biography: 'Responsible for strategic governance, institutional oversight, fiduciary responsibility, and high-level stakeholder accountability for Mwancha Senior Community.',
@@ -766,7 +766,7 @@ async function main() {
       source: ContentSource.PLACEHOLDER
     },
     {
-      name: 'Treasurer — Board of Management',
+      name: 'Treasurer, Board of Management',
       position: 'Treasurer & Fiduciary Oversight',
       department: 'Board of Management',
       biography: 'Oversees financial integrity, audit procedures, resource mobilization strategies, and compliance with statutory non-profit standards.',
@@ -776,7 +776,7 @@ async function main() {
       source: ContentSource.PLACEHOLDER
     },
     {
-      name: 'Secretary — Board of Management',
+      name: 'Secretary, Board of Management',
       position: 'Secretary to the Board',
       department: 'Board of Management',
       biography: 'Maintains organizational governance records, board deliberations, and official regulatory filings.',

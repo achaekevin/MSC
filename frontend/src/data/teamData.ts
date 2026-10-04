@@ -12,7 +12,7 @@ export const TEAM_DATA: TeamMember[] = [
   // Board of Management
   {
     id: 'team-board-chair',
-    name: 'Chairperson — Board of Management',
+    name: 'Chairperson, Board of Management',
     role: 'Chairperson, Board of Management',
     department: 'Board of Management',
     bio: 'Responsible for strategic governance, institutional oversight, fiduciary responsibility, and high-level stakeholder accountability for Mwancha Senior Community.',
@@ -20,7 +20,7 @@ export const TEAM_DATA: TeamMember[] = [
   },
   {
     id: 'team-board-treasurer',
-    name: 'Treasurer — Board of Management',
+    name: 'Treasurer, Board of Management',
     role: 'Treasurer & Fiduciary Oversight',
     department: 'Board of Management',
     bio: 'Oversees financial integrity, audit procedures, resource mobilization strategies, and compliance with statutory non-profit standards.',
@@ -28,7 +28,7 @@ export const TEAM_DATA: TeamMember[] = [
   },
   {
     id: 'team-board-secretary',
-    name: 'Secretary — Board of Management',
+    name: 'Secretary, Board of Management',
     role: 'Secretary to the Board',
     department: 'Board of Management',
     bio: 'Maintains organizational governance records, board deliberations, and official regulatory filings.',

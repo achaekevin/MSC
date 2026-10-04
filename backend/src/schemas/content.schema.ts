@@ -169,7 +169,7 @@ export const createImpactMetricSchema = z.object({
   icon: z.string().default('Users'),
   source: contentSourceEnum.default('OFFICIAL_PROFILE'),
   sourceDocument: z.string().default('MSC Organizational Profile 2024'),
-  reportingPeriod: z.string().default('2024–2026'),
+  reportingPeriod: z.string().default('2024-2026'),
   displayOrder: z.number().int().default(0)
 });
 

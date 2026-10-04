@@ -8,10 +8,10 @@ export const MSC_ORGANIZATION = {
   foundedYear: 2016,
   
   // Official Postal Address & Location
-  postalAddress: "P.O. Box 21–40506, Kebirigo",
+  postalAddress: "P.O. Box 21-40506, Kebirigo",
   county: "Nyamira County",
   country: "Kenya",
-  fullLocation: "P.O. Box 21–40506, Kebirigo, Nyamira County, Kenya",
+  fullLocation: "P.O. Box 21-40506, Kebirigo, Nyamira County, Kenya",
   
   // Official Contact
   email: "mwachahomeforelderly@gmail.com",

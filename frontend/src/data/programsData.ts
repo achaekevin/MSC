@@ -76,7 +76,7 @@ export const PROGRAMS_DATA: Program[] = [
     slug: 'advocacy-sensitization',
     title: 'Advocacy, Communication & Community Sensitization',
     shortDescription: 'Defending elderly human rights, eradicating harmful cultural accusations, and sensitizing society against elder abuse.',
-    fullDescription: 'Deep-rooted misconceptions, discriminatory cultural practices, and false accusations of witchcraft disproportionately target vulnerable elderly people—especially widows. MSC spearheads grassroots and national campaigns to protect senior citizens from persecution, abuse, and systemic exclusion.',
+    fullDescription: 'Deep-rooted misconceptions, discriminatory cultural practices, and false accusations of witchcraft disproportionately target vulnerable elderly people, especially widows. MSC spearheads grassroots and national campaigns to protect senior citizens from persecution, abuse, and systemic exclusion.',
     objectives: [
       'Eliminate harmful stereotypes and perilous witchcraft allegations against older women and men.',
       'Sensitize local leaders, law enforcement, and judicial authorities on elder rights and legal protection.',

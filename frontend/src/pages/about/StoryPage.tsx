@@ -16,7 +16,7 @@ export const StoryPage: React.FC = () => {
         'Founded in Kebirigo, Nyamira County, as Mwancha Home for the Elderly. The initiative arose from direct grassroots witness to the extreme vulnerability, isolation, malnutrition, and abuse suffered by older persons living in rural households.'
     },
     {
-      year: '2016 – 2023',
+      year: '2016 - 2023',
       title: 'Localized Operational Period in Nyamira County',
       badge: 'Grassroots Direct Welfare',
       description:
@@ -71,7 +71,7 @@ export const StoryPage: React.FC = () => {
                 Born Out of a Urgent Community Need
               </h2>
               <p>
-                In many rural communities across Kenya, the traditional family safety net has experienced severe strain due to economic migration, disease burdens, and shifting social dynamics. Older persons—who once enjoyed veneration and assured communal care—frequently find themselves left behind, frail, and forgotten.
+                In many rural communities across Kenya, the traditional family safety net has experienced severe strain due to economic migration, disease burdens, and shifting social dynamics. Older persons, who once enjoyed veneration and assured communal care, frequently find themselves left behind, frail, and forgotten.
               </p>
               <p>
                 In 2016, a collective of concerned community leaders in Kebirigo, Nyamira County, came together to confront this reality. The organization was founded as <strong>Mwancha Home for the Elderly</strong>, dedicated to reaching out to abandoned, bedridden, and destitute elders.

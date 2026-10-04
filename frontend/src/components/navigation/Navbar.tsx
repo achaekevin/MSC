@@ -76,7 +76,7 @@ export const Navbar: React.FC = () => {
             {MSC_ORGANIZATION.name} &bull; Advocating for the rights, dignity and welfare of older persons
           </span>
           <span className="text-forest-200 text-[11px] hidden md:inline">
-            P.O. Box 21–40506, Kebirigo, Nyamira County, Kenya
+            P.O. Box 21-40506, Kebirigo, Nyamira County, Kenya
           </span>
         </div>
       </div>

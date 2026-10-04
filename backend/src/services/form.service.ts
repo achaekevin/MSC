@@ -24,7 +24,7 @@ export class FormService {
     // 1. Send confirmation to sender
     await mailService.sendEmail({
       to: data.email,
-      subject: `Mwancha Senior Community — We Received Your Inquiry: ${data.subject}`,
+      subject: `Mwancha Senior Community: We Received Your Inquiry: ${data.subject}`,
       html: emailTemplates.contactReceived(data.name, data.subject, data.message)
     });
 
@@ -136,7 +136,7 @@ export class FormService {
 
     await mailService.sendEmail({
       to: data.email,
-      subject: 'Mwancha Senior Community — Volunteer Application Received',
+      subject: 'Mwancha Senior Community: Volunteer Application Received',
       html: emailTemplates.volunteerReceived(data.fullName, data.areaOfInterest)
     });
 
@@ -246,7 +246,7 @@ export class FormService {
 
     await mailService.sendEmail({
       to: data.email,
-      subject: 'Mwancha Senior Community — Partnership Proposal Acknowledgment',
+      subject: 'Mwancha Senior Community: Partnership Proposal Acknowledgment',
       html: emailTemplates.partnershipReceived(data.organizationName, data.contactPerson)
     });
 

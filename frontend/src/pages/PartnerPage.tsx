@@ -181,7 +181,7 @@ export const PartnerPage: React.FC = () => {
                   Mwancha Senior Community Secretariat
                 </h4>
                 <p className="text-xs sm:text-sm text-forest-100 leading-relaxed">
-                  P.O. Box 21–40506, Kebirigo, Nyamira County, Kenya<br />
+                  P.O. Box 21-40506, Kebirigo, Nyamira County, Kenya<br />
                   Email:{' '}
                   <a href="mailto:mwachahomeforelderly@gmail.com" className="underline underline-offset-2">
                     mwachahomeforelderly@gmail.com

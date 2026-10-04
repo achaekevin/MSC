@@ -95,7 +95,7 @@ export const PrivacyPage: React.FC = () => {
               </p>
               <div className="not-prose mt-4 p-5 rounded-2xl bg-warm-50 border border-warm-200 text-sm text-charcoal-800 space-y-1">
                 <p className="font-bold">Mwancha Senior Community Secretariat</p>
-                <p>P.O. Box 21–40506, Kebirigo, Nyamira County, Kenya</p>
+                <p>P.O. Box 21-40506, Kebirigo, Nyamira County, Kenya</p>
                 <p>Email: <a href={`mailto:${MSC_ORGANIZATION.email}`} className="text-forest-800 underline">{MSC_ORGANIZATION.email}</a></p>
               </div>
             </div>
