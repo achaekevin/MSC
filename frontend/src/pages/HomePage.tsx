@@ -151,93 +151,53 @@ export const HomePage: React.FC = () => {
       />
 
       {/* =========================================================================
-          FULL-PAGE IMMERSIVE CINEMATIC HERO (High-Contrast Animation & Stress-Free Text)
+          HIGH-CONTRAST CINEMATIC HERO (Solid High-Visibility Layout, Zero Transparent Gradient)
           ========================================================================= */}
-      <section
-        className="relative min-h-[92vh] sm:min-h-[95vh] flex flex-col justify-between overflow-hidden bg-warm-100 dark:bg-charcoal-950 text-charcoal-950 dark:text-white select-none border-b-2 border-warm-300 dark:border-charcoal-800 transition-colors duration-300"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-      >
-        {/* Full-Bleed Animated Facility Background Crossfade with Crisp Punchy Contrast */}
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={activeFacility.id}
-              src={activeFacility.image}
-              alt={activeFacility.title}
-              initial={{ opacity: 0, scale: 1.15 }}
-              animate={{ opacity: 1, scale: 1.0 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0 w-full h-full object-cover object-center filter contrast-125 saturate-115 brightness-100 dark:brightness-90"
-              loading="eager"
-            />
-          </AnimatePresence>
-
-          {/* High-Contrast Directional Scrim: Shields text on left while keeping middle/right facility imagery vivid and clear */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/98 via-white/60 to-transparent dark:from-charcoal-950/98 dark:via-charcoal-950/60 dark:to-transparent z-10 transition-colors duration-300 pointer-events-none" />
-          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-white/95 to-transparent dark:from-charcoal-950/95 dark:to-transparent z-10 pointer-events-none" />
-
-          {/* Vibrant Glowing Accents to Amplify Animation Depth */}
-          <div className="ambient-glow -top-24 -left-24 w-[500px] h-[500px] bg-emerald-500/25 z-10" />
-          <div className="ambient-glow bottom-24 -right-24 w-[500px] h-[500px] bg-amber-400/25 z-10" />
-        </div>
-
-        {/* Top Header / Verified Badge Area */}
-        <div className="relative z-20 pt-4 sm:pt-8 md:pt-12">
-          <Container>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              {/* Verified Organization Emblem */}
-              <div className="bg-white dark:bg-charcoal-900 rounded-xl sm:rounded-2xl p-2.5 sm:px-4 sm:py-2.5 border-2 border-warm-300 dark:border-charcoal-700 flex items-center gap-3 shadow-xl transition-colors">
-                <div
-                  style={{ backgroundColor: '#ffffff' }}
-                  className="preserve-white w-10 h-10 sm:w-11 sm:h-11 rounded-xl p-1 border-2 border-warm-200 shadow-md flex items-center justify-center flex-shrink-0"
-                >
-                  <img src="/logo.png" alt="MSC Emblem" className="w-full h-full object-contain" />
+      <section className="bg-warm-50 dark:bg-charcoal-950 border-b-2 border-warm-300 dark:border-charcoal-800 transition-colors duration-200 py-6 sm:py-10 lg:py-14">
+        <Container>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            
+            {/* Left Column: 100% Solid, High-Contrast Typography & Action Panel */}
+            <div className="lg:col-span-7 text-left space-y-5 sm:space-y-6">
+              
+              {/* Verified Organization Emblem & Status Beacon */}
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="bg-white dark:bg-charcoal-900 rounded-xl sm:rounded-2xl p-2 sm:px-3.5 sm:py-2 border-2 border-warm-300 dark:border-charcoal-700 flex items-center gap-2.5 sm:gap-3 shadow-md transition-colors">
+                  <div
+                    style={{ backgroundColor: '#ffffff' }}
+                    className="preserve-white w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl p-1 border-2 border-warm-200 shadow-xs flex items-center justify-center flex-shrink-0"
+                  >
+                    <img src="/logo.png" alt="MSC Emblem" className="w-full h-full object-contain" />
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm font-black text-forest-950 dark:text-white leading-tight tracking-wide">
+                      Mwancha Senior Community
+                    </p>
+                    <p className="text-[10px] sm:text-[11px] text-earth-800 dark:text-amber-300 font-black uppercase tracking-wider">
+                      Kebirigo, Nyamira County, Kenya
+                    </p>
+                  </div>
                 </div>
-                <div className="text-left">
-                  <p className="text-xs sm:text-sm font-black text-forest-950 dark:text-white leading-tight tracking-wide transition-colors">
-                    Mwancha Senior Community
-                  </p>
-                  <p className="text-[10px] sm:text-[11px] text-earth-800 dark:text-amber-300 font-black uppercase tracking-wider transition-colors">
-                    {activeFacility.tag} &bull; Kebirigo, Nyamira County
-                  </p>
+
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-forest-950 border-2 border-forest-300 dark:border-emerald-500/50 text-xs font-black text-forest-950 dark:text-emerald-300 shadow-sm transition-colors">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-90" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+                  </span>
+                  <span>Active Grassroots Mission Across Kenya</span>
                 </div>
               </div>
 
-              {/* Status Beacon */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white dark:bg-forest-950 border-2 border-forest-300 dark:border-emerald-500/50 text-xs font-black text-forest-950 dark:text-emerald-300 shadow-md transition-colors">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-90" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
-                </span>
-                <span className="hidden xs:inline sm:inline">Active Grassroots Mission Across Kenya</span>
-                <span className="inline xs:hidden sm:hidden">Active Kenya Mission</span>
-              </div>
-            </div>
-          </Container>
-        </div>
-
-        {/* Main Hero Foreground Content */}
-        <div className="relative z-20 py-6 sm:py-10 md:py-12 my-auto">
-          <Container>
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-              className="max-w-3xl text-left space-y-4 sm:space-y-6"
-            >
-              {/* High-Contrast Solid Backing for Text (Zero background bleed, no optical strain) */}
-              <div className="bg-white/98 dark:bg-charcoal-950/98 backdrop-blur-xl p-5 sm:p-8 md:p-9 rounded-2xl sm:rounded-3xl border-2 border-warm-200 dark:border-charcoal-700 shadow-2xl space-y-4 sm:space-y-5 transition-colors duration-300">
-                {/* Category Pill for Current Location */}
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 dark:bg-amber-400/20 border-2 border-amber-400 dark:border-amber-400/60 text-amber-950 dark:text-amber-300 text-xs font-black uppercase tracking-wider shadow-sm transition-colors">
+              {/* Main Headline & Mission */}
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 dark:bg-amber-400/20 border-2 border-amber-400 dark:border-amber-400/60 text-amber-950 dark:text-amber-300 text-xs font-black uppercase tracking-wider shadow-xs">
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-                  <span className="truncate max-w-[260px] sm:max-w-none">Verified Site: {activeFacility.title}</span>
+                  <span>Verified Site: {activeFacility.title}</span>
                 </div>
 
-                <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-forest-950 dark:text-white leading-[1.18] sm:leading-[1.12] font-display tracking-tight transition-colors">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-black text-forest-950 dark:text-white leading-[1.15] font-display tracking-tight transition-colors">
                   Dignity, Care & a Flourishing Life for{' '}
-                  <span className="text-forest-900 dark:text-amber-300 underline decoration-amber-400/70 dark:decoration-amber-400 decoration-4 underline-offset-4">
+                  <span className="text-forest-900 dark:text-amber-300 underline decoration-amber-400/80 dark:decoration-amber-400 decoration-4 underline-offset-4">
                     Older Persons
                   </span>
                 </h1>
@@ -245,161 +205,177 @@ export const HomePage: React.FC = () => {
                 <p className="text-base sm:text-lg md:text-xl text-charcoal-800 dark:text-warm-100 leading-relaxed font-semibold transition-colors">
                   {MSC_ORGANIZATION.mission}
                 </p>
-
-                {/* Action Buttons */}
-                <div className="pt-2 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3">
-                  <Button
-                    to="/donate"
-                    variant="secondary"
-                    size="lg"
-                    icon={<Heart className="w-5 h-5 fill-white" />}
-                    className="font-black shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 border-2 border-amber-400 justify-center text-white"
-                  >
-                    Support Our Work
-                  </Button>
-                  <Button
-                    to="/about"
-                    variant="outline"
-                    size="lg"
-                    icon={<ArrowRight className="w-5 h-5" />}
-                    iconPosition="right"
-                    className="bg-forest-50 hover:bg-forest-100 dark:bg-charcoal-900 dark:hover:bg-charcoal-800 border-2 border-forest-600 dark:border-white/50 text-forest-950 dark:text-white font-black shadow-md justify-center transition-all"
-                  >
-                    Explore Our Story
-                  </Button>
-                  <a
-                    href={`https://wa.me/254790629439?text=${encodeURIComponent('Hello Mwancha Senior Community, I would like to inquire about your programs and support services.')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-xl hover:shadow-2xl transition-all border-2 border-emerald-400 hover:scale-[1.02]"
-                    aria-label="Direct WhatsApp inquiry with MSC"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>WhatsApp Helpdesk</span>
-                  </a>
-                </div>
               </div>
 
-              {/* Dynamic Animated Impact Metric Chips */}
-              <div className="grid grid-cols-3 gap-2.5 sm:gap-4 max-w-xl">
-                <div className="bg-white dark:bg-charcoal-900 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-warm-200 dark:border-charcoal-700 text-left shadow-lg hover:border-emerald-500 transition-colors">
+              {/* Action Buttons */}
+              <div className="pt-1 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3">
+                <Button
+                  to="/donate"
+                  variant="secondary"
+                  size="lg"
+                  icon={<Heart className="w-5 h-5 fill-white" />}
+                  className="font-black shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 border-2 border-amber-400 justify-center text-white"
+                >
+                  Support Our Work
+                </Button>
+                <Button
+                  to="/about"
+                  variant="outline"
+                  size="lg"
+                  icon={<ArrowRight className="w-5 h-5" />}
+                  iconPosition="right"
+                  className="bg-forest-50 hover:bg-forest-100 dark:bg-charcoal-900 dark:hover:bg-charcoal-800 border-2 border-forest-600 dark:border-white/50 text-forest-950 dark:text-white font-black shadow-md justify-center transition-all"
+                >
+                  Explore Our Story
+                </Button>
+                <a
+                  href={`https://wa.me/254790629439?text=${encodeURIComponent('Hello Mwancha Senior Community, I would like to inquire about your programs and support services.')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-xl hover:shadow-2xl transition-all border-2 border-emerald-400 hover:scale-[1.02]"
+                  aria-label="Direct WhatsApp inquiry with MSC"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>WhatsApp Helpdesk</span>
+                </a>
+              </div>
+
+              {/* 3 High-Contrast Impact Metrics */}
+              <div className="grid grid-cols-3 gap-2.5 sm:gap-4 pt-2">
+                <div className="bg-white dark:bg-charcoal-900 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-warm-200 dark:border-charcoal-700 text-left shadow-md hover:border-emerald-500 transition-colors">
                   <div className="flex items-center gap-1.5 mb-1">
                     <Users className="w-4 h-4 text-emerald-700 dark:text-emerald-400 flex-shrink-0" />
                     <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-earth-800 dark:text-amber-300 truncate">Beneficiaries</span>
                   </div>
                   <p className="text-xl sm:text-2xl md:text-3xl font-black text-forest-950 dark:text-white font-display transition-colors">1,203+</p>
-                  <p className="text-xs text-charcoal-800 dark:text-warm-200 font-bold truncate transition-colors">Households</p>
+                  <p className="text-xs text-charcoal-800 dark:text-warm-200 font-bold truncate">Households</p>
                 </div>
 
-                <div className="bg-white dark:bg-charcoal-900 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-warm-200 dark:border-charcoal-700 text-left shadow-lg hover:border-amber-500 transition-colors">
+                <div className="bg-white dark:bg-charcoal-900 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-warm-200 dark:border-charcoal-700 text-left shadow-md hover:border-amber-500 transition-colors">
                   <div className="flex items-center gap-1.5 mb-1">
                     <HeartHandshake className="w-4 h-4 text-amber-700 dark:text-amber-400 flex-shrink-0" />
                     <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-earth-800 dark:text-amber-300 truncate">Volunteers</span>
                   </div>
                   <p className="text-xl sm:text-2xl md:text-3xl font-black text-forest-950 dark:text-white font-display transition-colors">40</p>
-                  <p className="text-xs text-charcoal-800 dark:text-warm-200 font-bold truncate transition-colors">Coordinators</p>
+                  <p className="text-xs text-charcoal-800 dark:text-warm-200 font-bold truncate">Coordinators</p>
                 </div>
 
-                <div className="bg-white dark:bg-charcoal-900 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-warm-200 dark:border-charcoal-700 text-left shadow-lg hover:border-emerald-500 transition-colors">
+                <div className="bg-white dark:bg-charcoal-900 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-warm-200 dark:border-charcoal-700 text-left shadow-md hover:border-emerald-500 transition-colors">
                   <div className="flex items-center gap-1.5 mb-1">
                     <Calendar className="w-4 h-4 text-emerald-700 dark:text-emerald-400 flex-shrink-0" />
                     <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-earth-800 dark:text-amber-300 truncate">Founded</span>
                   </div>
                   <p className="text-xl sm:text-2xl md:text-3xl font-black text-forest-950 dark:text-white font-display transition-colors">2016</p>
-                  <p className="text-xs text-charcoal-800 dark:text-warm-200 font-bold truncate transition-colors">Community Rooted</p>
+                  <p className="text-xs text-charcoal-800 dark:text-warm-200 font-bold truncate">Rooted</p>
                 </div>
               </div>
-            </motion.div>
-          </Container>
-        </div>
+            </div>
 
-        {/* Bottom Viewport Control Deck: High-Contrast Facility Switcher Bar */}
-        <div className="relative z-20 pb-4 sm:pb-8">
-          <Container>
-            <div className="bg-white dark:bg-charcoal-950 rounded-2xl p-3.5 sm:p-5 border-2 border-warm-300 dark:border-charcoal-700 shadow-2xl backdrop-blur-xl transition-colors duration-300">
+            {/* Right Column: Dedicated Interactive Facility Showcase Card (Zero Gradient over text!) */}
+            <div
+              className="lg:col-span-5 bg-white dark:bg-charcoal-900 rounded-3xl p-4 sm:p-5 border-2 border-warm-300 dark:border-charcoal-700 shadow-2xl space-y-4 text-left"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
+              {/* Photo Viewport with Ken-Burns Animation */}
+              <div className="relative h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden bg-charcoal-950 shadow-md">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={activeFacility.id}
+                    src={activeFacility.image}
+                    alt={activeFacility.title}
+                    initial={{ opacity: 0, scale: 1.12 }}
+                    animate={{ opacity: 1, scale: 1.0 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                    className="w-full h-full object-cover filter contrast-115 saturate-110"
+                    loading="eager"
+                  />
+                </AnimatePresence>
+
+                {/* Overlaid Badges on Image */}
+                <div className="absolute top-3 left-3 bg-forest-950/90 text-white text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider border border-white/20 shadow-md">
+                  {activeFacility.category}
+                </div>
+                <div className="absolute bottom-3 left-3 right-3 bg-black/75 backdrop-blur-xs text-white p-2.5 rounded-xl border border-white/15 flex items-center justify-between">
+                  <span className="text-xs font-bold truncate">{activeFacility.tag}</span>
+                  <span className="text-[10px] text-amber-300 font-semibold">{activeFacility.location}</span>
+                </div>
+              </div>
+
               {/* Glowing High-Contrast Progress Bar */}
-              <div className="w-full bg-warm-200 dark:bg-charcoal-800 h-2 sm:h-2.5 rounded-full mb-3 sm:mb-4 overflow-hidden border border-warm-300 dark:border-charcoal-600">
+              <div className="w-full bg-warm-200 dark:bg-charcoal-800 h-2 rounded-full overflow-hidden border border-warm-300 dark:border-charcoal-600">
                 <motion.div
                   className="bg-gradient-to-r from-amber-500 via-emerald-400 to-amber-400 h-full rounded-full shadow-[0_0_12px_#10b981]"
                   style={{ width: `${progress}%` }}
                 />
               </div>
 
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
-                {/* Current Location Caption */}
-                <div className="text-left">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-earth-700 dark:text-amber-400 flex-shrink-0" />
-                    <span className="text-sm sm:text-base font-black text-forest-950 dark:text-white tracking-wide transition-colors">
-                      {activeFacility.title}
-                    </span>
-                    <span className="text-[11px] sm:text-xs text-amber-950 dark:text-amber-300 bg-amber-100 dark:bg-amber-400/20 px-2.5 py-0.5 rounded-full border border-amber-400 dark:border-amber-300/50 font-black uppercase tracking-wider flex-shrink-0 transition-colors">
-                      {activeFacility.category}
-                    </span>
-                  </div>
-                  <p className="text-xs sm:text-sm text-charcoal-800 dark:text-warm-200 mt-1 line-clamp-1 font-semibold transition-colors">
-                    {activeFacility.description}
-                  </p>
+              {/* Facility Title & Description */}
+              <div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-earth-700 dark:text-amber-400 flex-shrink-0" />
+                  <h3 className="font-black text-base sm:text-lg text-forest-950 dark:text-white truncate">
+                    {activeFacility.title}
+                  </h3>
+                </div>
+                <p className="text-xs sm:text-sm text-charcoal-700 dark:text-warm-200 mt-1 line-clamp-2 font-medium">
+                  {activeFacility.description}
+                </p>
+              </div>
+
+              {/* Thumbnail Strip & Play/Pause Controls */}
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <div className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-1.5 p-1 bg-warm-100 dark:bg-charcoal-800 rounded-xl border border-warm-300 dark:border-charcoal-700 touch-pan-x">
+                  {MSC_FACILITIES.map((fac, idx) => (
+                    <button
+                      key={fac.id}
+                      type="button"
+                      onClick={() => selectFacility(idx)}
+                      aria-label={`Switch photo to ${fac.title}`}
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-black transition-all whitespace-nowrap flex-shrink-0 ${
+                        activeFacilityIndex === idx
+                          ? 'bg-forest-900 text-white dark:bg-amber-400 dark:text-charcoal-950 shadow-md ring-1 ring-forest-700'
+                          : 'text-charcoal-800 dark:text-warm-200 hover:bg-warm-200 dark:hover:bg-charcoal-700'
+                      }`}
+                    >
+                      <img src={fac.image} alt="" className="w-4 h-4 rounded-xs object-cover border border-black/20" />
+                      <span>{fac.category}</span>
+                    </button>
+                  ))}
                 </div>
 
-                {/* Interactive Facility Thumbnail & Control Switcher (Horizontally scrollable on mobile) */}
-                <div className="flex items-center justify-between lg:justify-end gap-2 w-full lg:w-auto">
-                  {/* Slide Selector Buttons with Mini Thumbnails */}
-                  <div className="flex-1 lg:flex-none overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-1.5 bg-warm-100 dark:bg-charcoal-900 p-1.5 rounded-xl sm:rounded-2xl border border-warm-300 dark:border-charcoal-700 touch-pan-x flex-nowrap transition-colors">
-                    {MSC_FACILITIES.map((fac, idx) => (
-                      <button
-                        key={fac.id}
-                        type="button"
-                        onClick={() => selectFacility(idx)}
-                        aria-label={`Switch background to ${fac.title}`}
-                        className={`group flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-black transition-all whitespace-nowrap flex-shrink-0 ${
-                          activeFacilityIndex === idx
-                            ? 'bg-forest-900 text-white dark:bg-amber-400 dark:text-charcoal-950 shadow-md ring-2 ring-forest-700 dark:ring-amber-300 scale-105'
-                            : 'text-charcoal-800 dark:text-warm-200 hover:text-black dark:hover:text-white hover:bg-warm-200 dark:hover:bg-charcoal-800'
-                        }`}
-                      >
-                        <img
-                          src={fac.image}
-                          alt=""
-                          className="w-5 h-5 rounded-md object-cover flex-shrink-0 border border-black/20"
-                        />
-                        <span>{fac.category}</span>
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Play/Pause & Arrows */}
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => setIsPaused(!isPaused)}
-                      aria-label={isPaused ? "Play background rotation" : "Pause background rotation"}
-                      className="w-9 h-9 rounded-xl bg-warm-100 dark:bg-charcoal-900 hover:bg-warm-200 dark:hover:bg-charcoal-800 text-charcoal-900 dark:text-white flex items-center justify-center border border-warm-300 dark:border-charcoal-700 transition-colors shadow-sm"
-                    >
-                      {isPaused ? <Play className="w-4 h-4 fill-current" /> : <Pause className="w-4 h-4 fill-current" />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={prevFacility}
-                      aria-label="Previous facility photo"
-                      className="w-9 h-9 rounded-xl bg-warm-100 dark:bg-charcoal-900 hover:bg-warm-200 dark:hover:bg-charcoal-800 text-charcoal-900 dark:text-white flex items-center justify-center border border-warm-300 dark:border-charcoal-700 transition-colors shadow-sm"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={nextFacility}
-                      aria-label="Next facility photo"
-                      className="w-9 h-9 rounded-xl bg-warm-100 dark:bg-charcoal-900 hover:bg-warm-200 dark:hover:bg-charcoal-800 text-charcoal-900 dark:text-white flex items-center justify-center border border-warm-300 dark:border-charcoal-700 transition-colors shadow-sm"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsPaused(!isPaused)}
+                    aria-label={isPaused ? "Play" : "Pause"}
+                    className="w-8 h-8 rounded-lg bg-warm-100 dark:bg-charcoal-800 hover:bg-warm-200 dark:hover:bg-charcoal-700 text-charcoal-900 dark:text-white flex items-center justify-center border border-warm-300 dark:border-charcoal-700 shadow-xs"
+                  >
+                    {isPaused ? <Play className="w-3.5 h-3.5 fill-current" /> : <Pause className="w-3.5 h-3.5 fill-current" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={prevFacility}
+                    aria-label="Previous"
+                    className="w-8 h-8 rounded-lg bg-warm-100 dark:bg-charcoal-800 hover:bg-warm-200 dark:hover:bg-charcoal-700 text-charcoal-900 dark:text-white flex items-center justify-center border border-warm-300 dark:border-charcoal-700 shadow-xs"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={nextFacility}
+                    aria-label="Next"
+                    className="w-8 h-8 rounded-lg bg-warm-100 dark:bg-charcoal-800 hover:bg-warm-200 dark:hover:bg-charcoal-700 text-charcoal-900 dark:text-white flex items-center justify-center border border-warm-300 dark:border-charcoal-700 shadow-xs"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             </div>
-          </Container>
-        </div>
+
+          </div>
+        </Container>
       </section>
 
       {/* =========================================================================
@@ -419,10 +395,7 @@ export const HomePage: React.FC = () => {
       {/* =========================================================================
           DYNAMIC IDENTITY & STATED MANDATE (Vision, Mission & Core Values Hub)
           ========================================================================= */}
-      {/* =========================================================================
-          DYNAMIC IDENTITY & STATED MANDATE (Vision, Mission & Core Values Hub)
-          ========================================================================= */}
-      <section className="relative">
+      <section className="py-12 sm:py-16 bg-warm-50 dark:bg-charcoal-950 transition-colors">
         <Container>
           <div className="bg-white dark:bg-charcoal-900 rounded-2xl sm:rounded-3xl p-5 sm:p-10 md:p-12 border-2 border-warm-300 dark:border-charcoal-700 shadow-card transition-colors">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 items-start">
