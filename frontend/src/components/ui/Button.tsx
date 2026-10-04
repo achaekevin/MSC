@@ -40,15 +40,15 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles = {
       primary:
-        'bg-forest-800 text-warm-50 hover:bg-forest-900 shadow-sm hover:shadow focus-visible:ring-forest-700',
+        'bg-forest-800 hover:bg-forest-700 text-warm-50 shadow-sm hover:shadow focus-visible:ring-forest-700',
       secondary:
-        'bg-earth-600 text-white hover:bg-earth-700 shadow-sm hover:shadow focus-visible:ring-earth-600',
+        'bg-earth-600 hover:bg-earth-700 text-white shadow-sm hover:shadow focus-visible:ring-earth-600',
       outline:
-        'border-2 border-forest-800 text-forest-900 hover:bg-forest-50 focus-visible:ring-forest-800',
+        'border-2 border-forest-800 dark:border-emerald-400 text-forest-900 dark:text-emerald-300 hover:bg-forest-50 dark:hover:bg-forest-950/80 focus-visible:ring-forest-800',
       ghost:
-        'text-charcoal-700 hover:bg-warm-200/70 hover:text-charcoal-900 focus-visible:ring-charcoal-400',
+        'text-charcoal-700 dark:text-warm-200 hover:bg-warm-200/70 dark:hover:bg-charcoal-800 hover:text-charcoal-900 dark:hover:text-warm-50 focus-visible:ring-charcoal-400',
       earth:
-        'bg-warm-100 text-earth-900 border border-warm-300 hover:bg-warm-200 focus-visible:ring-earth-500'
+        'bg-warm-100 dark:bg-charcoal-800 text-earth-900 dark:text-amber-300 border border-warm-300 dark:border-charcoal-700 hover:bg-warm-200 dark:hover:bg-charcoal-700 focus-visible:ring-earth-500'
     };
 
     const content = (

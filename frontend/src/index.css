@@ -38,11 +38,7 @@
 
   /* Typography headings */
   h1, h2, h3, h4, h5, h6 {
-    @apply text-charcoal-900 font-semibold tracking-tight transition-colors duration-200;
-  }
-
-  html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 {
-    @apply text-warm-50;
+    @apply font-semibold tracking-tight transition-colors duration-200;
   }
 
   /* Selection style */
@@ -55,49 +51,12 @@
   }
 }
 
-/* Dynamic dark theme adaptation for cards and inputs across entire application */
-.dark .bg-warm-50 {
-  background-color: #020617;
+/* Comprehensive Dark Mode Theme Adapters for Total Visibility */
+.preserve-white {
+  background-color: #ffffff !important;
 }
 
-.dark .bg-white {
-  background-color: #0b1912;
-  color: #f5f1eb;
-}
-
-.dark .text-charcoal-900,
-.dark .text-charcoal-800 {
-  color: #f8fafc;
-}
-
-.dark .text-charcoal-700,
-.dark .text-charcoal-600 {
-  color: #cbd5e1;
-}
-
-.dark .text-charcoal-500,
-.dark .text-charcoal-400 {
-  color: #94a3b8;
-}
-
-.dark .border-warm-200,
-.dark .border-warm-200\/90,
-.dark .border-warm-200\/80,
-.dark .border-warm-200\/60,
-.dark .border-warm-100,
-.dark .border-warm-300 {
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.dark .bg-warm-100 {
-  background-color: #143628;
-  color: #f1f5f9;
-}
-
-.dark .hover\:bg-warm-100:hover {
-  background-color: #1e3f30;
-}
-
+/* Ensure inputs and selects adapt smoothly in dark mode */
 .dark input:not([type="checkbox"]):not([type="radio"]),
 .dark select,
 .dark textarea {
@@ -109,6 +68,64 @@
 .dark input::placeholder,
 .dark textarea::placeholder {
   color: #64748b;
+}
+
+/* Automatic Dark Mode Fallbacks for High-Contrast Text */
+.dark .text-charcoal-900:not([class*="dark:text-"]) {
+  color: #f8fafc;
+}
+
+.dark .text-charcoal-800:not([class*="dark:text-"]) {
+  color: #f1f5f9;
+}
+
+.dark .text-charcoal-700:not([class*="dark:text-"]) {
+  color: #cbd5e1;
+}
+
+.dark .text-charcoal-600:not([class*="dark:text-"]) {
+  color: #94a3b8;
+}
+
+.dark .text-charcoal-500:not([class*="dark:text-"]) {
+  color: #64748b;
+}
+
+/* Adapt light page header sections and warm backgrounds in dark mode */
+.dark section[class*="bg-warm-100"],
+.dark div[class*="bg-warm-100"],
+.dark .bg-warm-100 {
+  background-color: #06170d;
+}
+
+.dark .bg-warm-50 {
+  background-color: #020617;
+}
+
+.dark .border-warm-100,
+.dark .border-warm-200,
+.dark .border-warm-300,
+.dark [class*="border-warm-200"] {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Adapt white card surfaces in dark mode unless explicitly preserved */
+.dark div.bg-white:not(.preserve-white):not([class*="dark:bg-"]),
+.dark article.bg-white:not(.preserve-white):not([class*="dark:bg-"]) {
+  background-color: #0f1d16;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Light badge adapters */
+.dark .bg-forest-100:not([class*="dark:bg-"]) {
+  background-color: rgba(6, 78, 59, 0.5);
+  color: #6ee7b7;
+}
+
+.dark .bg-earth-100:not([class*="dark:bg-"]),
+.dark .bg-earth-50:not([class*="dark:bg-"]) {
+  background-color: rgba(120, 53, 15, 0.45);
+  color: #fcd34d;
 }
 
 @layer utilities {

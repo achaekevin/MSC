@@ -49,21 +49,21 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
 
       <div className="p-6 flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="text-xl font-bold text-charcoal-900 group-hover:text-forest-800 transition-colors font-display mb-2.5">
+          <h3 className="text-xl font-bold text-charcoal-900 dark:text-warm-50 group-hover:text-forest-800 dark:group-hover:text-emerald-400 transition-colors font-display mb-2.5">
             {program.title}
           </h3>
-          <p className="text-sm text-charcoal-600 line-clamp-3 leading-relaxed mb-4">
+          <p className="text-sm text-charcoal-600 dark:text-charcoal-300 line-clamp-3 leading-relaxed mb-4 transition-colors">
             {program.shortDescription}
           </p>
         </div>
 
-        <div className="pt-4 border-t border-warm-200/80 flex items-center justify-between">
-          <span className="text-xs font-semibold text-earth-700 uppercase tracking-wider">
+        <div className="pt-4 border-t border-warm-200/80 dark:border-charcoal-800 flex items-center justify-between">
+          <span className="text-xs font-bold text-earth-700 dark:text-amber-400 uppercase tracking-wider">
             Key Program
           </span>
           <Link
             to={`/programs/${program.slug}`}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest-800 hover:text-forest-950 transition-colors group/link"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-forest-800 dark:text-emerald-400 hover:text-forest-950 dark:hover:text-emerald-300 transition-colors group/link"
           >
             <span>Learn More</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />

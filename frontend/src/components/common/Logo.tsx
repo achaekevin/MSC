@@ -30,9 +30,10 @@ export const Logo: React.FC<LogoProps> = ({
     >
       {/* Official Brand Emblem */}
       <div
-        className={`relative flex-shrink-0 flex items-center justify-center ${sizeClasses[size]} rounded-2xl bg-white p-1 sm:p-1.5 shadow-xl border-2 ${
+        style={{ backgroundColor: '#ffffff' }}
+        className={`preserve-white relative flex-shrink-0 flex items-center justify-center ${sizeClasses[size]} rounded-2xl p-1 sm:p-1.5 shadow-xl border-2 ${
           isDark
-            ? 'border-forest-200 shadow-forest-950/20 group-hover:border-forest-500'
+            ? 'border-forest-200 dark:border-charcoal-700 shadow-forest-950/20 group-hover:border-forest-500'
             : 'border-forest-600/80 shadow-black/60 group-hover:border-forest-400'
         } transition-all duration-200 overflow-hidden`}
       >
@@ -48,16 +49,16 @@ export const Logo: React.FC<LogoProps> = ({
       <div className="flex flex-col text-left">
         <div className="flex items-center gap-2.5">
           <span
-            className={`font-black tracking-tight text-2xl sm:text-3xl lg:text-4xl font-display leading-none ${
+            className={`font-black tracking-tight text-2xl sm:text-3xl lg:text-4xl font-display leading-none transition-colors ${
               isDark ? 'text-forest-950 dark:text-warm-50' : 'text-warm-50'
             }`}
           >
             MWANCHA
           </span>
           <span
-            className={`px-2.5 py-0.5 text-xs sm:text-sm font-black rounded-lg tracking-wider ${
+            className={`px-2.5 py-0.5 text-xs sm:text-sm font-black rounded-lg tracking-wider transition-colors ${
               isDark
-                ? 'bg-earth-100 dark:bg-earth-900/60 text-earth-900 dark:text-earth-300 border border-earth-300 dark:border-earth-700/60 shadow-xs'
+                ? 'bg-earth-100 dark:bg-earth-900/80 text-earth-900 dark:text-amber-300 border border-earth-300 dark:border-earth-700 shadow-xs'
                 : 'bg-forest-800 text-earth-300 border border-forest-600'
             }`}
           >
@@ -66,8 +67,8 @@ export const Logo: React.FC<LogoProps> = ({
         </div>
         {!compact && (
           <span
-            className={`text-xs sm:text-sm font-extrabold tracking-widest uppercase mt-1 ${
-              isDark ? 'text-forest-800 dark:text-forest-300' : 'text-forest-200'
+            className={`text-xs sm:text-sm font-extrabold tracking-widest uppercase mt-1 transition-colors ${
+              isDark ? 'text-forest-800 dark:text-emerald-400' : 'text-forest-200'
             }`}
           >
             Senior Community

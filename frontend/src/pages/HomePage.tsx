@@ -151,10 +151,10 @@ export const HomePage: React.FC = () => {
       />
 
       {/* =========================================================================
-          FULL-PAGE IMMERSIVE CINEMATIC HERO (Covers Whole Screen)
+          FULL-PAGE IMMERSIVE CINEMATIC HERO (Visibly Adapts to Light and Dark Mode)
           ========================================================================= */}
       <section
-        className="relative min-h-[92vh] sm:min-h-[95vh] flex flex-col justify-between overflow-hidden bg-forest-950 text-white select-none border-b border-forest-800"
+        className="relative min-h-[92vh] sm:min-h-[95vh] flex flex-col justify-between overflow-hidden bg-warm-100 dark:bg-charcoal-950 text-charcoal-900 dark:text-white select-none border-b border-warm-200 dark:border-charcoal-800 transition-colors duration-300"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -169,18 +169,18 @@ export const HomePage: React.FC = () => {
               animate={{ opacity: 1, scale: 1.0 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0 w-full h-full object-cover object-center filter brightness-95 contrast-115 saturate-110"
+              className="absolute inset-0 w-full h-full object-cover object-center filter brightness-95 contrast-110 saturate-105"
               loading="eager"
             />
           </AnimatePresence>
 
-          {/* High-Contrast Directional Scrim: Protects Left Text While Keeping Center & Right Imagery Vividly Clear */}
-          <div className="absolute inset-0 bg-gradient-to-r from-forest-950/85 via-forest-950/45 to-transparent z-10" />
-          <div className="absolute inset-0 bg-gradient-to-t from-forest-950/90 via-transparent to-forest-950/30 z-10" />
+          {/* High-Contrast Directional Scrim: Adapts to Light and Dark Theme */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/70 to-transparent dark:from-charcoal-950/90 dark:via-charcoal-950/55 dark:to-transparent z-10 transition-colors duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-transparent to-white/40 dark:from-charcoal-950/90 dark:via-transparent dark:to-charcoal-950/40 z-10 transition-colors duration-300" />
 
           {/* Ambient Glowing Highlights */}
-          <div className="ambient-glow -top-20 -left-20 w-[450px] h-[450px] bg-emerald-500/30 z-10" />
-          <div className="ambient-glow bottom-20 -right-20 w-[450px] h-[450px] bg-amber-400/25 z-10" />
+          <div className="ambient-glow -top-20 -left-20 w-[450px] h-[450px] bg-emerald-500/20 z-10" />
+          <div className="ambient-glow bottom-20 -right-20 w-[450px] h-[450px] bg-amber-400/20 z-10" />
         </div>
 
         {/* Top Header / Verified Badge Area */}
@@ -188,23 +188,28 @@ export const HomePage: React.FC = () => {
           <Container>
             <div className="flex flex-wrap items-center justify-between gap-3">
               {/* Verified Organization Emblem */}
-              <div className="glass-card-dark rounded-xl sm:rounded-2xl p-2 sm:px-4 sm:py-2.5 border-2 border-white/25 flex items-center gap-2.5 sm:gap-3 shadow-2xl backdrop-blur-md">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-white p-1 border border-warm-200 shadow-md flex items-center justify-center flex-shrink-0">
+              <div className="bg-white/95 dark:bg-charcoal-900/90 backdrop-blur-md rounded-xl sm:rounded-2xl p-2 sm:px-4 sm:py-2.5 border border-warm-200 dark:border-white/20 flex items-center gap-2.5 sm:gap-3 shadow-xl transition-colors">
+                <div
+                  style={{ backgroundColor: '#ffffff' }}
+                  className="preserve-white w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl p-1 border border-warm-200 shadow-md flex items-center justify-center flex-shrink-0"
+                >
                   <img src="/logo.png" alt="MSC Emblem" className="w-full h-full object-contain" />
                 </div>
                 <div className="text-left">
-                  <p className="text-xs sm:text-sm font-black text-warm-50 leading-tight tracking-wide">Mwancha Senior Community</p>
-                  <p className="text-[10px] sm:text-[11px] text-amber-300 font-bold uppercase tracking-wider">
+                  <p className="text-xs sm:text-sm font-black text-forest-950 dark:text-warm-50 leading-tight tracking-wide transition-colors">
+                    Mwancha Senior Community
+                  </p>
+                  <p className="text-[10px] sm:text-[11px] text-earth-700 dark:text-amber-300 font-bold uppercase tracking-wider transition-colors">
                     {activeFacility.tag} &bull; Kebirigo, Nyamira County
                   </p>
                 </div>
               </div>
 
               {/* Status Beacon */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-forest-900/90 backdrop-blur-md border border-emerald-500/40 text-[11px] sm:text-xs font-bold text-warm-50 shadow-lg">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/95 dark:bg-forest-950/90 backdrop-blur-md border border-forest-200 dark:border-emerald-500/40 text-[11px] sm:text-xs font-bold text-forest-900 dark:text-warm-50 shadow-md transition-colors">
                 <span className="relative flex h-2 sm:h-2.5 w-2 sm:w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90" />
-                  <span className="relative inline-flex rounded-full h-2 sm:h-2.5 w-2 sm:w-2.5 bg-emerald-400" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-90" />
+                  <span className="relative inline-flex rounded-full h-2 sm:h-2.5 w-2 sm:w-2.5 bg-emerald-500" />
                 </span>
                 <span className="hidden xs:inline sm:inline">Active Grassroots Mission Across Kenya</span>
                 <span className="inline xs:hidden sm:hidden">Active Kenya Mission</span>
@@ -223,21 +228,21 @@ export const HomePage: React.FC = () => {
               className="max-w-3xl text-left space-y-4 sm:space-y-6"
             >
               {/* High-Contrast Glass Backing for Text */}
-              <div className="bg-forest-950/85 backdrop-blur-md p-4 sm:p-8 md:p-9 rounded-2xl sm:rounded-3xl border-2 border-white/20 shadow-2xl space-y-4 sm:space-y-5">
+              <div className="bg-white/95 dark:bg-charcoal-950/85 backdrop-blur-md p-4 sm:p-8 md:p-9 rounded-2xl sm:rounded-3xl border border-warm-200/90 dark:border-white/20 shadow-2xl space-y-4 sm:space-y-5 transition-colors duration-300">
                 {/* Category Pill for Current Location */}
-                <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-amber-400/25 border border-amber-300/60 text-amber-300 text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-sm">
-                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-400 animate-pulse" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-amber-100 dark:bg-amber-400/25 border border-amber-300 dark:border-amber-300/60 text-amber-900 dark:text-amber-300 text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-sm transition-colors">
+                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-500 animate-pulse" />
                   <span className="truncate max-w-[260px] sm:max-w-none">Verified Site: {activeFacility.title}</span>
                 </div>
 
-                <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-warm-50 leading-[1.18] sm:leading-[1.12] font-display tracking-tight drop-shadow-lg">
+                <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-forest-950 dark:text-warm-50 leading-[1.18] sm:leading-[1.12] font-display tracking-tight transition-colors">
                   Dignity, Care & a Flourishing Life for{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-warm-100 to-amber-300 drop-shadow-sm">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-forest-700 via-forest-900 to-earth-600 dark:from-emerald-300 dark:via-warm-100 dark:to-amber-300">
                     Older Persons
                   </span>
                 </h1>
 
-                <p className="text-sm sm:text-base md:text-lg text-forest-100 leading-relaxed font-medium drop-shadow-sm">
+                <p className="text-sm sm:text-base md:text-lg text-charcoal-700 dark:text-forest-100 leading-relaxed font-medium transition-colors">
                   {MSC_ORGANIZATION.mission}
                 </p>
 
@@ -248,7 +253,7 @@ export const HomePage: React.FC = () => {
                     variant="secondary"
                     size="lg"
                     icon={<Heart className="w-5 h-5 fill-white" />}
-                    className="font-black shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 border-2 border-amber-300 justify-center"
+                    className="font-black shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 border-2 border-amber-400 justify-center"
                   >
                     Support Our Work
                   </Button>
@@ -258,7 +263,7 @@ export const HomePage: React.FC = () => {
                     size="lg"
                     icon={<ArrowRight className="w-5 h-5" />}
                     iconPosition="right"
-                    className="bg-white/15 hover:bg-white/25 border-2 border-white/40 text-white font-bold backdrop-blur-md shadow-md justify-center"
+                    className="bg-forest-50 hover:bg-forest-100 dark:bg-white/15 dark:hover:bg-white/25 border-2 border-forest-300 dark:border-white/40 text-forest-900 dark:text-white font-bold backdrop-blur-md shadow-md justify-center transition-all"
                   >
                     Explore Our Story
                   </Button>
@@ -277,31 +282,31 @@ export const HomePage: React.FC = () => {
 
               {/* Dynamic Animated Impact Metric Chips */}
               <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-xl">
-                <div className="glass-card-dark rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border-2 border-white/20 text-left shadow-xl hover:border-emerald-400 transition-colors">
-                  <div className="flex items-center gap-1 sm:gap-1.5 text-forest-200 mb-0.5 sm:mb-1">
-                    <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 flex-shrink-0" />
-                    <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-wider text-amber-300 truncate">Beneficiaries</span>
+                <div className="bg-white/95 dark:bg-charcoal-900/90 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-warm-200 dark:border-white/20 text-left shadow-lg hover:border-emerald-500 transition-colors">
+                  <div className="flex items-center gap-1 sm:gap-1.5 text-forest-700 dark:text-forest-200 mb-0.5 sm:mb-1">
+                    <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                    <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-wider text-earth-700 dark:text-amber-300 truncate">Beneficiaries</span>
                   </div>
-                  <p className="text-lg sm:text-2xl md:text-3xl font-black text-warm-50 font-display">1,203+</p>
-                  <p className="text-[10px] sm:text-xs text-forest-100 font-semibold truncate">Households</p>
+                  <p className="text-lg sm:text-2xl md:text-3xl font-black text-forest-950 dark:text-warm-50 font-display transition-colors">1,203+</p>
+                  <p className="text-[10px] sm:text-xs text-charcoal-600 dark:text-forest-100 font-semibold truncate transition-colors">Households</p>
                 </div>
 
-                <div className="glass-card-dark rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border-2 border-white/20 text-left shadow-xl hover:border-amber-400 transition-colors">
-                  <div className="flex items-center gap-1 sm:gap-1.5 text-forest-200 mb-0.5 sm:mb-1">
-                    <HeartHandshake className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 flex-shrink-0" />
-                    <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-wider text-amber-300 truncate">Volunteers</span>
+                <div className="bg-white/95 dark:bg-charcoal-900/90 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-warm-200 dark:border-white/20 text-left shadow-lg hover:border-amber-500 transition-colors">
+                  <div className="flex items-center gap-1 sm:gap-1.5 text-forest-700 dark:text-forest-200 mb-0.5 sm:mb-1">
+                    <HeartHandshake className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                    <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-wider text-earth-700 dark:text-amber-300 truncate">Volunteers</span>
                   </div>
-                  <p className="text-lg sm:text-2xl md:text-3xl font-black text-warm-50 font-display">40</p>
-                  <p className="text-[10px] sm:text-xs text-forest-100 font-semibold truncate">Coordinators</p>
+                  <p className="text-lg sm:text-2xl md:text-3xl font-black text-forest-950 dark:text-warm-50 font-display transition-colors">40</p>
+                  <p className="text-[10px] sm:text-xs text-charcoal-600 dark:text-forest-100 font-semibold truncate transition-colors">Coordinators</p>
                 </div>
 
-                <div className="glass-card-dark rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border-2 border-white/20 text-left shadow-xl hover:border-emerald-400 transition-colors">
-                  <div className="flex items-center gap-1 sm:gap-1.5 text-forest-200 mb-0.5 sm:mb-1">
-                    <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-300 flex-shrink-0" />
-                    <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-wider text-amber-300 truncate">Founded</span>
+                <div className="bg-white/95 dark:bg-charcoal-900/90 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-warm-200 dark:border-white/20 text-left shadow-lg hover:border-emerald-500 transition-colors">
+                  <div className="flex items-center gap-1 sm:gap-1.5 text-forest-700 dark:text-forest-200 mb-0.5 sm:mb-1">
+                    <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-300 flex-shrink-0" />
+                    <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-wider text-earth-700 dark:text-amber-300 truncate">Founded</span>
                   </div>
-                  <p className="text-lg sm:text-2xl md:text-3xl font-black text-warm-50 font-display">2016</p>
-                  <p className="text-[10px] sm:text-xs text-forest-100 font-semibold truncate">Community Rooted</p>
+                  <p className="text-lg sm:text-2xl md:text-3xl font-black text-forest-950 dark:text-warm-50 font-display transition-colors">2016</p>
+                  <p className="text-[10px] sm:text-xs text-charcoal-600 dark:text-forest-100 font-semibold truncate transition-colors">Community Rooted</p>
                 </div>
               </div>
             </motion.div>
@@ -311,11 +316,11 @@ export const HomePage: React.FC = () => {
         {/* Bottom Viewport Control Deck: High-Contrast Facility Switcher Bar */}
         <div className="relative z-20 pb-4 sm:pb-8">
           <Container>
-            <div className="bg-forest-950/90 rounded-2xl p-3 sm:p-5 border-2 border-white/25 shadow-2xl backdrop-blur-xl">
+            <div className="bg-white/95 dark:bg-charcoal-950/90 rounded-2xl p-3 sm:p-5 border border-warm-200 dark:border-white/25 shadow-2xl backdrop-blur-xl transition-colors duration-300">
               {/* Glowing High-Contrast Progress Bar */}
-              <div className="w-full bg-forest-900 h-1.5 rounded-full mb-2.5 sm:mb-3.5 overflow-hidden border border-white/10">
+              <div className="w-full bg-warm-200 dark:bg-forest-900 h-1.5 rounded-full mb-2.5 sm:mb-3.5 overflow-hidden border border-warm-300 dark:border-white/10">
                 <motion.div
-                  className="bg-gradient-to-r from-amber-400 via-emerald-400 to-amber-300 h-full rounded-full shadow-[0_0_10px_#fbbf24]"
+                  className="bg-gradient-to-r from-amber-500 via-emerald-500 to-amber-400 h-full rounded-full shadow-[0_0_10px_#fbbf24]"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -324,15 +329,15 @@ export const HomePage: React.FC = () => {
                 {/* Current Location Caption */}
                 <div className="text-left">
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 flex-shrink-0" />
-                    <span className="text-xs sm:text-base font-black text-warm-50 tracking-wide">
+                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-earth-600 dark:text-amber-400 flex-shrink-0" />
+                    <span className="text-xs sm:text-base font-black text-forest-950 dark:text-warm-50 tracking-wide transition-colors">
                       {activeFacility.title}
                     </span>
-                    <span className="text-[10px] sm:text-xs text-amber-300 bg-amber-400/20 px-2 py-0.5 sm:px-2.5 rounded-full border border-amber-300/40 font-bold uppercase tracking-wider flex-shrink-0">
+                    <span className="text-[10px] sm:text-xs text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-400/20 px-2 py-0.5 sm:px-2.5 rounded-full border border-amber-300 dark:border-amber-300/40 font-bold uppercase tracking-wider flex-shrink-0 transition-colors">
                       {activeFacility.category}
                     </span>
                   </div>
-                  <p className="text-[11px] sm:text-xs text-forest-100 mt-1 line-clamp-1 font-medium">
+                  <p className="text-[11px] sm:text-xs text-charcoal-600 dark:text-forest-100 mt-1 line-clamp-1 font-medium transition-colors">
                     {activeFacility.description}
                   </p>
                 </div>
@@ -340,7 +345,7 @@ export const HomePage: React.FC = () => {
                 {/* Interactive Facility Thumbnail & Control Switcher (Horizontally scrollable on mobile) */}
                 <div className="flex items-center justify-between lg:justify-end gap-2 w-full lg:w-auto">
                   {/* Slide Selector Buttons with Mini Thumbnails */}
-                  <div className="flex-1 lg:flex-none overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-1.5 bg-forest-900/95 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl border-2 border-white/15 touch-pan-x flex-nowrap">
+                  <div className="flex-1 lg:flex-none overflow-x-auto no-scrollbar scroll-smooth flex items-center gap-1.5 bg-warm-100 dark:bg-forest-900/95 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl border border-warm-300 dark:border-white/15 touch-pan-x flex-nowrap transition-colors">
                     {MSC_FACILITIES.map((fac, idx) => (
                       <button
                         key={fac.id}
@@ -349,8 +354,8 @@ export const HomePage: React.FC = () => {
                         aria-label={`Switch background to ${fac.title}`}
                         className={`group flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl text-xs font-bold transition-all whitespace-nowrap flex-shrink-0 ${
                           activeFacilityIndex === idx
-                            ? 'bg-amber-400 text-forest-950 font-black shadow-md ring-2 ring-white/60'
-                            : 'text-warm-100 hover:text-white hover:bg-white/15'
+                            ? 'bg-forest-800 text-white dark:bg-amber-400 dark:text-forest-950 font-black shadow-md ring-2 ring-forest-600 dark:ring-white/60'
+                            : 'text-charcoal-700 hover:text-forest-950 hover:bg-warm-200 dark:text-warm-100 dark:hover:text-white dark:hover:bg-white/15'
                         }`}
                       >
                         <img
@@ -369,7 +374,7 @@ export const HomePage: React.FC = () => {
                       type="button"
                       onClick={() => setIsPaused(!isPaused)}
                       aria-label={isPaused ? "Play background rotation" : "Pause background rotation"}
-                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-forest-900 hover:bg-forest-800 text-white flex items-center justify-center border-2 border-white/20 transition-colors shadow-sm"
+                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-warm-100 dark:bg-forest-900 hover:bg-warm-200 dark:hover:bg-forest-800 text-charcoal-800 dark:text-white flex items-center justify-center border border-warm-300 dark:border-white/20 transition-colors shadow-sm"
                     >
                       {isPaused ? <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" /> : <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />}
                     </button>
@@ -377,7 +382,7 @@ export const HomePage: React.FC = () => {
                       type="button"
                       onClick={prevFacility}
                       aria-label="Previous facility photo"
-                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-forest-900 hover:bg-forest-800 text-white flex items-center justify-center border-2 border-white/20 transition-colors shadow-sm"
+                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-warm-100 dark:bg-forest-900 hover:bg-warm-200 dark:hover:bg-forest-800 text-charcoal-800 dark:text-white flex items-center justify-center border border-warm-300 dark:border-white/20 transition-colors shadow-sm"
                     >
                       <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
@@ -385,7 +390,7 @@ export const HomePage: React.FC = () => {
                       type="button"
                       onClick={nextFacility}
                       aria-label="Next facility photo"
-                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-forest-900 hover:bg-forest-800 text-white flex items-center justify-center border-2 border-white/20 transition-colors shadow-sm"
+                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-warm-100 dark:bg-forest-900 hover:bg-warm-200 dark:hover:bg-forest-800 text-charcoal-800 dark:text-white flex items-center justify-center border border-warm-300 dark:border-white/20 transition-colors shadow-sm"
                     >
                       <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
@@ -400,11 +405,11 @@ export const HomePage: React.FC = () => {
       {/* =========================================================================
           ANIMATED LIVE COMMUNITY TICKER (Modern Marquee)
           ========================================================================= */}
-      <div className="border-y border-forest-900/20 bg-forest-900 text-warm-50 py-4 overflow-hidden select-none shadow-inner">
+      <div className="border-y border-warm-200 dark:border-forest-900/40 bg-warm-100 dark:bg-forest-950 text-forest-900 dark:text-warm-50 py-3.5 sm:py-4 overflow-hidden select-none shadow-inner transition-colors duration-300">
         <div className="animate-marquee flex items-center gap-8 whitespace-nowrap">
           {TICKER_ITEMS.concat(TICKER_ITEMS).map((item, idx) => (
-            <div key={idx} className="flex items-center gap-3 text-xs sm:text-sm font-semibold tracking-wide">
-              <span className="w-2 h-2 rounded-full bg-amber-400" />
+            <div key={idx} className="flex items-center gap-3 text-xs sm:text-sm font-bold tracking-wide">
+              <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-amber-400" />
               <span>{item}</span>
             </div>
           ))}
@@ -416,17 +421,17 @@ export const HomePage: React.FC = () => {
           ========================================================================= */}
       <section className="relative">
         <Container>
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-10 md:p-12 border border-warm-200/90 shadow-card">
+          <div className="bg-white dark:bg-charcoal-900 rounded-2xl sm:rounded-3xl p-5 sm:p-10 md:p-12 border border-warm-200/90 dark:border-charcoal-800 shadow-card transition-colors">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 items-start">
               {/* Left Column: Organization Evolution */}
               <div className="lg:col-span-6 text-left space-y-4">
-                <span className="text-xs font-bold text-earth-800 uppercase tracking-wider bg-earth-100 px-3.5 py-1.5 rounded-full border border-earth-300 inline-block">
+                <span className="text-xs font-bold text-earth-800 dark:text-amber-300 uppercase tracking-wider bg-earth-100 dark:bg-earth-900/60 px-3.5 py-1.5 rounded-full border border-earth-300 dark:border-earth-700/60 inline-block">
                   Authentic Background
                 </span>
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-charcoal-900 font-display">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-charcoal-900 dark:text-warm-50 font-display transition-colors">
                   From Grassroots Compassion in Kebirigo to a National Movement
                 </h2>
-                <div className="text-charcoal-700 space-y-3.5 text-sm sm:text-base md:text-lg leading-relaxed">
+                <div className="text-charcoal-700 dark:text-charcoal-200 space-y-3.5 text-sm sm:text-base md:text-lg leading-relaxed transition-colors">
                   <p>
                     <strong>Mwancha Senior Community (MSC)</strong> was originally founded in <strong>2016</strong> as <strong>Mwancha Home for the Elderly</strong> in Kebirigo, Nyamira County, Kenya. It began as an urgent community response to the heartbreaking neglect, physical frailty, and abandonment experienced by older citizens.
                   </p>
@@ -445,7 +450,7 @@ export const HomePage: React.FC = () => {
               </div>
 
               {/* Right Column: Interactive Mandate Switcher */}
-              <div className="lg:col-span-6 bg-warm-50 dark:bg-charcoal-900/60 rounded-xl sm:rounded-2xl p-4 sm:p-8 border border-warm-200 shadow-sm text-left">
+              <div className="lg:col-span-6 bg-warm-50 dark:bg-charcoal-950 rounded-xl sm:rounded-2xl p-4 sm:p-8 border border-warm-200 dark:border-charcoal-800 shadow-sm text-left transition-colors">
                 {/* Tabs */}
                 <div className="flex rounded-xl bg-warm-200/80 dark:bg-charcoal-800 p-1 mb-6">
                   <button
@@ -454,7 +459,7 @@ export const HomePage: React.FC = () => {
                     className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all ${
                       activeMandateTab === 'vision'
                         ? 'bg-forest-800 text-white shadow-sm'
-                        : 'text-charcoal-700 hover:text-charcoal-950'
+                        : 'text-charcoal-700 dark:text-warm-300 hover:text-charcoal-950 dark:hover:text-white'
                     }`}
                   >
                     Stated Vision
@@ -465,7 +470,7 @@ export const HomePage: React.FC = () => {
                     className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all ${
                       activeMandateTab === 'mission'
                         ? 'bg-forest-800 text-white shadow-sm'
-                        : 'text-charcoal-700 hover:text-charcoal-950'
+                        : 'text-charcoal-700 dark:text-warm-300 hover:text-charcoal-950 dark:hover:text-white'
                     }`}
                   >
                     Stated Mission
@@ -476,7 +481,7 @@ export const HomePage: React.FC = () => {
                     className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all ${
                       activeMandateTab === 'values'
                         ? 'bg-forest-800 text-white shadow-sm'
-                        : 'text-charcoal-700 hover:text-charcoal-950'
+                        : 'text-charcoal-700 dark:text-warm-300 hover:text-charcoal-950 dark:hover:text-white'
                     }`}
                   >
                     6 Core Values
@@ -486,14 +491,14 @@ export const HomePage: React.FC = () => {
                 {/* Tab Contents */}
                 {activeMandateTab === 'vision' && (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                    <div className="flex items-center gap-2 text-forest-800 font-bold text-sm uppercase tracking-wide">
-                      <Sparkles className="w-5 h-5 text-amber-600" />
+                    <div className="flex items-center gap-2 text-forest-800 dark:text-emerald-400 font-bold text-sm uppercase tracking-wide">
+                      <Sparkles className="w-5 h-5 text-amber-500" />
                       <span>The Vision of Mwancha Senior Community</span>
                     </div>
-                    <blockquote className="text-charcoal-900 text-base sm:text-lg italic leading-relaxed pl-4 border-l-4 border-forest-600 bg-white p-4 rounded-r-xl border border-warm-200/60 shadow-xs">
+                    <blockquote className="text-charcoal-900 dark:text-warm-100 text-base sm:text-lg italic leading-relaxed pl-4 border-l-4 border-forest-600 dark:border-emerald-400 bg-white dark:bg-charcoal-900 p-4 rounded-r-xl border border-warm-200/60 dark:border-charcoal-800 shadow-xs transition-colors">
                       "{MSC_ORGANIZATION.vision}"
                     </blockquote>
-                    <p className="text-xs text-charcoal-600">
+                    <p className="text-xs text-charcoal-600 dark:text-charcoal-400">
                       Guiding every intervention toward regional and global leadership in senior citizen rights and welfare.
                     </p>
                   </motion.div>
@@ -501,14 +506,14 @@ export const HomePage: React.FC = () => {
 
                 {activeMandateTab === 'mission' && (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                    <div className="flex items-center gap-2 text-forest-800 font-bold text-sm uppercase tracking-wide">
-                      <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                    <div className="flex items-center gap-2 text-forest-800 dark:text-emerald-400 font-bold text-sm uppercase tracking-wide">
+                      <ShieldCheck className="w-5 h-5 text-emerald-500" />
                       <span>Our Operational Mission</span>
                     </div>
-                    <blockquote className="text-charcoal-900 text-base sm:text-lg italic leading-relaxed pl-4 border-l-4 border-emerald-600 bg-white p-4 rounded-r-xl border border-warm-200/60 shadow-xs">
+                    <blockquote className="text-charcoal-900 dark:text-warm-100 text-base sm:text-lg italic leading-relaxed pl-4 border-l-4 border-emerald-600 dark:border-emerald-400 bg-white dark:bg-charcoal-900 p-4 rounded-r-xl border border-warm-200/60 dark:border-charcoal-800 shadow-xs transition-colors">
                       "{MSC_ORGANIZATION.mission}"
                     </blockquote>
-                    <p className="text-xs text-charcoal-600">
+                    <p className="text-xs text-charcoal-600 dark:text-charcoal-400">
                       Fostering health, economic empowerment, and psychosocial support to preserve dignity in later life.
                     </p>
                   </motion.div>
@@ -516,14 +521,14 @@ export const HomePage: React.FC = () => {
 
                 {activeMandateTab === 'values' && (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-                    <p className="text-xs font-bold text-forest-800 uppercase tracking-wider">
+                    <p className="text-xs font-bold text-forest-800 dark:text-emerald-400 uppercase tracking-wider">
                       Official Ethical Core Values:
                     </p>
                     <div className="grid grid-cols-2 gap-2.5">
                       {MSC_ORGANIZATION.coreValues.map((val) => (
-                        <div key={val.title} className="p-3 bg-white rounded-xl border border-warm-200 text-left shadow-xs">
-                          <p className="font-bold text-xs text-forest-900">{val.title}</p>
-                          <p className="text-[11px] text-charcoal-600 line-clamp-2 mt-0.5">{val.description}</p>
+                        <div key={val.title} className="p-3 bg-white dark:bg-charcoal-900 rounded-xl border border-warm-200 dark:border-charcoal-800 text-left shadow-xs transition-colors">
+                          <p className="font-bold text-xs text-forest-900 dark:text-emerald-400">{val.title}</p>
+                          <p className="text-[11px] text-charcoal-600 dark:text-charcoal-300 line-clamp-2 mt-0.5">{val.description}</p>
                         </div>
                       ))}
                     </div>
@@ -538,7 +543,7 @@ export const HomePage: React.FC = () => {
       {/* =========================================================================
           AUTHENTIC HEADQUARTERS & FACILITY SHOWCASE
           ========================================================================= */}
-      <section className="py-12 bg-white border-y border-warm-200/80">
+      <section className="py-12 bg-white dark:bg-charcoal-950 border-y border-warm-200/80 dark:border-charcoal-800 transition-colors">
         <Container>
           <SectionHeading
             centered
@@ -551,9 +556,9 @@ export const HomePage: React.FC = () => {
             {MSC_FACILITIES.map((facility) => (
               <div
                 key={facility.id}
-                className="group rounded-3xl overflow-hidden bg-white border border-warm-200/90 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1"
+                className="group rounded-3xl overflow-hidden bg-white dark:bg-charcoal-900 border border-warm-200/90 dark:border-charcoal-800 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="aspect-[4/3] overflow-hidden bg-warm-200 relative">
+                <div className="aspect-[4/3] overflow-hidden bg-warm-200 dark:bg-charcoal-800 relative">
                   <img
                     src={facility.image}
                     alt={facility.title}
@@ -565,14 +570,14 @@ export const HomePage: React.FC = () => {
                   </div>
                 </div>
                 <div className="p-6 text-left">
-                  <h3 className="font-extrabold text-charcoal-900 text-lg font-display mb-1.5 group-hover:text-forest-800 transition-colors">
+                  <h3 className="font-extrabold text-charcoal-900 dark:text-warm-50 text-lg font-display mb-1.5 group-hover:text-forest-800 dark:group-hover:text-emerald-400 transition-colors">
                     {facility.title}
                   </h3>
-                  <p className="text-sm text-charcoal-600 leading-relaxed">
+                  <p className="text-sm text-charcoal-600 dark:text-charcoal-300 leading-relaxed transition-colors">
                     {facility.description}
                   </p>
-                  <p className="text-xs text-earth-700 font-semibold mt-3 flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-earth-600" />
+                  <p className="text-xs text-earth-700 dark:text-amber-400 font-bold mt-3 flex items-center gap-1.5 transition-colors">
+                    <MapPin className="w-3.5 h-3.5 text-earth-600 dark:text-amber-400" />
                     <span>{facility.location}</span>
                   </p>
                 </div>
@@ -585,7 +590,7 @@ export const HomePage: React.FC = () => {
       {/* =========================================================================
           WHY OUR WORK MATTERS: DOCUMENTED CHALLENGES FACED BY OLDER PERSONS
           ========================================================================= */}
-      <section className="bg-warm-100/70 py-16 sm:py-20 border-b border-warm-200/80">
+      <section className="bg-warm-100/70 dark:bg-charcoal-900/60 py-16 sm:py-20 border-b border-warm-200/80 dark:border-charcoal-800 transition-colors">
         <Container>
           <SectionHeading
             centered
@@ -598,15 +603,15 @@ export const HomePage: React.FC = () => {
             {MSC_ORGANIZATION.documentedChallenges.map((challenge, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-2xl p-6 sm:p-7 border border-warm-200 text-left shadow-card hover:shadow-card-hover transition-all duration-200 hover:-translate-y-1"
+                className="bg-white dark:bg-charcoal-950 rounded-2xl p-6 sm:p-7 border border-warm-200 dark:border-charcoal-800 text-left shadow-card hover:shadow-card-hover transition-all duration-200 hover:-translate-y-1"
               >
-                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-800 font-bold text-sm mb-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60 flex items-center justify-center text-amber-800 dark:text-amber-300 font-bold text-sm mb-4">
                   0{idx + 1}
                 </div>
-                <h3 className="text-lg font-bold text-charcoal-900 font-display mb-2.5">
+                <h3 className="text-lg font-bold text-charcoal-900 dark:text-warm-50 font-display mb-2.5 transition-colors">
                   {challenge.title}
                 </h3>
-                <p className="text-sm text-charcoal-600 leading-relaxed">
+                <p className="text-sm text-charcoal-600 dark:text-charcoal-300 leading-relaxed transition-colors">
                   {challenge.description}
                 </p>
               </div>
@@ -624,17 +629,17 @@ export const HomePage: React.FC = () => {
       {/* =========================================================================
           KEY PROGRAM AREAS (The 5 Core Pillars)
           ========================================================================= */}
-      <section>
+      <section className="py-12 transition-colors">
         <Container>
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 text-left">
             <div>
-              <span className="text-xs font-bold text-forest-800 uppercase tracking-wider bg-forest-100 px-3 py-1 rounded-full border border-forest-200 inline-block mb-3">
+              <span className="text-xs font-bold text-forest-800 dark:text-emerald-300 uppercase tracking-wider bg-forest-100 dark:bg-forest-900/60 px-3 py-1 rounded-full border border-forest-200 dark:border-forest-700/60 inline-block mb-3">
                 Core Interventions
               </span>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-charcoal-900 font-display">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-charcoal-900 dark:text-warm-50 font-display transition-colors">
                 Our Five Core Program Areas
               </h2>
-              <p className="mt-2 text-base text-charcoal-600 max-w-2xl">
+              <p className="mt-2 text-base text-charcoal-600 dark:text-charcoal-300 max-w-2xl transition-colors">
                 Structured to address both immediate vulnerability and long-term systemic protection for older citizens across Kenya.
               </p>
             </div>
@@ -654,7 +659,7 @@ export const HomePage: React.FC = () => {
       {/* =========================================================================
           MEASURABLE VERIFIED IMPACT (Strict Source of Truth)
           ========================================================================= */}
-      <section className="bg-gradient-to-br from-forest-950 via-forest-900 to-forest-950 text-warm-50 py-16 sm:py-20 rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-2xl relative overflow-hidden">
+      <section className="bg-gradient-to-br from-forest-950 via-forest-900 to-forest-950 text-warm-50 py-16 sm:py-20 rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-2xl relative overflow-hidden border border-forest-800">
         {/* Decorative Light Radial */}
         <div className="ambient-glow top-0 right-1/4 w-80 h-80 bg-emerald-500/20" />
 
@@ -688,7 +693,7 @@ export const HomePage: React.FC = () => {
       {/* =========================================================================
           OUR METHODOLOGY & COMMITMENTS
           ========================================================================= */}
-      <section>
+      <section className="py-12 transition-colors">
         <Container>
           <SectionHeading
             centered
@@ -698,42 +703,42 @@ export const HomePage: React.FC = () => {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left mt-10">
-            <div className="p-6 rounded-2xl bg-white border border-warm-200 shadow-card hover:shadow-card-hover transition-all duration-200">
-              <div className="w-12 h-12 rounded-xl bg-forest-100 text-forest-800 flex items-center justify-center mb-4">
+            <div className="p-6 rounded-2xl bg-white dark:bg-charcoal-900 border border-warm-200 dark:border-charcoal-800 shadow-card hover:shadow-card-hover transition-all duration-200">
+              <div className="w-12 h-12 rounded-xl bg-forest-100 dark:bg-forest-900/60 text-forest-800 dark:text-emerald-400 flex items-center justify-center mb-4">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-lg text-charcoal-900 mb-2 font-display">Dignity & Safety</h3>
-              <p className="text-sm text-charcoal-600 leading-relaxed">
+              <h3 className="font-bold text-lg text-charcoal-900 dark:text-warm-50 mb-2 font-display">Dignity & Safety</h3>
+              <p className="text-sm text-charcoal-600 dark:text-charcoal-300 leading-relaxed">
                 Prioritizing personal physical safety, shelter weatherization, and defense against domestic exploitation and accusations.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-warm-200 shadow-card hover:shadow-card-hover transition-all duration-200">
-              <div className="w-12 h-12 rounded-xl bg-forest-100 text-forest-800 flex items-center justify-center mb-4">
+            <div className="p-6 rounded-2xl bg-white dark:bg-charcoal-900 border border-warm-200 dark:border-charcoal-800 shadow-card hover:shadow-card-hover transition-all duration-200">
+              <div className="w-12 h-12 rounded-xl bg-forest-100 dark:bg-forest-900/60 text-forest-800 dark:text-emerald-400 flex items-center justify-center mb-4">
                 <Users className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-lg text-charcoal-900 mb-2 font-display">Psychosocial Wellbeing</h3>
-              <p className="text-sm text-charcoal-600 leading-relaxed">
+              <h3 className="font-bold text-lg text-charcoal-900 dark:text-warm-50 mb-2 font-display">Psychosocial Wellbeing</h3>
+              <p className="text-sm text-charcoal-600 dark:text-charcoal-300 leading-relaxed">
                 Combating loneliness through peer support circles, storytelling barazas, and trauma counseling for elder-headed households.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-warm-200 shadow-card hover:shadow-card-hover transition-all duration-200">
-              <div className="w-12 h-12 rounded-xl bg-forest-100 text-forest-800 flex items-center justify-center mb-4">
+            <div className="p-6 rounded-2xl bg-white dark:bg-charcoal-900 border border-warm-200 dark:border-charcoal-800 shadow-card hover:shadow-card-hover transition-all duration-200">
+              <div className="w-12 h-12 rounded-xl bg-forest-100 dark:bg-forest-900/60 text-forest-800 dark:text-emerald-400 flex items-center justify-center mb-4">
                 <Heart className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-lg text-charcoal-900 mb-2 font-display">Health & Nutrition</h3>
-              <p className="text-sm text-charcoal-600 leading-relaxed">
+              <h3 className="font-bold text-lg text-charcoal-900 dark:text-warm-50 mb-2 font-display">Health & Nutrition</h3>
+              <p className="text-sm text-charcoal-600 dark:text-charcoal-300 leading-relaxed">
                 Facilitating healthcare facility referrals, medical triage, and distributing emergency food baskets for destitute elders.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-warm-200 shadow-card hover:shadow-card-hover transition-all duration-200">
-              <div className="w-12 h-12 rounded-xl bg-forest-100 text-forest-800 flex items-center justify-center mb-4">
+            <div className="p-6 rounded-2xl bg-white dark:bg-charcoal-900 border border-warm-200 dark:border-charcoal-800 shadow-card hover:shadow-card-hover transition-all duration-200">
+              <div className="w-12 h-12 rounded-xl bg-forest-100 dark:bg-forest-900/60 text-forest-800 dark:text-emerald-400 flex items-center justify-center mb-4">
                 <Globe className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-lg text-charcoal-900 mb-2 font-display">Partnership Networks</h3>
-              <p className="text-sm text-charcoal-600 leading-relaxed">
+              <h3 className="font-bold text-lg text-charcoal-900 dark:text-warm-50 mb-2 font-display">Partnership Networks</h3>
+              <p className="text-sm text-charcoal-600 dark:text-charcoal-300 leading-relaxed">
                 Mobilizing county administration, faith leaders, health centers, and development partners for durable public safety nets.
               </p>
             </div>
@@ -744,17 +749,17 @@ export const HomePage: React.FC = () => {
       {/* =========================================================================
           LATEST NEWS & STORIES
           ========================================================================= */}
-      <section className="bg-warm-100/50 py-16 border-t border-warm-200/80">
+      <section className="bg-warm-100/50 dark:bg-charcoal-900/50 py-16 border-t border-warm-200/80 dark:border-charcoal-800 transition-colors">
         <Container>
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 text-left">
             <div>
-              <span className="text-xs font-bold text-earth-700 uppercase tracking-wider bg-earth-100 px-3 py-1 rounded-full border border-earth-300 inline-block mb-3">
+              <span className="text-xs font-bold text-earth-700 dark:text-amber-300 uppercase tracking-wider bg-earth-100 dark:bg-earth-900/60 px-3 py-1 rounded-full border border-earth-300 dark:border-earth-700/60 inline-block mb-3">
                 News & Field Updates
               </span>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-charcoal-900 font-display">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-charcoal-900 dark:text-warm-50 font-display transition-colors">
                 Stories from the Community
               </h2>
-              <p className="mt-2 text-base text-charcoal-600 max-w-2xl">
+              <p className="mt-2 text-base text-charcoal-600 dark:text-charcoal-300 max-w-2xl transition-colors">
                 Read about our advocacy barazas, volunteer field experiences, and institutional milestones.
               </p>
             </div>

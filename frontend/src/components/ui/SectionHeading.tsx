@@ -23,19 +23,19 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
     >
       {badge && (
         <div
-          className={`inline-flex items-center gap-1.5 px-3 py-1 mb-3 text-xs md:text-sm font-semibold tracking-wider uppercase rounded-full bg-forest-100 text-forest-900 border border-forest-200 ${
+          className={`inline-flex items-center gap-1.5 px-3 py-1 mb-3 text-xs md:text-sm font-bold tracking-wider uppercase rounded-full bg-forest-100 dark:bg-forest-900/80 text-forest-900 dark:text-emerald-300 border border-forest-200 dark:border-forest-700/80 ${
             centered ? 'mx-auto' : ''
           }`}
         >
-          <span className="w-2 h-2 rounded-full bg-forest-600" aria-hidden="true" />
+          <span className="w-2 h-2 rounded-full bg-forest-600 dark:bg-emerald-400" aria-hidden="true" />
           {badge}
         </div>
       )}
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-charcoal-900 tracking-tight font-display">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-charcoal-900 dark:text-warm-50 tracking-tight font-display transition-colors">
         {title}
       </h2>
       {subtitle && (
-        <p className="mt-3.5 text-base sm:text-lg text-charcoal-600 leading-relaxed">
+        <p className="mt-3.5 text-base sm:text-lg text-charcoal-600 dark:text-charcoal-300 leading-relaxed transition-colors">
           {subtitle}
         </p>
       )}
