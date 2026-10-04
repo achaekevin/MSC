@@ -28,7 +28,7 @@ const envSchema = z.object({
 
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default('Mwancha Senior Community <notifications@mwanchasenior.org>'),
-  ADMIN_NOTIFICATION_EMAIL: z.string().default('secretariat@mwanchasenior.org'),
+  ADMIN_NOTIFICATION_EMAIL: z.string().default('mwachahomeforelderly@gmail.com'),
 
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60000),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(100),

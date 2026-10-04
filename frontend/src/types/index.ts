@@ -195,6 +195,7 @@ export interface ContactMessage {
   phone?: string;
   subject: string;
   message: string;
+  consent?: boolean;
   status?: string;
   internalNotes?: string;
   submittedAt?: string;

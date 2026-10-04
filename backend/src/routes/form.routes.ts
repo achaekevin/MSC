@@ -22,17 +22,17 @@ router.post(
   (req, res, next) => formController.submitContact(req, res, next)
 );
 
-// Volunteer application
+// Volunteer application (supports /volunteers/apply and /volunteers)
 router.post(
-  '/volunteers/apply',
+  ['/volunteers/apply', '/volunteers'],
   volunteerFormLimiter,
   validate({ body: volunteerApplicationSchema }),
   (req, res, next) => formController.submitVolunteer(req, res, next)
 );
 
-// Partnership application
+// Partnership application (supports /partnerships/apply and /partnerships)
 router.post(
-  '/partnerships/apply',
+  ['/partnerships/apply', '/partnerships'],
   partnershipFormLimiter,
   validate({ body: partnershipApplicationSchema }),
   (req, res, next) => formController.submitPartnership(req, res, next)
