@@ -1,9 +1,11 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { RootLayout } from '../layouts/RootLayout';
+import { AdminLayout } from '../layouts/AdminLayout';
+import { ProtectedRoute, PublicOnlyRoute } from '../components/auth/ProtectedRoute';
 import { PageLoader } from '../components/ui/Skeleton';
 
-// Route-level code splitting & lazy loading
+// Public route-level code splitting & lazy loading
 const HomePage = lazy(() => import('../pages/HomePage').then(m => ({ default: m.HomePage })));
 const AboutPage = lazy(() => import('../pages/about/AboutPage').then(m => ({ default: m.AboutPage })));
 const StoryPage = lazy(() => import('../pages/about/StoryPage').then(m => ({ default: m.StoryPage })));
@@ -35,10 +37,23 @@ const PrivacyPage = lazy(() => import('../pages/legal/PrivacyPage').then(m => ({
 const TermsPage = lazy(() => import('../pages/legal/TermsPage').then(m => ({ default: m.TermsPage })));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
+// Admin route-level code splitting & lazy loading
+const LoginPage = lazy(() => import('../pages/admin/LoginPage').then(m => ({ default: m.default })));
+const UnauthorizedPage = lazy(() => import('../pages/admin/UnauthorizedPage').then(m => ({ default: m.default })));
+const DashboardPage = lazy(() => import('../pages/admin/DashboardPage').then(m => ({ default: m.default })));
+const ContentManagementPage = lazy(() => import('../pages/admin/ContentManagementPage').then(m => ({ default: m.ContentManagementPage })));
+const ProgramsManagementPage = lazy(() => import('../pages/admin/ProgramsManagementPage').then(m => ({ default: m.ProgramsManagementPage })));
+const NewsManagementPage = lazy(() => import('../pages/admin/NewsManagementPage').then(m => ({ default: m.NewsManagementPage })));
+const EventsManagementPage = lazy(() => import('../pages/admin/EventsManagementPage').then(m => ({ default: m.EventsManagementPage })));
+const GalleryManagementPage = lazy(() => import('../pages/admin/GalleryManagementPage').then(m => ({ default: m.GalleryManagementPage })));
+const ApplicationsManagementPage = lazy(() => import('../pages/admin/ApplicationsManagementPage').then(m => ({ default: m.ApplicationsManagementPage })));
+const TeamManagementPage = lazy(() => import('../pages/admin/TeamManagementPage').then(m => ({ default: m.TeamManagementPage })));
+
 export const AppRoutes: React.FC = () => {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<RootLayout />}>
           {/* Home */}
           <Route index element={<HomePage />} />
@@ -80,10 +95,51 @@ export const AppRoutes: React.FC = () => {
           {/* Legal & Compliance */}
           <Route path="privacy" element={<PrivacyPage />} />
           <Route path="terms" element={<TermsPage />} />
-
-          {/* 404 Catch-All */}
-          <Route path="*" element={<NotFoundPage />} />
         </Route>
+
+        {/* Admin Authentication Routes */}
+        <Route path="/admin/login" element={
+          <PublicOnlyRoute>
+            <LoginPage />
+          </PublicOnlyRoute>
+        } />
+        <Route path="/admin/unauthorized" element={<UnauthorizedPage />} />
+
+        {/* Protected Admin Routes */}
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }>
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="content" element={<ContentManagementPage />} />
+          {/* Placeholder routes for other admin pages */}
+          <Route path="organization" element={<div>Organization Management - Coming Soon</div>} />
+          <Route path="programs" element={<ProgramsManagementPage />} />
+          <Route path="news" element={<NewsManagementPage />} />
+          <Route path="events" element={<EventsManagementPage />} />
+          <Route path="gallery" element={<GalleryManagementPage />} />
+          <Route path="team" element={<TeamManagementPage />} />
+          <Route path="applications" element={<ApplicationsManagementPage />} />
+          <Route path="users" element={
+            <ProtectedRoute requiredPermission="USER_MANAGE">
+              <div>User Management - Coming Soon</div>
+            </ProtectedRoute>
+          } />
+          <Route path="settings" element={
+            <ProtectedRoute requiredPermission="SETTINGS_MANAGE">
+              <div>Settings - Coming Soon</div>
+            </ProtectedRoute>
+          } />
+          <Route path="audit" element={
+            <ProtectedRoute requiredPermission="AUDIT_READ">
+              <div>Audit Logs - Coming Soon</div>
+            </ProtectedRoute>
+          } />
+        </Route>
+
+        {/* 404 Catch-All */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   );
