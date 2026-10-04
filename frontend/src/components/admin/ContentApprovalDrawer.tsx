@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ReviewableContentItem, ContentStatus } from '../../types';
 import { INITIAL_REVIEW_REGISTRY } from '../../data/contentApprovalRegistry';
 import { getStatusBadgeConfig } from '../../utils/contentReview';
@@ -22,8 +22,29 @@ interface ContentApprovalDrawerProps {
   onClose: () => void;
 }
 
+const MSC_APPROVAL_STORAGE_KEY = 'msc_content_approval_registry_v1';
+
 export const ContentApprovalDrawer: React.FC<ContentApprovalDrawerProps> = ({ isOpen, onClose }) => {
-  const [items, setItems] = useState<ReviewableContentItem[]>(INITIAL_REVIEW_REGISTRY);
+  const [items, setItems] = useState<ReviewableContentItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(MSC_APPROVAL_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {
+      // fallback
+    }
+    return INITIAL_REVIEW_REGISTRY;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(MSC_APPROVAL_STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      // ignore
+    }
+  }, [items]);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');

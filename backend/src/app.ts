@@ -1,6 +1,7 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { corsOptions } from './config/cors.js';
 import { swaggerDocument } from './docs/swagger.js';
@@ -12,6 +13,14 @@ import healthRoutes from './routes/health.routes.js';
 
 export const createApp = (): Express => {
   const app = express();
+
+  // Serve persistent static images and official logo natively
+  const backendPublicPath = path.resolve(process.cwd(), 'public');
+  const frontendPublicPath = path.resolve(process.cwd(), '../frontend/public');
+  app.use('/images', express.static(path.join(backendPublicPath, 'images')));
+  app.use('/images', express.static(path.join(frontendPublicPath, 'images')));
+  app.use('/logo.png', express.static(path.join(backendPublicPath, 'logo.png')));
+  app.use('/logo.jpg', express.static(path.join(backendPublicPath, 'logo.jpg')));
 
   // Trust proxy for rate limiters behind load balancers/reverse proxies
   app.set('trust proxy', 1);
