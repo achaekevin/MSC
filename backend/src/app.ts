@@ -7,7 +7,9 @@ import { corsOptions } from './config/cors.js';
 import { swaggerDocument } from './docs/swagger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { generalLimiter } from './middleware/rateLimiter.js';
+import { networkAccessSecurity, checkNetworkAccess } from './middleware/networkAccess.js';
 import { NotFoundError } from './errors/AppError.js';
+import { env } from './config/env.js';
 import apiV1Router from './routes/index.js';
 import healthRoutes from './routes/health.routes.js';
 
@@ -25,6 +27,10 @@ export const createApp = (): Express => {
   // Trust proxy for rate limiters behind load balancers/reverse proxies
   app.set('trust proxy', 1);
 
+  // Network access security and controls
+  app.use(checkNetworkAccess);
+  app.use(networkAccessSecurity);
+
   // Security Headers (Section 66)
   app.use(
     helmet({
@@ -35,10 +41,14 @@ export const createApp = (): Express => {
           styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
           fontSrc: ["'self'", 'https://fonts.gstatic.com'],
           imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com', 'https://images.unsplash.com'],
-          connectSrc: ["'self'", 'http://localhost:5173', 'https://staging.mwanchasenior.org', 'https://mwanchasenior.org']
+          connectSrc: ["'self'", 'http://localhost:5173', 'http://127.0.0.1:5173', 'https://staging.mwanchasenior.org', 'https://mwanchasenior.org']
         }
       },
-      crossOriginResourcePolicy: { policy: 'cross-origin' }
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      // Allow network access in development
+      ...(env.NODE_ENV === 'development' && {
+        contentSecurityPolicy: false
+      })
     })
   );
 

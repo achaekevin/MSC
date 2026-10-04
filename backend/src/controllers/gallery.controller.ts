@@ -78,6 +78,37 @@ export class GalleryController {
       next(error);
     }
   }
+
+  async updateMedia(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const data = await galleryService.updateMedia(id, req.body, req.user?.id);
+      return sendSuccess(res, data, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async submitReview(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { notes } = req.body;
+      const data = await galleryService.submitReview(id, notes, req.user?.id);
+      return sendSuccess(res, data, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createAlbum(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { name, description } = req.body;
+      const data = await galleryService.createAlbum(name, description);
+      return sendSuccess(res, data, 201);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const galleryController = new GalleryController();

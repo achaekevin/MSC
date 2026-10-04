@@ -17,6 +17,15 @@ export class NewsController {
     }
   }
 
+  async getPublicCategories(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await newsService.getCategories();
+      return sendSuccess(res, data, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getPublicNewsBySlug(req: Request, res: Response, next: NextFunction) {
     try {
       const { slug } = req.params;
@@ -33,9 +42,20 @@ export class NewsController {
       const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 10;
       const status = req.query.status as string;
       const search = req.query.search as string;
+      const category = req.query.category as string;
 
-      const result = await newsService.getAdminNews(page, limit, status, search);
+      const result = await newsService.getAdminNews(page, limit, status, search, category);
       return sendSuccess(res, result.items, 200, result.pagination);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAdminNewsById(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const data = await newsService.getArticleById(id);
+      return sendSuccess(res, data, 200);
     } catch (error) {
       next(error);
     }

@@ -4,6 +4,7 @@ import { logger } from './config/logger.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
 
 const PORT = env.PORT || 5000;
+const HOST = env.HOST || '0.0.0.0';
 
 const startServer = async () => {
   logger.info(`Starting Mwancha Senior Community (MSC) backend service in ${env.NODE_ENV} mode...`);
@@ -14,10 +15,15 @@ const startServer = async () => {
     logger.warn('Initial database connection failed. Server will continue and retry upon incoming requests.');
   }
 
-  const server = app.listen(PORT, () => {
-    logger.info(`🚀 MSC Backend is actively listening on port ${PORT}`);
-    logger.info(`📖 Swagger API Documentation available at: http://localhost:${PORT}/api/docs`);
-    logger.info(`🏥 Health check probe available at: http://localhost:${PORT}/health`);
+  const server = app.listen(PORT, HOST, () => {
+    logger.info(`🚀 MSC Backend is actively listening on ${HOST}:${PORT}`);
+    logger.info(`📖 Swagger API Documentation available at: http://${HOST}:${PORT}/api/docs`);
+    logger.info(`🏥 Health check probe available at: http://${HOST}:${PORT}/health`);
+    logger.info(`🌐 Network access enabled - server accessible from LAN/WAN`);
+    
+    if (env.NODE_ENV === 'development') {
+      logger.info(`🔓 Development mode: CORS allows all origins`);
+    }
   });
 
   // Graceful Shutdown Handling (Section 62)

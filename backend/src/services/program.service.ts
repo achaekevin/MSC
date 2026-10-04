@@ -22,6 +22,9 @@ export class ProgramService {
         status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
         deletedAt: null
       },
+      include: {
+        category: true
+      },
       orderBy: { displayOrder: 'asc' }
     });
 
@@ -34,6 +37,9 @@ export class ProgramService {
         slug,
         status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
         deletedAt: null
+      },
+      include: {
+        category: true
       }
     });
 
@@ -44,12 +50,46 @@ export class ProgramService {
     return this.formatProgram(program);
   }
 
-  async getAdminPrograms(page = 1, limit = 10, status?: string, search?: string) {
+  async getCategories() {
+    return prisma.programCategory.findMany({
+      orderBy: { displayOrder: 'asc' },
+      include: {
+        _count: {
+          select: {
+            programs: {
+              where: { deletedAt: null }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  async getProgramById(id: string) {
+    const program = await prisma.program.findUnique({
+      where: { id },
+      include: {
+        category: true
+      }
+    });
+
+    if (!program || program.deletedAt) {
+      throw new NotFoundError('Program not found');
+    }
+
+    return this.formatProgram(program);
+  }
+
+  async getAdminPrograms(page = 1, limit = 10, status?: string, search?: string, categoryId?: string) {
     const skip = (page - 1) * limit;
     const where: any = { deletedAt: null };
 
     if (status && status !== 'all') {
       where.status = status as ContentStatus;
+    }
+
+    if (categoryId && categoryId !== 'all') {
+      where.categoryId = categoryId;
     }
 
     if (search) {
@@ -66,6 +106,9 @@ export class ProgramService {
         where,
         skip,
         take: limit,
+        include: {
+          category: true
+        },
         orderBy: { displayOrder: 'asc' }
       })
     ]);
@@ -82,17 +125,23 @@ export class ProgramService {
   }
 
   async createProgram(data: any, userId?: string) {
-    const slug = await generateUniqueSlug(data.title, async candidate => {
-      const existing = await prisma.program.findUnique({ where: { slug: candidate } });
-      return !!existing;
-    });
+    const slug = data.slug
+      ? await generateUniqueSlug(data.slug, async candidate => {
+          const existing = await prisma.program.findUnique({ where: { slug: candidate } });
+          return !!existing;
+        })
+      : await generateUniqueSlug(data.title, async candidate => {
+          const existing = await prisma.program.findUnique({ where: { slug: candidate } });
+          return !!existing;
+        });
 
     const program = await prisma.program.create({
       data: {
         slug,
+        categoryId: data.categoryId || null,
         title: data.title,
-        summary: data.summary,
-        description: data.description,
+        summary: data.summary || data.shortDescription || '',
+        description: data.description || data.fullDescription || '',
         objectives: JSON.stringify(data.objectives || []),
         activities: JSON.stringify(data.activities || []),
         targetPopulation: JSON.stringify(data.targetBeneficiaries || data.targetPopulation || []),
@@ -104,11 +153,15 @@ export class ProgramService {
         metricsHighlight: data.metricsHighlight,
         relatedSlugs: JSON.stringify(data.relatedSlugs || data.relatedProgramSlugs || []),
         displayOrder: data.displayOrder ?? 0,
+        featured: data.featured ?? false,
         status: ContentStatus.DRAFT,
         source: (data.source as ContentSource) || ContentSource.OFFICIAL_PROFILE,
         approvalRequired: true,
         seoTitle: data.seoTitle,
         seoDescription: data.seoDescription
+      },
+      include: {
+        category: true
       }
     });
 
@@ -135,6 +188,9 @@ export class ProgramService {
       where: { id },
       data: {
         ...data,
+        summary: data.summary || data.shortDescription || undefined,
+        description: data.description || data.fullDescription || undefined,
+        categoryId: data.categoryId !== undefined ? (data.categoryId || null) : undefined,
         objectives: data.objectives ? JSON.stringify(data.objectives) : undefined,
         activities: data.activities ? JSON.stringify(data.activities) : undefined,
         targetPopulation: (data.targetBeneficiaries || data.targetPopulation)
@@ -143,6 +199,9 @@ export class ProgramService {
         relatedSlugs: (data.relatedSlugs || data.relatedProgramSlugs)
           ? JSON.stringify(data.relatedSlugs || data.relatedProgramSlugs)
           : undefined
+      },
+      include: {
+        category: true
       }
     });
 

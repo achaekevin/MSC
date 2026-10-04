@@ -60,6 +60,26 @@ export class TeamController {
       next(error);
     }
   }
+
+  async submitReview(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const data = await teamService.submitReview(id, req.user?.id);
+      return sendSuccess(res, data, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async publishTeamMember(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const data = await teamService.publishTeamMember(id, req.user?.id);
+      return sendSuccess(res, data, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const teamController = new TeamController();

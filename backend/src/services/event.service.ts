@@ -4,7 +4,27 @@ import { ContentStatus, ContentSource } from '@prisma/client';
 import { generateUniqueSlug } from '../utils/slugify.js';
 
 export class EventService {
-  async getPublicEvents(page = 1, limit = 10, category?: string) {
+  async getCategories() {
+    const events = await prisma.event.findMany({
+      where: { deletedAt: null },
+      select: { category: true },
+      distinct: ['category']
+    });
+
+    const defaultCategories = [
+      'Community Outreach',
+      'Senior Engagement',
+      'Health & Wellness',
+      'Advocacy & Rights',
+      'Capacity Building'
+    ];
+
+    const existingNames = events.map(e => e.category).filter(Boolean);
+    const combined = Array.from(new Set([...defaultCategories, ...existingNames]));
+    return combined.map(name => ({ id: name, name, slug: name.toLowerCase().replace(/\s+/g, '-') }));
+  }
+
+  async getPublicEvents(page = 1, limit = 10, category?: string, search?: string) {
     const skip = (page - 1) * limit;
     const where: any = {
       status: ContentStatus.PUBLISHED,
@@ -13,6 +33,14 @@ export class EventService {
 
     if (category && category !== 'All') {
       where.category = category;
+    }
+
+    if (search && search.trim()) {
+      where.OR = [
+        { title: { contains: search.trim() } },
+        { description: { contains: search.trim() } },
+        { location: { contains: search.trim() } }
+      ];
     }
 
     const [total, events] = await Promise.all([
@@ -60,12 +88,24 @@ export class EventService {
     };
   }
 
-  async getAdminEvents(page = 1, limit = 10, status?: string) {
+  async getAdminEvents(page = 1, limit = 10, status?: string, category?: string, search?: string) {
     const skip = (page - 1) * limit;
     const where: any = { deletedAt: null };
 
     if (status && status !== 'all') {
       where.status = status as ContentStatus;
+    }
+
+    if (category && category !== 'All' && category !== 'all') {
+      where.category = category;
+    }
+
+    if (search && search.trim()) {
+      where.OR = [
+        { title: { contains: search.trim() } },
+        { description: { contains: search.trim() } },
+        { location: { contains: search.trim() } }
+      ];
     }
 
     const [total, events] = await Promise.all([
@@ -74,18 +114,49 @@ export class EventService {
         where,
         skip,
         take: limit,
-        orderBy: { startDate: 'desc' }
+        orderBy: { startDate: 'desc' },
+        include: {
+          registrations: {
+            take: 5
+          }
+        }
       })
     ]);
 
     return {
-      items: events,
+      items: events.map(e => ({
+        ...e,
+        date: e.startDate.toISOString().split('T')[0],
+        time: e.timeString
+      })),
       pagination: {
         page,
         limit,
         total,
         totalPages: Math.ceil(total / limit)
       }
+    };
+  }
+
+  async getAdminEventById(id: string) {
+    const event = await prisma.event.findUnique({
+      where: { id },
+      include: {
+        registrations: true,
+        createdBy: {
+          select: { id: true, name: true, email: true }
+        }
+      }
+    });
+
+    if (!event || event.deletedAt) {
+      throw new NotFoundError('Event not found');
+    }
+
+    return {
+      ...event,
+      date: event.startDate.toISOString().split('T')[0],
+      time: event.timeString
     };
   }
 
@@ -231,6 +302,75 @@ export class EventService {
     });
 
     return updated;
+  }
+
+  async submitReview(id: string, notes?: string, submitterId?: string) {
+    const event = await prisma.event.findUnique({ where: { id } });
+    if (!event || event.deletedAt) throw new NotFoundError('Event not found');
+
+    const updated = await prisma.event.update({
+      where: { id },
+      data: { status: ContentStatus.IN_REVIEW }
+    });
+
+    await prisma.contentReview.create({
+      data: {
+        entityType: 'Event',
+        entityId: id,
+        currentStatus: ContentStatus.IN_REVIEW,
+        previousStatus: event.status,
+        requestedAction: 'REVIEW_REQUESTED',
+        submitterId,
+        submissionNotes: notes
+      }
+    });
+
+    return updated;
+  }
+
+  async duplicateEvent(id: string, userId?: string) {
+    const original = await prisma.event.findUnique({ where: { id } });
+    if (!original || original.deletedAt) throw new NotFoundError('Event not found');
+
+    const newTitle = `${original.title} (Copy)`;
+    const newSlug = await generateUniqueSlug(newTitle, async candidate => {
+      const existing = await prisma.event.findUnique({ where: { slug: candidate } });
+      return !!existing;
+    });
+
+    const duplicate = await prisma.event.create({
+      data: {
+        title: newTitle,
+        slug: newSlug,
+        description: original.description,
+        location: original.location,
+        county: original.county,
+        category: original.category,
+        startDate: original.startDate,
+        endDate: original.endDate,
+        timeString: original.timeString,
+        isRegistrationOpen: original.isRegistrationOpen,
+        registrationRequired: original.registrationRequired,
+        registrationUrl: original.registrationUrl,
+        image: original.image,
+        organizer: original.organizer,
+        status: ContentStatus.DRAFT,
+        source: original.source,
+        createdById: userId
+      }
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: 'CREATE',
+        entity: 'Event',
+        entityId: duplicate.id,
+        newData: JSON.stringify(duplicate)
+      }
+    });
+
+    return duplicate;
   }
 }
 

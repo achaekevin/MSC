@@ -40,32 +40,73 @@ export const updateOrganizationSchema = z.object({
 // Program creation and update
 export const createProgramSchema = z.object({
   title: z.string().min(3).max(200),
-  summary: z.string().min(10).max(1000),
-  description: z.string().min(20),
+  slug: z.string().optional(),
+  categoryId: z.string().optional().nullable(),
+  summary: z.string().min(10).max(1000).optional(),
+  shortDescription: z.string().min(10).max(1000).optional(),
+  description: z.string().min(20).optional(),
+  fullDescription: z.string().min(20).optional(),
   objectives: z.array(z.string()).min(1),
   activities: z.array(z.string()).min(1),
-  targetPopulation: z.array(z.string()).min(1),
-  thematicArea: z.string().optional(),
-  approach: z.string().optional(),
+  targetPopulation: z.array(z.string()).min(1).optional(),
+  targetBeneficiaries: z.array(z.string()).min(1).optional(),
+  thematicArea: z.string().optional().nullable(),
+  approach: z.string().optional().nullable(),
   iconName: z.string().default('HeartHandshake'),
-  image: z.string().url('Image must be a valid URL'),
+  image: z.string().min(1, 'Image path or URL is required'),
   imageAlt: z.string().min(3).max(200),
-  metricsHighlight: z.string().optional(),
+  metricsHighlight: z.string().optional().nullable(),
   relatedSlugs: z.array(z.string()).optional(),
+  relatedProgramSlugs: z.array(z.string()).optional(),
   displayOrder: z.number().int().default(0),
+  featured: z.boolean().default(false),
   source: contentSourceEnum.default('OFFICIAL_PROFILE'),
-  seoTitle: z.string().optional(),
-  seoDescription: z.string().optional()
+  seoTitle: z.string().optional().nullable(),
+  seoDescription: z.string().optional().nullable()
+}).refine(data => data.summary || data.shortDescription, {
+  message: 'Summary or shortDescription is required',
+  path: ['summary']
+}).refine(data => data.description || data.fullDescription, {
+  message: 'Description or fullDescription is required',
+  path: ['description']
 });
 
-export const updateProgramSchema = createProgramSchema.partial();
+export const updateProgramSchema = z.object({
+  title: z.string().min(3).max(200).optional(),
+  slug: z.string().optional(),
+  categoryId: z.string().optional().nullable(),
+  summary: z.string().min(10).max(1000).optional(),
+  shortDescription: z.string().min(10).max(1000).optional(),
+  description: z.string().min(20).optional(),
+  fullDescription: z.string().min(20).optional(),
+  objectives: z.array(z.string()).optional(),
+  activities: z.array(z.string()).optional(),
+  targetPopulation: z.array(z.string()).optional(),
+  targetBeneficiaries: z.array(z.string()).optional(),
+  thematicArea: z.string().optional().nullable(),
+  approach: z.string().optional().nullable(),
+  iconName: z.string().optional(),
+  image: z.string().min(1).optional(),
+  imageAlt: z.string().min(3).max(200).optional(),
+  metricsHighlight: z.string().optional().nullable(),
+  relatedSlugs: z.array(z.string()).optional(),
+  relatedProgramSlugs: z.array(z.string()).optional(),
+  displayOrder: z.number().int().optional(),
+  featured: z.boolean().optional(),
+  source: contentSourceEnum.optional(),
+  changeNote: z.string().optional(),
+  seoTitle: z.string().optional().nullable(),
+  seoDescription: z.string().optional().nullable()
+});
 
 // News article creation and update
 export const createNewsSchema = z.object({
   title: z.string().min(5).max(250),
+  slug: z.string().optional(),
+  categoryId: z.string().optional().nullable(),
   summary: z.string().min(10).max(1000),
   content: z.union([z.string().min(20), z.array(z.string()).min(1)]),
-  featuredImage: z.string().url('Featured image must be a valid URL'),
+  featuredImage: z.string().min(1, 'Featured image is required'),
   imageAlt: z.string().min(3).max(200),
   authorName: z.string().default('MSC Communications Unit'),
   authorRole: z.string().default('Communications & Outreach'),
@@ -73,25 +114,29 @@ export const createNewsSchema = z.object({
   tags: z.array(z.string()).default([]),
   isFeatured: z.boolean().default(false),
   source: contentSourceEnum.default('OFFICIAL_PROFILE'),
-  seoTitle: z.string().optional(),
-  seoDescription: z.string().optional()
+  seoTitle: z.string().optional().nullable(),
+  seoDescription: z.string().optional().nullable()
 });
 
-export const updateNewsSchema = createNewsSchema.partial();
+export const updateNewsSchema = createNewsSchema.partial().extend({
+  changeNote: z.string().optional()
+});
 
 // Event creation and update
 export const createEventSchema = z.object({
-  title: z.string().min(3).max(200),
+  title: z.string().min(3).max(255),
+  slug: z.string().optional(),
   description: z.string().min(10),
-  location: z.string().min(3).max(200),
+  location: z.string().min(3).max(255),
   county: z.string().default('Nyamira'),
   category: z.string().default('Community Outreach'),
   startDate: z.string().refine(val => !isNaN(Date.parse(val)), 'Invalid start date format'),
-  endDate: z.string().refine(val => !isNaN(Date.parse(val)), 'Invalid end date format').optional(),
+  endDate: z.string().refine(val => !isNaN(Date.parse(val)), 'Invalid end date format').optional().nullable(),
   timeString: z.string().default('09:00 AM - 03:00 PM EAT'),
   isRegistrationOpen: z.boolean().default(true),
-  registrationUrl: z.string().url().optional().or(z.literal('')),
-  image: z.string().url().optional().or(z.literal('')),
+  registrationRequired: z.boolean().default(false),
+  registrationUrl: z.string().optional().nullable(),
+  image: z.string().optional().nullable(),
   organizer: z.string().default('Mwancha Senior Community'),
   source: contentSourceEnum.default('OFFICIAL_PROFILE')
 });

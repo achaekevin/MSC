@@ -203,6 +203,61 @@ export class GalleryService {
       }
     });
   }
+
+  async submitReview(id: string, notes?: string, submitterId?: string) {
+    const media = await prisma.media.findUnique({ where: { id } });
+    if (!media || media.deletedAt) throw new NotFoundError('Media record not found');
+
+    return prisma.media.update({
+      where: { id },
+      data: {
+        status: ContentStatus.IN_REVIEW
+      }
+    });
+  }
+
+  async updateMedia(id: string, data: any, userId?: string) {
+    const existing = await prisma.media.findUnique({ where: { id } });
+    if (!existing || existing.deletedAt) throw new NotFoundError('Media record not found');
+
+    const updated = await prisma.media.update({
+      where: { id },
+      data: {
+        title: data.title !== undefined ? data.title : existing.title,
+        caption: data.caption !== undefined ? data.caption : existing.caption,
+        description: data.description !== undefined ? data.description : existing.description,
+        altText: data.altText !== undefined ? data.altText : existing.altText,
+        photographer: data.photographer !== undefined ? data.photographer : existing.photographer,
+        albumId: data.albumId !== undefined ? data.albumId : existing.albumId,
+        consentConfirmed: data.consentConfirmed !== undefined ? Boolean(data.consentConfirmed) : existing.consentConfirmed
+      }
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: 'UPDATE',
+        entity: 'Media',
+        entityId: id,
+        newData: JSON.stringify(data)
+      }
+    });
+
+    return updated;
+  }
+
+  async createAlbum(name: string, description?: string) {
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const album = await prisma.galleryAlbum.create({
+      data: {
+        name,
+        slug,
+        description,
+        status: ContentStatus.APPROVED
+      }
+    });
+    return album;
+  }
 }
 
 export const galleryService = new GalleryService();

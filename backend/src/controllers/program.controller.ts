@@ -13,6 +13,15 @@ export class ProgramController {
     }
   }
 
+  async getPublicCategories(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await programService.getCategories();
+      return sendSuccess(res, data, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getPublicProgramBySlug(req: Request, res: Response, next: NextFunction) {
     try {
       const { slug } = req.params;
@@ -29,9 +38,20 @@ export class ProgramController {
       const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 10;
       const status = req.query.status as string;
       const search = req.query.search as string;
+      const categoryId = req.query.categoryId as string;
 
-      const result = await programService.getAdminPrograms(page, limit, status, search);
+      const result = await programService.getAdminPrograms(page, limit, status, search, categoryId);
       return sendSuccess(res, result.items, 200, result.pagination);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAdminProgramById(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const data = await programService.getProgramById(id);
+      return sendSuccess(res, data, 200);
     } catch (error) {
       next(error);
     }

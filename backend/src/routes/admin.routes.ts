@@ -79,6 +79,8 @@ router.put(
 // PROGRAMS (Section 14)
 // ----------------------------------------------------
 router.get('/programs', (req, res, next) => programController.getAdminPrograms(req, res, next));
+router.get('/programs/categories', (req, res, next) => programController.getPublicCategories(req, res, next));
+router.get('/programs/:id', (req, res, next) => programController.getAdminProgramById(req, res, next));
 router.post(
   '/programs',
   requirePermissions('CONTENT_CREATE'),
@@ -112,6 +114,8 @@ router.post(
 // NEWS (Section 18)
 // ----------------------------------------------------
 router.get('/news', (req, res, next) => newsController.getAdminNews(req, res, next));
+router.get('/news/categories', (req, res, next) => newsController.getPublicCategories(req, res, next));
+router.get('/news/:id', (req, res, next) => newsController.getAdminNewsById(req, res, next));
 router.post(
   '/news',
   requirePermissions('CONTENT_CREATE'),
@@ -145,6 +149,8 @@ router.post(
 // EVENTS (Section 19)
 // ----------------------------------------------------
 router.get('/events', (req, res, next) => eventController.getAdminEvents(req, res, next));
+router.get('/events/categories', (req, res, next) => eventController.getPublicCategories(req, res, next));
+router.get('/events/:id', (req, res, next) => eventController.getAdminEventById(req, res, next));
 router.post(
   '/events',
   requirePermissions('CONTENT_CREATE'),
@@ -162,6 +168,7 @@ router.delete(
   requirePermissions('CONTENT_DELETE'),
   (req, res, next) => eventController.deleteEvent(req, res, next)
 );
+router.post('/events/:id/submit-review', (req, res, next) => eventController.submitReview(req, res, next));
 router.post(
   '/events/:id/approve',
   requirePermissions('CONTENT_APPROVE'),
@@ -171,6 +178,11 @@ router.post(
   '/events/:id/publish',
   requirePermissions('CONTENT_PUBLISH'),
   (req, res, next) => eventController.publishEvent(req, res, next)
+);
+router.post(
+  '/events/:id/duplicate',
+  requirePermissions('CONTENT_CREATE'),
+  (req, res, next) => eventController.duplicateEvent(req, res, next)
 );
 
 // ----------------------------------------------------
@@ -194,10 +206,16 @@ router.delete(
   requirePermissions('CONTENT_DELETE'),
   (req, res, next) => teamController.deleteTeamMember(req, res, next)
 );
+router.post('/team/:id/submit-review', (req, res, next) => teamController.submitReview(req, res, next));
 router.post(
   '/team/:id/approve',
   requirePermissions('CONTENT_APPROVE'),
   (req, res, next) => teamController.approveTeamMember(req, res, next)
+);
+router.post(
+  '/team/:id/publish',
+  requirePermissions('CONTENT_PUBLISH'),
+  (req, res, next) => teamController.publishTeamMember(req, res, next)
 );
 
 // ----------------------------------------------------
@@ -221,22 +239,45 @@ router.post(
   requirePermissions('CONTENT_APPROVE'),
   (req, res, next) => impactController.approveMetric(req, res, next)
 );
+router.post('/impact/:id/submit-review', (req, res, next) => impactController.submitReview(req, res, next));
+router.post(
+  '/impact/:id/publish',
+  requirePermissions('CONTENT_PUBLISH'),
+  (req, res, next) => impactController.publishMetric(req, res, next)
+);
+router.delete(
+  '/impact/:id',
+  requirePermissions('CONTENT_DELETE'),
+  (req, res, next) => impactController.deleteMetric(req, res, next)
+);
 
 // ----------------------------------------------------
 // MEDIA & GALLERY (Section 20 & 21)
 // ----------------------------------------------------
 router.get('/media', (req, res, next) => galleryController.getAdminMedia(req, res, next));
+router.get('/media/albums', (req, res, next) => galleryController.getPublicAlbums(req, res, next));
+router.post(
+  '/media/albums',
+  requirePermissions('MEDIA_MANAGE'),
+  (req, res, next) => galleryController.createAlbum(req, res, next)
+);
 router.post(
   '/media/upload',
   requirePermissions('MEDIA_MANAGE'),
   uploadMedia.single('file'),
   (req, res, next) => galleryController.uploadMedia(req, res, next)
 );
+router.put(
+  '/media/:id',
+  requirePermissions('MEDIA_MANAGE'),
+  (req, res, next) => galleryController.updateMedia(req, res, next)
+);
 router.delete(
   '/media/:id',
   requirePermissions('MEDIA_MANAGE'),
   (req, res, next) => galleryController.deleteMedia(req, res, next)
 );
+router.post('/media/:id/submit-review', (req, res, next) => galleryController.submitReview(req, res, next));
 router.post(
   '/media/:id/approve',
   requirePermissions('CONTENT_APPROVE'),

@@ -129,6 +129,31 @@ export class TeamService {
       }
     });
   }
+
+  async submitReview(id: string, userId?: string) {
+    const member = await prisma.teamMember.findUnique({ where: { id } });
+    if (!member || member.deletedAt) throw new NotFoundError('Team member not found');
+
+    return prisma.teamMember.update({
+      where: { id },
+      data: {
+        status: ContentStatus.IN_REVIEW
+      }
+    });
+  }
+
+  async publishTeamMember(id: string, userId?: string) {
+    const member = await prisma.teamMember.findUnique({ where: { id } });
+    if (!member || member.deletedAt) throw new NotFoundError('Team member not found');
+
+    return prisma.teamMember.update({
+      where: { id },
+      data: {
+        status: ContentStatus.PUBLISHED,
+        publishedAt: new Date()
+      }
+    });
+  }
 }
 
 export const teamService = new TeamService();

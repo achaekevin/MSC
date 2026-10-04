@@ -108,6 +108,52 @@ export class ImpactService {
       }
     });
   }
+
+  async submitReview(id: string, userId?: string) {
+    const metric = await prisma.impactMetric.findUnique({ where: { id } });
+    if (!metric || metric.deletedAt) throw new NotFoundError('Metric not found');
+
+    return prisma.impactMetric.update({
+      where: { id },
+      data: {
+        status: ContentStatus.IN_REVIEW
+      }
+    });
+  }
+
+  async publishMetric(id: string, userId?: string) {
+    const metric = await prisma.impactMetric.findUnique({ where: { id } });
+    if (!metric || metric.deletedAt) throw new NotFoundError('Metric not found');
+
+    return prisma.impactMetric.update({
+      where: { id },
+      data: {
+        status: ContentStatus.PUBLISHED,
+        publishedAt: new Date()
+      }
+    });
+  }
+
+  async deleteMetric(id: string, userId?: string) {
+    const metric = await prisma.impactMetric.findUnique({ where: { id } });
+    if (!metric) throw new NotFoundError('Metric not found');
+
+    await prisma.impactMetric.update({
+      where: { id },
+      data: { deletedAt: new Date() }
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: 'DELETE',
+        entity: 'ImpactMetric',
+        entityId: id
+      }
+    });
+
+    return true;
+  }
 }
 
 export const impactService = new ImpactService();

@@ -28,6 +28,8 @@ export class NewsService {
       featuredImage: a.featuredImage,
       imageAlt: a.imageAlt,
       category: a.category,
+      categoryId: a.categoryId,
+      categoryRelation: a.categoryRelation,
       tags: typeof a.tags === 'string' ? JSON.parse(a.tags || '[]') : a.tags,
       isFeatured: a.isFeatured,
       publishedAt: a.publishedAt ? a.publishedAt.toISOString() : a.createdAt.toISOString(),
@@ -40,6 +42,36 @@ export class NewsService {
     };
   }
 
+  async getCategories() {
+    return prisma.newsCategory.findMany({
+      orderBy: { name: 'asc' },
+      include: {
+        _count: {
+          select: {
+            articles: {
+              where: { deletedAt: null }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  async getArticleById(id: string) {
+    const article = await prisma.newsArticle.findUnique({
+      where: { id },
+      include: {
+        categoryRelation: true
+      }
+    });
+
+    if (!article || article.deletedAt) {
+      throw new NotFoundError('News article not found');
+    }
+
+    return this.formatArticle(article);
+  }
+
   async getPublicNews(page = 1, limit = 10, category?: string) {
     const skip = (page - 1) * limit;
     const where: any = {
@@ -48,7 +80,11 @@ export class NewsService {
     };
 
     if (category && category !== 'All Stories' && category !== 'All') {
-      where.category = category;
+      where.OR = [
+        { category },
+        { categoryRelation: { slug: category } },
+        { categoryId: category }
+      ];
     }
 
     const [total, articles] = await Promise.all([
@@ -57,6 +93,9 @@ export class NewsService {
         where,
         skip,
         take: limit,
+        include: {
+          categoryRelation: true
+        },
         orderBy: { publishedAt: 'desc' }
       })
     ]);
@@ -78,6 +117,9 @@ export class NewsService {
         slug,
         status: ContentStatus.PUBLISHED,
         deletedAt: null
+      },
+      include: {
+        categoryRelation: true
       }
     });
 
@@ -88,12 +130,20 @@ export class NewsService {
     return this.formatArticle(article);
   }
 
-  async getAdminNews(page = 1, limit = 10, status?: string, search?: string) {
+  async getAdminNews(page = 1, limit = 10, status?: string, search?: string, category?: string) {
     const skip = (page - 1) * limit;
     const where: any = { deletedAt: null };
 
     if (status && status !== 'all') {
       where.status = status as ContentStatus;
+    }
+
+    if (category && category !== 'ALL') {
+      where.OR = [
+        { category },
+        { categoryId: category },
+        { categoryRelation: { slug: category } }
+      ];
     }
 
     if (search) {
@@ -109,6 +159,9 @@ export class NewsService {
         where,
         skip,
         take: limit,
+        include: {
+          categoryRelation: true
+        },
         orderBy: { createdAt: 'desc' }
       })
     ]);
@@ -125,10 +178,15 @@ export class NewsService {
   }
 
   async createNews(data: any, userId?: string) {
-    const slug = await generateUniqueSlug(data.title, async candidate => {
-      const existing = await prisma.newsArticle.findUnique({ where: { slug: candidate } });
-      return !!existing;
-    });
+    const slug = data.slug
+      ? await generateUniqueSlug(data.slug, async candidate => {
+          const existing = await prisma.newsArticle.findUnique({ where: { slug: candidate } });
+          return !!existing;
+        })
+      : await generateUniqueSlug(data.title, async candidate => {
+          const existing = await prisma.newsArticle.findUnique({ where: { slug: candidate } });
+          return !!existing;
+        });
 
     const contentFormatted = Array.isArray(data.content)
       ? JSON.stringify(data.content)
@@ -139,6 +197,7 @@ export class NewsService {
     const article = await prisma.newsArticle.create({
       data: {
         slug,
+        categoryId: data.categoryId || null,
         title: data.title,
         summary: data.summary,
         content: contentFormatted,
@@ -154,6 +213,9 @@ export class NewsService {
         approvalRequired: true,
         seoTitle: data.seoTitle,
         seoDescription: data.seoDescription
+      },
+      include: {
+        categoryRelation: true
       }
     });
 
@@ -186,8 +248,12 @@ export class NewsService {
       where: { id },
       data: {
         ...data,
+        categoryId: data.categoryId !== undefined ? (data.categoryId || null) : undefined,
         content: contentFormatted,
         tags: data.tags ? JSON.stringify(data.tags) : undefined
+      },
+      include: {
+        categoryRelation: true
       }
     });
 

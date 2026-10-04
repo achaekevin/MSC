@@ -6,7 +6,9 @@ const allowedOrigins: string[] = [
   env.STAGING_FRONTEND_URL,
   'http://localhost:5173',
   'http://127.0.0.1:5173',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'http://localhost:5000',
+  'http://127.0.0.1:5000'
 ].filter(Boolean);
 
 export const corsOptions: CorsOptions = {
@@ -16,7 +18,12 @@ export const corsOptions: CorsOptions = {
       return callback(null, true);
     }
 
-    if (allowedOrigins.includes(origin) || env.NODE_ENV === 'development') {
+    // In development, allow any origin for network testing
+    if (env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
 

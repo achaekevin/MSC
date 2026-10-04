@@ -7,6 +7,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
+    "dev:network": "HOST=0.0.0.0 PORT=5000 tsx watch src/server.ts",
+    "start:network": "HOST=0.0.0.0 PORT=5000 node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",

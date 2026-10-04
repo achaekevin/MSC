@@ -50,6 +50,36 @@ export class ImpactController {
       next(error);
     }
   }
+
+  async submitReview(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const data = await impactService.submitReview(id, req.user?.id);
+      return sendSuccess(res, data, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async publishMetric(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const data = await impactService.publishMetric(id, req.user?.id);
+      return sendSuccess(res, data, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteMetric(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      await impactService.deleteMetric(id, req.user?.id);
+      return sendSuccess(res, { message: 'Metric deleted successfully' }, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const impactController = new ImpactController();
