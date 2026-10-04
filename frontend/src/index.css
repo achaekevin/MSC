@@ -13,10 +13,18 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
+  html.dark {
+    color-scheme: dark;
+  }
+
   body {
-    @apply bg-warm-50 text-charcoal-800 antialiased min-h-screen flex flex-col font-sans;
+    @apply bg-warm-50 text-charcoal-800 antialiased min-h-screen flex flex-col font-sans transition-colors duration-200;
     font-size: 1.0625rem; /* 17px base for comfortable senior-friendly reading */
     line-height: 1.65;
+  }
+
+  html.dark body {
+    @apply bg-charcoal-950 text-warm-100;
   }
 
   /* Improve keyboard navigation focus indicators */
@@ -24,15 +32,83 @@
     @apply outline-none ring-2 ring-forest-700 ring-offset-2 ring-offset-warm-50;
   }
 
+  html.dark :focus-visible {
+    @apply ring-emerald-500 ring-offset-charcoal-900;
+  }
+
   /* Typography headings */
   h1, h2, h3, h4, h5, h6 {
-    @apply text-charcoal-900 font-semibold tracking-tight;
+    @apply text-charcoal-900 font-semibold tracking-tight transition-colors duration-200;
+  }
+
+  html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 {
+    @apply text-warm-50;
   }
 
   /* Selection style */
   ::selection {
     @apply bg-forest-800 text-warm-50;
   }
+
+  html.dark ::selection {
+    @apply bg-emerald-600 text-white;
+  }
+}
+
+/* Dynamic dark theme adaptation for cards and inputs across entire application */
+.dark .bg-warm-50 {
+  background-color: #020617;
+}
+
+.dark .bg-white {
+  background-color: #0b1912;
+  color: #f5f1eb;
+}
+
+.dark .text-charcoal-900,
+.dark .text-charcoal-800 {
+  color: #f8fafc;
+}
+
+.dark .text-charcoal-700,
+.dark .text-charcoal-600 {
+  color: #cbd5e1;
+}
+
+.dark .text-charcoal-500,
+.dark .text-charcoal-400 {
+  color: #94a3b8;
+}
+
+.dark .border-warm-200,
+.dark .border-warm-200\/90,
+.dark .border-warm-200\/80,
+.dark .border-warm-200\/60,
+.dark .border-warm-100,
+.dark .border-warm-300 {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.dark .bg-warm-100 {
+  background-color: #143628;
+  color: #f1f5f9;
+}
+
+.dark .hover\:bg-warm-100:hover {
+  background-color: #1e3f30;
+}
+
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark select,
+.dark textarea {
+  background-color: #0f261a;
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748b;
 }
 
 @layer utilities {
@@ -44,6 +120,15 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+
+  /* Mobile-friendly touch scrolling helpers */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   @keyframes marquee {
@@ -66,6 +151,13 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.7);
+  }
+
+  .dark .glass-card {
+    background: rgba(15, 38, 26, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
   .glass-card-dark {

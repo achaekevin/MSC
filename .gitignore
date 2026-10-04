@@ -39,6 +39,7 @@ build/
 *.log
 logs/
 coverage/
+*.tsbuildinfo
 
 # OS and Editor metadata
 .DS_Store

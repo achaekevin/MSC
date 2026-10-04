@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/navigation/Navbar';
 import { Footer } from '../components/layout/Footer';
-import { ClientReviewBanner } from '../components/common/ClientReviewBanner';
 import { WhatsAppButton } from '../components/common/WhatsAppButton';
 
 export const RootLayout: React.FC = () => {
@@ -14,9 +13,7 @@ export const RootLayout: React.FC = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-warm-50 text-charcoal-900 selection:bg-forest-100 selection:text-forest-900 relative">
-      {/* 51.13 Development & Staging Client Review Banner */}
-      <ClientReviewBanner />
+    <div className="min-h-screen flex flex-col bg-warm-50 dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 transition-colors duration-200 selection:bg-forest-100 selection:text-forest-900 relative">
 
       {/* Accessible Skip to Content Link */}
       <a

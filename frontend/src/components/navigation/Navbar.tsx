@@ -3,6 +3,7 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronDown, Heart } from 'lucide-react';
 import { Logo } from '../common/Logo';
 import { Button } from '../ui/Button';
+import { ThemeToggle } from '../common/ThemeToggle';
 import { NAVIGATION_LINKS, MSC_ORGANIZATION } from '../../constants';
 
 export const Navbar: React.FC = () => {
@@ -64,8 +65,8 @@ export const Navbar: React.FC = () => {
       ref={navRef}
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-elevated border-b border-warm-200'
-          : 'bg-warm-50/95 backdrop-blur-sm border-b border-warm-200/60'
+          ? 'bg-white/95 dark:bg-charcoal-950/95 backdrop-blur-md shadow-elevated border-b border-warm-200 dark:border-charcoal-800'
+          : 'bg-warm-50/95 dark:bg-charcoal-900/95 backdrop-blur-sm border-b border-warm-200/60 dark:border-charcoal-800/80'
       }`}
     >
       {/* Top Banner Notice for Dignity and Mandate */}
@@ -81,7 +82,7 @@ export const Navbar: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between min-h-[110px] md:min-h-[126px] py-3 sm:py-4">
+        <div className="flex items-center justify-between min-h-[88px] sm:min-h-[105px] md:min-h-[120px] py-2 sm:py-3">
           {/* Organization Logo */}
           <Logo size="md" />
 
@@ -101,8 +102,8 @@ export const Navbar: React.FC = () => {
                       onMouseEnter={() => setActiveDropdown(link.name)}
                       className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-forest-700 ${
                         isCurrentActive
-                          ? 'text-forest-900 bg-forest-50/80 font-bold'
-                          : 'text-charcoal-700 hover:text-forest-900 hover:bg-warm-100'
+                          ? 'text-forest-900 dark:text-emerald-400 bg-forest-50/80 dark:bg-forest-950/80 font-bold'
+                          : 'text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-warm-100 dark:hover:bg-charcoal-800'
                       }`}
                       aria-expanded={activeDropdown === link.name}
                       aria-haspopup="true"
@@ -120,7 +121,7 @@ export const Navbar: React.FC = () => {
                     {activeDropdown === link.name && (
                       <div
                         onMouseLeave={() => setActiveDropdown(null)}
-                        className="absolute left-0 mt-1.5 w-64 rounded-xl bg-white shadow-xl border border-warm-200 py-2.5 z-50 animate-fadeIn"
+                        className="absolute left-0 mt-1.5 w-64 rounded-xl bg-white dark:bg-charcoal-900 shadow-xl border border-warm-200 dark:border-charcoal-700 py-2.5 z-50 animate-fadeIn"
                         role="menu"
                       >
                         {link.dropdown.map((subItem) => (
@@ -128,7 +129,7 @@ export const Navbar: React.FC = () => {
                             key={subItem.name}
                             to={subItem.href}
                             role="menuitem"
-                            className="block px-4 py-2.5 text-sm text-charcoal-700 hover:text-forest-900 hover:bg-forest-50 font-medium transition-colors"
+                            className="block px-4 py-2.5 text-sm text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-forest-50 dark:hover:bg-charcoal-800 font-medium transition-colors"
                           >
                             {subItem.name}
                           </Link>
@@ -146,8 +147,8 @@ export const Navbar: React.FC = () => {
                   className={({ isActive }) =>
                     `px-3 py-2 text-sm font-semibold rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-forest-700 ${
                       isActive
-                        ? 'text-forest-900 bg-forest-50/80 font-bold'
-                        : 'text-charcoal-700 hover:text-forest-900 hover:bg-warm-100'
+                        ? 'text-forest-900 dark:text-emerald-400 bg-forest-50/80 dark:bg-forest-950/80 font-bold'
+                        : 'text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-warm-100 dark:hover:bg-charcoal-800'
                     }`
                   }
                 >
@@ -157,8 +158,9 @@ export const Navbar: React.FC = () => {
             })}
           </nav>
 
-          {/* Desktop Primary Action CTA */}
+          {/* Desktop Primary Action CTA & Theme Toggle */}
           <div className="hidden lg:flex items-center gap-3">
+            <ThemeToggle />
             <Button
               to="/donate"
               variant="secondary"
@@ -170,12 +172,13 @@ export const Navbar: React.FC = () => {
             </Button>
           </div>
 
-          {/* Mobile Hamburger Toggle Button */}
-          <div className="flex items-center lg:hidden">
+          {/* Mobile Right Controls: Theme Toggle & Mobile Menu Hamburger */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <ThemeToggle />
             <button
               type="button"
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2.5 rounded-xl text-charcoal-700 hover:text-forest-900 hover:bg-warm-100 focus:outline-none focus:ring-2 focus:ring-forest-700"
+              className="p-2.5 rounded-xl text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-warm-100 dark:hover:bg-charcoal-800 focus:outline-none focus:ring-2 focus:ring-forest-700"
               aria-expanded={isOpen}
               aria-label={isOpen ? 'Close primary navigation' : 'Open primary navigation'}
             >
@@ -187,33 +190,33 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Navigation Drawer */}
       {isOpen && (
-        <div className="lg:hidden border-t border-warm-200 bg-white shadow-xl animate-fadeIn">
+        <div className="lg:hidden border-t border-warm-200 dark:border-charcoal-800 bg-white dark:bg-charcoal-950 shadow-2xl animate-fadeIn">
           <div className="px-4 pt-3 pb-6 space-y-1.5 max-h-[calc(100vh-5rem)] overflow-y-auto">
             {NAVIGATION_LINKS.map((link) => {
               if (link.dropdown) {
                 const isExpanded = activeDropdown === link.name;
                 return (
-                  <div key={link.name} className="border-b border-warm-100 py-1">
+                  <div key={link.name} className="border-b border-warm-100 dark:border-charcoal-800/80 py-1">
                     <button
                       type="button"
                       onClick={() => toggleDropdown(link.name)}
-                      className="w-full flex items-center justify-between py-2.5 text-base font-semibold text-charcoal-800 text-left"
+                      className="w-full flex items-center justify-between py-2.5 text-base font-semibold text-charcoal-800 dark:text-warm-100 text-left"
                       aria-expanded={isExpanded}
                     >
                       <span>{link.name}</span>
                       <ChevronDown
-                        className={`w-4 h-4 transition-transform duration-200 ${
+                        className={`w-4 h-4 transition-transform duration-200 text-charcoal-500 dark:text-warm-400 ${
                           isExpanded ? 'rotate-180' : ''
                         }`}
                       />
                     </button>
                     {isExpanded && (
-                      <div className="pl-4 pb-2 space-y-1 bg-warm-50/60 rounded-lg my-1">
+                      <div className="pl-4 pb-2 space-y-1 bg-warm-50/60 dark:bg-charcoal-900/80 rounded-lg my-1">
                         {link.dropdown.map((subItem) => (
                           <Link
                             key={subItem.name}
                             to={subItem.href}
-                            className="block py-2 text-sm text-charcoal-700 hover:text-forest-900 font-medium"
+                            className="block py-2 text-sm text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 font-medium"
                           >
                             {subItem.name}
                           </Link>
@@ -229,8 +232,8 @@ export const Navbar: React.FC = () => {
                   key={link.name}
                   to={link.href}
                   className={({ isActive }) =>
-                    `block py-2.5 text-base font-semibold border-b border-warm-100 ${
-                      isActive ? 'text-forest-900 font-bold' : 'text-charcoal-800'
+                    `block py-2.5 text-base font-semibold border-b border-warm-100 dark:border-charcoal-800/80 ${
+                      isActive ? 'text-forest-900 dark:text-emerald-400 font-bold' : 'text-charcoal-800 dark:text-warm-100'
                     }`
                   }
                 >
@@ -253,7 +256,7 @@ export const Navbar: React.FC = () => {
                 to="/get-involved"
                 variant="outline"
                 size="md"
-                className="w-full font-medium"
+                className="w-full font-medium dark:text-warm-100 dark:border-charcoal-700 dark:hover:bg-charcoal-900"
               >
                 Ways to Get Involved
               </Button>

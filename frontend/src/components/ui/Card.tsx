@@ -24,11 +24,11 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <div
-      className={`bg-white rounded-2xl overflow-hidden transition-all duration-300 ${
-        bordered ? 'border border-warm-200/90' : ''
+      className={`bg-white dark:bg-charcoal-900 text-charcoal-900 dark:text-warm-100 rounded-2xl overflow-hidden transition-all duration-300 ${
+        bordered ? 'border border-warm-200/90 dark:border-charcoal-800' : ''
       } ${
         hoverEffect
-          ? 'hover:shadow-card-hover hover:-translate-y-1 hover:border-forest-200'
+          ? 'hover:shadow-card-hover hover:-translate-y-1 hover:border-forest-200 dark:hover:border-forest-700'
           : 'shadow-card'
       } ${paddingStyles[padding]} ${className}`}
       {...props}
