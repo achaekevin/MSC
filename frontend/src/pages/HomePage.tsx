@@ -15,10 +15,8 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageCircle,
-  Award,
-  Eye,
-  Activity,
-  Compass
+  Pause,
+  Play
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Container } from '../components/ui/Container';
@@ -33,25 +31,25 @@ import { NEWS_ARTICLES_DATA } from '../data/newsData';
 import { fadeIn, fadeInUp, staggerContainer } from '../animations';
 import { SEO } from '../components/common/SEO';
 
-// Authentic Facilities for Interactive Showcase
+// Authentic Facilities for Full-Screen Cinematic Showcase
 const MSC_FACILITIES = [
   {
     id: 'grounds',
     title: 'Community Compound & Outreach Hub',
     category: 'Field Operations',
-    description: 'The central operational grounds in Kebirigo, Nyamira County, serving as the launching pad for mobile medical outreaches and food basket distributions.',
+    description: 'The central operational grounds in Kebirigo, Nyamira County, serving as the launching pad for mobile medical outreaches, stakeholder assemblies, and emergency food distributions.',
     location: 'Kebirigo, Nyamira County',
     image: '/images/mwancha-community-grounds.jpg',
     tag: 'Verified Headquarters'
   },
   {
     id: 'residence',
-    title: 'Main Center & Residence',
+    title: 'Main Care Center & Residence',
     category: 'Care & Respite',
     description: 'Our permanent two-story residential center providing safe shelter, case management coordination, and compassionate respite care for vulnerable seniors.',
     location: 'Kebirigo, Nyamira County',
     image: '/images/mwancha-facility-main.jpg',
-    tag: 'Safe Shelter'
+    tag: 'Safe Elder Shelter'
   },
   {
     id: 'pavilion',
@@ -98,24 +96,50 @@ export const HomePage: React.FC = () => {
   const featuredPrograms = PROGRAMS_DATA.slice(0, 3);
   const latestArticles = NEWS_ARTICLES_DATA.slice(0, 3);
 
-  // Facility carousel state
+  // Full-Screen Facility Carousel State
   const [activeFacilityIndex, setActiveFacilityIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   // Mandate tab state
   const [activeMandateTab, setActiveMandateTab] = useState<'vision' | 'mission' | 'values'>('vision');
 
-  // Interactive Program Filter
-  const [selectedProgramPillar, setSelectedProgramPillar] = useState<string>('all');
+  const SLIDE_DURATION = 6000; // 6 seconds per slide
 
-  // Auto-advance facility showcase every 5.5s unless hovered
+  // Auto-advance facility showcase with smooth timer progress bar
   useEffect(() => {
-    if (isHovered) return;
+    if (isPaused) return;
+
+    const interval = 50; // update progress every 50ms
+    const step = (interval / SLIDE_DURATION) * 100;
+
     const timer = setInterval(() => {
-      setActiveFacilityIndex((prev) => (prev + 1) % MSC_FACILITIES.length);
-    }, 5500);
+      setProgress((prev) => {
+        if (prev >= 100) {
+          setActiveFacilityIndex((currentIndex) => (currentIndex + 1) % MSC_FACILITIES.length);
+          return 0;
+        }
+        return prev + step;
+      });
+    }, interval);
+
     return () => clearInterval(timer);
-  }, [isHovered]);
+  }, [isPaused, activeFacilityIndex]);
+
+  const selectFacility = (index: number) => {
+    setActiveFacilityIndex(index);
+    setProgress(0);
+  };
+
+  const nextFacility = () => {
+    setActiveFacilityIndex((prev) => (prev + 1) % MSC_FACILITIES.length);
+    setProgress(0);
+  };
+
+  const prevFacility = () => {
+    setActiveFacilityIndex((prev) => (prev - 1 + MSC_FACILITIES.length) % MSC_FACILITIES.length);
+    setProgress(0);
+  };
 
   const activeFacility = MSC_FACILITIES[activeFacilityIndex];
 
@@ -127,226 +151,255 @@ export const HomePage: React.FC = () => {
       />
 
       {/* =========================================================================
-          HERO SECTION (Modern, Dynamic, Glassmorphic & Alive)
+          FULL-PAGE IMMERSIVE CINEMATIC HERO (Covers Whole Screen)
           ========================================================================= */}
-      <section className="relative overflow-hidden pt-8 pb-16 sm:py-20 lg:py-24 border-b border-warm-200/80 bg-gradient-to-b from-warm-100 via-warm-50/70 to-warm-50">
-        {/* Soft Ambient Light Glows */}
-        <div className="ambient-glow -top-24 -left-20 w-96 h-96 bg-emerald-400/20" />
-        <div className="ambient-glow top-40 -right-20 w-96 h-96 bg-amber-400/20" />
+      <section
+        className="relative min-h-[92vh] sm:min-h-[95vh] flex flex-col justify-between overflow-hidden bg-forest-950 text-white select-none border-b border-forest-800"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        {/* Full-Bleed Animated Facility Background Crossfade with Vibrant Ken-Burns Zoom */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={activeFacility.id}
+              src={activeFacility.image}
+              alt={activeFacility.title}
+              initial={{ opacity: 0, scale: 1.14 }}
+              animate={{ opacity: 1, scale: 1.0 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0 w-full h-full object-cover object-center filter brightness-95 contrast-115 saturate-110"
+              loading="eager"
+            />
+          </AnimatePresence>
 
-        <Container>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-            {/* Hero Left Column: Copy & CTAs */}
+          {/* High-Contrast Directional Scrim: Protects Left Text While Keeping Center & Right Imagery Vividly Clear */}
+          <div className="absolute inset-0 bg-gradient-to-r from-forest-950/85 via-forest-950/45 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-forest-950/90 via-transparent to-forest-950/30 z-10" />
+
+          {/* Ambient Glowing Highlights */}
+          <div className="ambient-glow -top-20 -left-20 w-[450px] h-[450px] bg-emerald-500/30 z-10" />
+          <div className="ambient-glow bottom-20 -right-20 w-[450px] h-[450px] bg-amber-400/25 z-10" />
+        </div>
+
+        {/* Top Header / Verified Badge Area */}
+        <div className="relative z-20 pt-8 sm:pt-12">
+          <Container>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              {/* Verified Organization Emblem */}
+              <div className="glass-card-dark rounded-2xl px-4 py-2.5 border-2 border-white/25 flex items-center gap-3 shadow-2xl backdrop-blur-md">
+                <div className="w-11 h-11 rounded-xl bg-white p-1 border-2 border-warm-200 shadow-md flex items-center justify-center flex-shrink-0">
+                  <img src="/logo.png" alt="MSC Emblem" className="w-full h-full object-contain" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-black text-warm-50 leading-tight tracking-wide">Mwancha Senior Community</p>
+                  <p className="text-[11px] text-amber-300 font-bold uppercase tracking-wider">
+                    {activeFacility.tag} &bull; Kebirigo, Nyamira County
+                  </p>
+                </div>
+              </div>
+
+              {/* Status Beacon */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-forest-900/90 backdrop-blur-md border-2 border-emerald-500/40 text-xs font-bold text-warm-50 shadow-lg">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+                </span>
+                <span>Active Grassroots Mission Across Kenya</span>
+              </div>
+            </div>
+          </Container>
+        </div>
+
+        {/* Main Hero Foreground Content */}
+        <div className="relative z-20 py-8 sm:py-12 my-auto">
+          <Container>
             <motion.div
               initial="hidden"
               animate="visible"
               variants={fadeInUp}
-              className="lg:col-span-7 text-left space-y-6 relative z-10"
+              className="max-w-3xl text-left space-y-6"
             >
-              {/* Dynamic Live Status Pill */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-forest-900 border border-forest-200/80 text-xs sm:text-sm font-semibold tracking-wide shadow-sm">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600" />
-                </span>
-                <span className="font-bold">National Mandate</span>
-                <span className="text-forest-400">&bull;</span>
-                <span className="text-charcoal-700">Rooted in Kebirigo, Nyamira County</span>
-              </div>
+              {/* High-Contrast Glass Backing for Text */}
+              <div className="bg-forest-950/80 backdrop-blur-md p-6 sm:p-9 rounded-3xl border-2 border-white/20 shadow-2xl space-y-5">
+                {/* Category Pill for Current Location */}
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/25 border-2 border-amber-300/60 text-amber-300 text-xs font-black uppercase tracking-wider shadow-sm">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+                  <span>Verified Site: {activeFacility.title}</span>
+                </div>
 
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-charcoal-950 leading-[1.12] font-display tracking-tight">
-                Dignity, Care & a Flourishing Life for{' '}
-                <span className="relative inline-block text-forest-800">
-                  <span className="relative z-10">Older Persons</span>
-                  <span className="absolute bottom-1.5 left-0 w-full h-3 bg-amber-200/60 -rotate-1 rounded-sm -z-0" />
-                </span>
-              </h1>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-warm-50 leading-[1.12] font-display tracking-tight drop-shadow-lg">
+                  Dignity, Care & a Flourishing Life for{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-warm-100 to-amber-300 drop-shadow-sm">
+                    Older Persons
+                  </span>
+                </h1>
 
-              <p className="text-base sm:text-lg text-charcoal-700 leading-relaxed max-w-2xl font-normal">
-                {MSC_ORGANIZATION.mission}
-              </p>
+                <p className="text-base sm:text-lg text-forest-100 leading-relaxed font-medium drop-shadow-sm">
+                  {MSC_ORGANIZATION.mission}
+                </p>
 
-              {/* Action Buttons */}
-              <div className="pt-2 flex flex-wrap items-center gap-3.5">
-                <Button
-                  to="/donate"
-                  variant="secondary"
-                  size="lg"
-                  icon={<Heart className="w-5 h-5 fill-white" />}
-                  className="font-bold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-transform duration-200"
-                >
-                  Support Our Work
-                </Button>
-                <Button
-                  to="/about"
-                  variant="outline"
-                  size="lg"
-                  icon={<ArrowRight className="w-5 h-5" />}
-                  iconPosition="right"
-                  className="bg-white/80 hover:bg-white border-forest-300 hover:border-forest-600 shadow-sm"
-                >
-                  Explore Our Story
-                </Button>
-                <a
-                  href={`https://wa.me/254790629439?text=${encodeURIComponent('Hello Mwancha Senior Community, I would like to inquire about your programs.')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all"
-                  aria-label="Direct WhatsApp inquiry with MSC"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>WhatsApp Helpdesk</span>
-                </a>
+                {/* Action Buttons */}
+                <div className="pt-2 flex flex-wrap items-center gap-3.5">
+                  <Button
+                    to="/donate"
+                    variant="secondary"
+                    size="lg"
+                    icon={<Heart className="w-5 h-5 fill-white" />}
+                    className="font-black shadow-xl hover:shadow-2xl hover:scale-[1.03] transition-all duration-200 border-2 border-amber-300"
+                  >
+                    Support Our Work
+                  </Button>
+                  <Button
+                    to="/about"
+                    variant="outline"
+                    size="lg"
+                    icon={<ArrowRight className="w-5 h-5" />}
+                    iconPosition="right"
+                    className="bg-white/15 hover:bg-white/25 border-2 border-white/40 text-white font-bold backdrop-blur-md shadow-md"
+                  >
+                    Explore Our Story
+                  </Button>
+                  <a
+                    href={`https://wa.me/254790629439?text=${encodeURIComponent('Hello Mwancha Senior Community, I would like to inquire about your programs and support services.')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-xl hover:shadow-2xl transition-all border-2 border-emerald-400/50 hover:scale-[1.02]"
+                    aria-label="Direct WhatsApp inquiry with MSC"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>WhatsApp Helpdesk</span>
+                  </a>
+                </div>
               </div>
 
               {/* Dynamic Animated Impact Metric Chips */}
-              <div className="pt-6 grid grid-cols-3 gap-3 sm:gap-4 border-t border-warm-200/80 max-w-xl">
-                <div className="glass-card rounded-2xl p-3 sm:p-4 border border-warm-200/90 text-left shadow-xs transition-transform hover:-translate-y-1 duration-200">
-                  <div className="flex items-center gap-1.5 text-forest-700 mb-1">
-                    <Users className="w-4 h-4 text-emerald-600" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-charcoal-500">Beneficiaries</span>
+              <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-xl">
+                <div className="glass-card-dark rounded-2xl p-3 sm:p-4 border-2 border-white/20 text-left shadow-xl hover:border-emerald-400 transition-colors">
+                  <div className="flex items-center gap-1.5 text-forest-200 mb-1">
+                    <Users className="w-4 h-4 text-emerald-400" />
+                    <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-amber-300">Beneficiaries</span>
                   </div>
-                  <p className="text-2xl sm:text-3xl font-black text-forest-900 font-display">1,203+</p>
-                  <p className="text-xs text-charcoal-600 font-medium">Households Served</p>
+                  <p className="text-2xl sm:text-3xl font-black text-warm-50 font-display">1,203+</p>
+                  <p className="text-xs text-forest-100 font-semibold">Households Served</p>
                 </div>
 
-                <div className="glass-card rounded-2xl p-3 sm:p-4 border border-warm-200/90 text-left shadow-xs transition-transform hover:-translate-y-1 duration-200">
-                  <div className="flex items-center gap-1.5 text-forest-700 mb-1">
-                    <HeartHandshake className="w-4 h-4 text-amber-600" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-charcoal-500">Volunteers</span>
+                <div className="glass-card-dark rounded-2xl p-3 sm:p-4 border-2 border-white/20 text-left shadow-xl hover:border-amber-400 transition-colors">
+                  <div className="flex items-center gap-1.5 text-forest-200 mb-1">
+                    <HeartHandshake className="w-4 h-4 text-amber-400" />
+                    <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-amber-300">Volunteers</span>
                   </div>
-                  <p className="text-2xl sm:text-3xl font-black text-forest-900 font-display">40</p>
-                  <p className="text-xs text-charcoal-600 font-medium">Ward Coordinators</p>
+                  <p className="text-2xl sm:text-3xl font-black text-warm-50 font-display">40</p>
+                  <p className="text-xs text-forest-100 font-semibold">Ward Coordinators</p>
                 </div>
 
-                <div className="glass-card rounded-2xl p-3 sm:p-4 border border-warm-200/90 text-left shadow-xs transition-transform hover:-translate-y-1 duration-200">
-                  <div className="flex items-center gap-1.5 text-forest-700 mb-1">
-                    <Calendar className="w-4 h-4 text-forest-600" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-charcoal-500">Established</span>
+                <div className="glass-card-dark rounded-2xl p-3 sm:p-4 border-2 border-white/20 text-left shadow-xl hover:border-emerald-400 transition-colors">
+                  <div className="flex items-center gap-1.5 text-forest-200 mb-1">
+                    <Calendar className="w-4 h-4 text-emerald-300" />
+                    <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-amber-300">Established</span>
                   </div>
-                  <p className="text-2xl sm:text-3xl font-black text-forest-900 font-display">2016</p>
-                  <p className="text-xs text-charcoal-600 font-medium">Community Rooted</p>
+                  <p className="text-2xl sm:text-3xl font-black text-warm-50 font-display">2016</p>
+                  <p className="text-xs text-forest-100 font-semibold">Community Rooted</p>
                 </div>
               </div>
             </motion.div>
+          </Container>
+        </div>
 
-            {/* Hero Right Column: Interactive Compound & Facility Showcase */}
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeIn}
-              className="lg:col-span-5 relative"
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-            >
-              <div className="relative mx-auto max-w-md lg:max-w-none">
-                {/* Glowing Outer Aura */}
-                <div className="absolute -inset-2 bg-gradient-to-r from-forest-600 via-emerald-500 to-amber-500 rounded-3xl opacity-25 blur-xl -z-10 animate-pulse" />
+        {/* Bottom Viewport Control Deck: High-Contrast Facility Switcher Bar */}
+        <div className="relative z-20 pb-6 sm:pb-8">
+          <Container>
+            <div className="bg-forest-950/90 rounded-2xl p-4 sm:p-5 border-2 border-white/25 shadow-2xl backdrop-blur-xl">
+              {/* Glowing High-Contrast Progress Bar */}
+              <div className="w-full bg-forest-900 h-1.5 rounded-full mb-3.5 overflow-hidden border border-white/10">
+                <motion.div
+                  className="bg-gradient-to-r from-amber-400 via-emerald-400 to-amber-300 h-full rounded-full shadow-[0_0_10px_#fbbf24]"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
 
-                {/* Primary Visual Container */}
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white aspect-[4/5] bg-warm-200">
-                  <AnimatePresence mode="wait">
-                    <motion.img
-                      key={activeFacility.id}
-                      src={activeFacility.image}
-                      alt={activeFacility.title}
-                      initial={{ opacity: 0, scale: 1.05 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.6 }}
-                      className="w-full h-full object-cover object-center"
-                      loading="eager"
-                    />
-                  </AnimatePresence>
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                {/* Current Location Caption */}
+                <div className="text-left">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                    <span className="text-sm sm:text-base font-black text-warm-50 tracking-wide">
+                      {activeFacility.title}
+                    </span>
+                    <span className="text-xs text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-full border border-amber-300/40 font-bold uppercase tracking-wider">
+                      {activeFacility.category}
+                    </span>
+                  </div>
+                  <p className="text-xs text-forest-100 mt-1 line-clamp-1 font-medium">
+                    {activeFacility.description}
+                  </p>
+                </div>
 
-                  {/* Gradient Scrim */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950/95 via-forest-950/30 to-transparent" />
-
-                  {/* Official Verified Emblem */}
-                  <div className="absolute top-4 left-4 glass-card rounded-2xl p-2.5 sm:p-3 shadow-xl border border-white/80 flex items-center gap-3 z-20">
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-white p-1 border border-warm-200 shadow-xs flex items-center justify-center flex-shrink-0">
-                      <img src="/logo.png" alt="Mwancha Senior Community Official Logo" className="w-full h-full object-contain" />
-                    </div>
-                    <div className="text-left pr-1">
-                      <p className="text-xs sm:text-sm font-black text-forest-950 leading-tight">Mwancha Senior Community</p>
-                      <p className="text-[10px] sm:text-xs text-earth-700 font-bold uppercase tracking-wider mt-0.5">
-                        {activeFacility.tag}
-                      </p>
-                    </div>
+                {/* Interactive Facility Thumbnail & Control Switcher */}
+                <div className="flex items-center gap-2.5 self-start lg:self-center flex-wrap">
+                  {/* Slide Selector Buttons with Mini Thumbnails */}
+                  <div className="flex items-center gap-1.5 bg-forest-900/95 p-1.5 rounded-2xl border-2 border-white/15">
+                    {MSC_FACILITIES.map((fac, idx) => (
+                      <button
+                        key={fac.id}
+                        type="button"
+                        onClick={() => selectFacility(idx)}
+                        aria-label={`Switch background to ${fac.title}`}
+                        className={`group flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                          activeFacilityIndex === idx
+                            ? 'bg-amber-400 text-forest-950 font-black shadow-md ring-2 ring-white/60'
+                            : 'text-warm-100 hover:text-white hover:bg-white/15'
+                        }`}
+                      >
+                        <img
+                          src={fac.image}
+                          alt=""
+                          className="w-5 h-5 rounded-md object-cover flex-shrink-0 border border-black/20"
+                        />
+                        <span>{fac.category}</span>
+                      </button>
+                    ))}
                   </div>
 
-                  {/* Navigation Arrows for Facility */}
-                  <div className="absolute top-4 right-4 flex items-center gap-1.5 z-20">
+                  {/* Play/Pause & Arrows */}
+                  <div className="flex items-center gap-1.5">
                     <button
                       type="button"
-                      onClick={() => setActiveFacilityIndex((prev) => (prev - 1 + MSC_FACILITIES.length) % MSC_FACILITIES.length)}
+                      onClick={() => setIsPaused(!isPaused)}
+                      aria-label={isPaused ? "Play background rotation" : "Pause background rotation"}
+                      className="w-9 h-9 rounded-xl bg-forest-900 hover:bg-forest-800 text-white flex items-center justify-center border-2 border-white/20 transition-colors shadow-sm"
+                    >
+                      {isPaused ? <Play className="w-4 h-4 fill-current" /> : <Pause className="w-4 h-4 fill-current" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={prevFacility}
                       aria-label="Previous facility photo"
-                      className="w-8 h-8 rounded-full bg-forest-950/60 hover:bg-forest-950 text-white backdrop-blur-md flex items-center justify-center transition-colors"
+                      className="w-9 h-9 rounded-xl bg-forest-900 hover:bg-forest-800 text-white flex items-center justify-center border-2 border-white/20 transition-colors shadow-sm"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
                     <button
                       type="button"
-                      onClick={() => setActiveFacilityIndex((prev) => (prev + 1) % MSC_FACILITIES.length)}
+                      onClick={nextFacility}
                       aria-label="Next facility photo"
-                      className="w-8 h-8 rounded-full bg-forest-950/60 hover:bg-forest-950 text-white backdrop-blur-md flex items-center justify-center transition-colors"
+                      className="w-9 h-9 rounded-xl bg-forest-900 hover:bg-forest-800 text-white flex items-center justify-center border-2 border-white/20 transition-colors shadow-sm"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
-
-                  {/* Slide Content Caption */}
-                  <div className="absolute bottom-0 inset-x-0 p-5 sm:p-6 text-white text-left z-20">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-forest-900/90 border border-forest-600/60 text-xs font-bold text-amber-300 mb-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      <span>{activeFacility.category}</span>
-                    </div>
-
-                    <h3 className="text-base sm:text-lg font-bold font-display text-white leading-snug">
-                      {activeFacility.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-forest-100/90 mt-1 line-clamp-2 leading-relaxed">
-                      {activeFacility.description}
-                    </p>
-
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-forest-700/60 text-xs text-forest-200">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                        {activeFacility.location}
-                      </span>
-                      <span className="font-semibold text-amber-300">
-                        {activeFacilityIndex + 1} of {MSC_FACILITIES.length}
-                      </span>
-                    </div>
-
-                    {/* Interactive Slide Selector Pills */}
-                    <div className="flex items-center gap-1.5 mt-3">
-                      {MSC_FACILITIES.map((fac, idx) => (
-                        <button
-                          key={fac.id}
-                          type="button"
-                          onClick={() => setActiveFacilityIndex(idx)}
-                          aria-label={`View ${fac.title}`}
-                          className={`h-2 rounded-full transition-all duration-300 ${
-                            activeFacilityIndex === idx
-                              ? 'w-8 bg-amber-400'
-                              : 'w-2 bg-white/40 hover:bg-white/70'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
                 </div>
               </div>
-            </motion.div>
-          </div>
-        </Container>
+            </div>
+          </Container>
+        </div>
       </section>
 
       {/* =========================================================================
           ANIMATED LIVE COMMUNITY TICKER (Modern Marquee)
           ========================================================================= */}
-      <div className="border-y border-forest-900/10 bg-forest-900 text-warm-50 py-3.5 overflow-hidden select-none shadow-inner">
+      <div className="border-y border-forest-900/20 bg-forest-900 text-warm-50 py-4 overflow-hidden select-none shadow-inner">
         <div className="animate-marquee flex items-center gap-8 whitespace-nowrap">
           {TICKER_ITEMS.concat(TICKER_ITEMS).map((item, idx) => (
             <div key={idx} className="flex items-center gap-3 text-xs sm:text-sm font-semibold tracking-wide">
