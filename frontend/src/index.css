@@ -18,13 +18,16 @@
   }
 
   body {
-    @apply bg-warm-50 text-charcoal-800 antialiased min-h-screen flex flex-col font-sans transition-colors duration-200;
+    @apply bg-warm-50 text-charcoal-950 antialiased min-h-screen flex flex-col font-sans transition-colors duration-200;
     font-size: 1.0625rem; /* 17px base for comfortable senior-friendly reading */
     line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   html.dark body {
-    @apply bg-charcoal-950 text-warm-100;
+    @apply bg-charcoal-950 text-warm-50;
   }
 
   /* Improve keyboard navigation focus indicators */
@@ -38,7 +41,16 @@
 
   /* Typography headings */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight transition-colors duration-200;
+    @apply font-bold tracking-tight transition-colors duration-200 text-charcoal-950;
+  }
+
+  html.dark h1,
+  html.dark h2,
+  html.dark h3,
+  html.dark h4,
+  html.dark h5,
+  html.dark h6 {
+    @apply text-white;
   }
 
   /* Selection style */
@@ -61,34 +73,44 @@
 .dark select,
 .dark textarea {
   background-color: #0f261a;
-  color: #f8fafc;
-  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .dark input::placeholder,
 .dark textarea::placeholder {
-  color: #64748b;
-}
-
-/* Automatic Dark Mode Fallbacks for High-Contrast Text */
-.dark .text-charcoal-900:not([class*="dark:text-"]) {
-  color: #f8fafc;
-}
-
-.dark .text-charcoal-800:not([class*="dark:text-"]) {
-  color: #f1f5f9;
-}
-
-.dark .text-charcoal-700:not([class*="dark:text-"]) {
-  color: #cbd5e1;
-}
-
-.dark .text-charcoal-600:not([class*="dark:text-"]) {
   color: #94a3b8;
 }
 
+/* Stress-Free High-Contrast Typography in Dark Mode (no eye strain or faded text) */
+.dark .text-charcoal-950:not([class*="dark:text-"]),
+.dark .text-charcoal-900:not([class*="dark:text-"]) {
+  color: #ffffff !important;
+}
+
+.dark .text-charcoal-800:not([class*="dark:text-"]) {
+  color: #f8fafc !important;
+}
+
+.dark .text-charcoal-700:not([class*="dark:text-"]) {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-charcoal-600:not([class*="dark:text-"]) {
+  color: #e2e8f0 !important;
+}
+
 .dark .text-charcoal-500:not([class*="dark:text-"]) {
-  color: #64748b;
+  color: #cbd5e1 !important;
+}
+
+/* Light mode text contrast boosts - eliminates muddy washed out grays */
+.text-charcoal-600 {
+  color: #334155;
+}
+
+.text-charcoal-700 {
+  color: #1e293b;
 }
 
 /* Adapt light page header sections and warm backgrounds in dark mode */
@@ -106,25 +128,25 @@
 .dark .border-warm-200,
 .dark .border-warm-300,
 .dark [class*="border-warm-200"] {
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Adapt white card surfaces in dark mode unless explicitly preserved */
 .dark div.bg-white:not(.preserve-white):not([class*="dark:bg-"]),
 .dark article.bg-white:not(.preserve-white):not([class*="dark:bg-"]) {
   background-color: #0f1d16;
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Light badge adapters */
 .dark .bg-forest-100:not([class*="dark:bg-"]) {
-  background-color: rgba(6, 78, 59, 0.5);
+  background-color: rgba(6, 78, 59, 0.6);
   color: #6ee7b7;
 }
 
 .dark .bg-earth-100:not([class*="dark:bg-"]),
 .dark .bg-earth-50:not([class*="dark:bg-"]) {
-  background-color: rgba(120, 53, 15, 0.45);
+  background-color: rgba(120, 53, 15, 0.55);
   color: #fcd34d;
 }
 

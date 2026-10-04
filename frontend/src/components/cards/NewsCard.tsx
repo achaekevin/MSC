@@ -30,7 +30,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ article }) => {
 
       <div className="p-6 flex-1 flex flex-col justify-between">
         <div>
-          <div className="flex items-center gap-2 text-xs text-charcoal-500 dark:text-charcoal-400 mb-2.5">
+          <div className="flex items-center gap-2 text-xs font-bold text-charcoal-700 dark:text-warm-300 mb-2.5">
             <Calendar className="w-3.5 h-3.5 text-forest-700 dark:text-emerald-400" />
             <time dateTime={article.publishedAt}>
               {new Date(article.publishedAt).toLocaleDateString('en-KE', {
@@ -40,19 +40,19 @@ export const NewsCard: React.FC<NewsCardProps> = ({ article }) => {
               })}
             </time>
           </div>
-          <h3 className="text-lg font-bold text-charcoal-900 dark:text-warm-50 group-hover:text-forest-800 dark:group-hover:text-emerald-400 transition-colors font-display line-clamp-2 mb-2.5">
+          <h3 className="text-lg font-black text-charcoal-950 dark:text-white group-hover:text-forest-800 dark:group-hover:text-emerald-400 transition-colors font-display line-clamp-2 mb-2.5">
             {article.title}
           </h3>
-          <p className="text-sm text-charcoal-600 dark:text-charcoal-300 line-clamp-3 leading-relaxed mb-4 transition-colors">
+          <p className="text-sm sm:text-base text-charcoal-800 dark:text-warm-200 line-clamp-3 leading-relaxed mb-4 font-medium transition-colors">
             {article.summary}
           </p>
         </div>
 
-        <div className="pt-4 border-t border-warm-100 dark:border-charcoal-800 flex items-center justify-between">
-          <span className="text-xs text-charcoal-500 dark:text-charcoal-400">By {article.author.name}</span>
+        <div className="pt-4 border-t-2 border-warm-200 dark:border-charcoal-700 flex items-center justify-between">
+          <span className="text-xs font-semibold text-charcoal-700 dark:text-warm-300">By {article.author.name}</span>
           <Link
             to={`/news/${article.slug}`}
-            className="inline-flex items-center gap-1 text-sm font-bold text-forest-800 dark:text-emerald-400 hover:text-forest-950 dark:hover:text-emerald-300 transition-colors group/link"
+            className="inline-flex items-center gap-1 text-sm font-black text-forest-900 dark:text-emerald-400 hover:text-black dark:hover:text-emerald-300 transition-colors group/link"
           >
             <span>Read Story</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />

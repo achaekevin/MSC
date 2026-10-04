@@ -24,26 +24,26 @@ export const ImpactStatCard: React.FC<ImpactStatCardProps> = ({ metric }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-charcoal-900 rounded-2xl p-6 sm:p-7 border border-warm-200/90 dark:border-charcoal-800 shadow-card hover:shadow-card-hover transition-all duration-300 text-left flex flex-col justify-between relative">
+    <div className="bg-white dark:bg-charcoal-900 rounded-2xl p-6 sm:p-7 border-2 border-warm-200 dark:border-charcoal-700 shadow-card hover:shadow-card-hover transition-all duration-300 text-left flex flex-col justify-between relative">
       <div>
         <div className="flex items-center justify-between mb-4">
-          <div className="w-12 h-12 rounded-xl bg-warm-100 dark:bg-charcoal-800 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl bg-warm-100 dark:bg-charcoal-800 flex items-center justify-center border border-warm-200 dark:border-charcoal-700">
             {getIcon(metric.icon)}
           </div>
           {metric.metadata && (
             <ContentStatusBadge metadata={metric.metadata} />
           )}
         </div>
-        <div className="text-3xl sm:text-4xl font-extrabold text-forest-900 dark:text-emerald-400 font-display tracking-tight mb-2">
+        <div className="text-3xl sm:text-4xl font-black text-forest-950 dark:text-emerald-400 font-display tracking-tight mb-2">
           {metric.value}
         </div>
-        <h4 className="text-base font-bold text-charcoal-900 dark:text-warm-50 mb-2">
+        <h4 className="text-base font-black text-charcoal-950 dark:text-white mb-2">
           {metric.label}
         </h4>
       </div>
 
       {metric.description && (
-        <p className="text-xs sm:text-sm text-charcoal-600 dark:text-charcoal-300 leading-relaxed pt-3 border-t border-warm-100 dark:border-charcoal-800">
+        <p className="text-xs sm:text-sm text-charcoal-800 dark:text-warm-200 leading-relaxed pt-3 border-t-2 border-warm-100 dark:border-charcoal-700 font-medium">
           {metric.description}
         </p>
       )}
