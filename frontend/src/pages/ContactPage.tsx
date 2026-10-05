@@ -8,7 +8,7 @@ import { Alert } from '../components/ui/Alert';
 import { contactService } from '../services/contactService';
 import { ContactMessage } from '../types';
 import { MSC_ORGANIZATION } from '../constants';
-import { Mail, MapPin, Clock, ShieldCheck } from 'lucide-react';
+import { Mail, MapPin, Clock, ShieldCheck, Phone, MessageCircle } from 'lucide-react';
 import { SEO } from '../components/common/SEO';
 
 export const ContactPage: React.FC = () => {
@@ -147,6 +147,42 @@ export const ContactPage: React.FC = () => {
                         className="text-forest-800 hover:text-forest-950 underline underline-offset-2 break-all font-medium"
                       >
                         {MSC_ORGANIZATION.email}
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-forest-50 text-forest-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Phone className="w-5 h-5 text-forest-700" />
+                    </div>
+                    <div>
+                      <span className="font-bold text-charcoal-900 block mb-0.5">Helpline & Direct Phone</span>
+                      <a
+                        href="tel:+254790629439"
+                        className="text-forest-800 hover:text-forest-950 font-semibold underline underline-offset-2"
+                      >
+                        +254 790 629439
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <MessageCircle className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <span className="font-bold text-charcoal-900 block mb-0.5">Official WhatsApp Desk</span>
+                      <p className="text-xs text-charcoal-600 mb-2">
+                        Instant consultation, referral requests, and general elder welfare inquiries.
+                      </p>
+                      <a
+                        href="https://wa.me/254790629439?text=Hello%20Mwancha%20Senior%20Community%2C%20I%20would%20like%20to%20inquire%20about%20your%20programs%20and%20support%20services."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5 fill-current" />
+                        <span>Chat on WhatsApp (+254 790 629439)</span>
                       </a>
                     </div>
                   </div>

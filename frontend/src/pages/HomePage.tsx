@@ -106,6 +106,14 @@ export const HomePage: React.FC = () => {
 
   const SLIDE_DURATION = 6000; // 6 seconds per slide
 
+  // Preload all facility images immediately on mount so animations run instantly
+  useEffect(() => {
+    MSC_FACILITIES.forEach((fac) => {
+      const img = new Image();
+      img.src = fac.image;
+    });
+  }, []);
+
   // Auto-advance facility showcase with smooth timer progress bar
   useEffect(() => {
     if (isPaused) return;
@@ -115,16 +123,23 @@ export const HomePage: React.FC = () => {
 
     const timer = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 100) {
-          setActiveFacilityIndex((currentIndex) => (currentIndex + 1) % MSC_FACILITIES.length);
-          return 0;
+        const next = prev + step;
+        if (next >= 100) {
+          return 100;
         }
-        return prev + step;
+        return next;
       });
     }, interval);
 
     return () => clearInterval(timer);
   }, [isPaused, activeFacilityIndex]);
+
+  useEffect(() => {
+    if (progress >= 100) {
+      setActiveFacilityIndex((prev) => (prev + 1) % MSC_FACILITIES.length);
+      setProgress(0);
+    }
+  }, [progress]);
 
   const selectFacility = (index: number) => {
     setActiveFacilityIndex(index);

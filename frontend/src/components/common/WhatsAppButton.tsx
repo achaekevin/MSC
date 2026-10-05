@@ -8,7 +8,7 @@ interface WhatsAppButtonProps {
 }
 
 export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
-  phoneNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '+254 790 629439',
+  phoneNumber = MSC_ORGANIZATION.whatsapp || '+254 790 629439',
   defaultMessage = 'Hello Mwancha Senior Community (MSC), I would like to inquire about your programs and support services.'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,7 +21,7 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   return (
     <aside
       aria-label="Direct WhatsApp Communication"
-      className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3 print:hidden"
+      className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3 print:hidden"
     >
       {/* Interactive Micro-Popup when opened */}
       {isOpen && (

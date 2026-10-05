@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, Heart } from 'lucide-react';
+import { Menu, X, ChevronDown, Heart, Phone, MessageCircle } from 'lucide-react';
 import { Logo } from '../common/Logo';
 import { Button } from '../ui/Button';
 import { ThemeToggle } from '../common/ThemeToggle';
@@ -69,15 +69,33 @@ export const Navbar: React.FC = () => {
           : 'bg-warm-50/95 dark:bg-charcoal-900/95 backdrop-blur-sm border-b border-warm-200/60 dark:border-charcoal-800/80'
       }`}
     >
-      {/* Top Banner Notice for Dignity and Mandate */}
-      <div className="bg-forest-900 text-warm-100 text-xs py-1.5 px-4 text-center border-b border-forest-800 hidden sm:block">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <span className="font-medium truncate">
-            {MSC_ORGANIZATION.name} &bull; Advocating for the rights, dignity and welfare of older persons
+      {/* Top Banner Notice for Dignity and Mandate & Direct Contacts */}
+      <div className="bg-forest-950 text-warm-100 text-xs py-1.5 px-4 border-b border-forest-800">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+          <span className="font-medium truncate hidden md:inline">
+            {MSC_ORGANIZATION.name} &bull; Advocating for elder rights, healthcare & welfare
           </span>
-          <span className="text-forest-200 text-[11px] hidden md:inline">
-            P.O. Box 21-40506, Kebirigo, Nyamira County, Kenya
-          </span>
+          <div className="flex items-center gap-3 sm:gap-5 text-[11px] sm:text-xs ml-auto font-medium">
+            <a
+              href="tel:+254790629439"
+              className="inline-flex items-center gap-1.5 text-warm-200 hover:text-white transition-colors"
+              aria-label="Call MSC Helpline at +254 790 629439"
+            >
+              <Phone className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Helpline: <strong className="text-white">+254 790 629439</strong></span>
+            </a>
+            <span className="text-forest-700">|</span>
+            <a
+              href="https://wa.me/254790629439?text=Hello%20Mwancha%20Senior%20Community%2C%20I%20would%20like%20to%20inquire%20about%20your%20programs%20and%20support%20services."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-600/90 hover:bg-emerald-500 text-white font-semibold shadow-xs transition-colors"
+              aria-label="Direct WhatsApp inquiry with MSC at +254 790 629439"
+            >
+              <MessageCircle className="w-3 h-3 fill-current" />
+              <span>WhatsApp: +254 790 629439</span>
+            </a>
+          </div>
         </div>
       </div>
 
@@ -260,6 +278,25 @@ export const Navbar: React.FC = () => {
               >
                 Ways to Get Involved
               </Button>
+
+              <div className="pt-2 grid grid-cols-2 gap-2">
+                <a
+                  href="tel:+254790629439"
+                  className="inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-forest-800 hover:bg-forest-900 text-white text-xs font-semibold shadow-sm transition-colors text-center"
+                >
+                  <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Call Helpline</span>
+                </a>
+                <a
+                  href="https://wa.me/254790629439?text=Hello%20Mwancha%20Senior%20Community%2C%20I%20would%20like%20to%20inquire%20about%20your%20programs%20and%20support%20services."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition-colors text-center"
+                >
+                  <MessageCircle className="w-3.5 h-3.5 fill-current" />
+                  <span>WhatsApp</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
