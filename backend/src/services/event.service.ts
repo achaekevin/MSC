@@ -320,8 +320,8 @@ export class EventService {
         currentStatus: ContentStatus.IN_REVIEW,
         previousStatus: event.status,
         requestedAction: 'REVIEW_REQUESTED',
-        submitterId,
-        submissionNotes: notes
+        submittedById: submitterId,
+        notes: notes
       }
     });
 
