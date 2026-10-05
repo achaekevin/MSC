@@ -17,6 +17,8 @@ env.example
 # Documentation
 docs/
 **/docs/
+!backend/src/docs/
+!backend/src/docs/**
 *.doc
 *.docx
 
