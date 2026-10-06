@@ -159,10 +159,12 @@ export const ResetPasswordPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-charcoal-400 hover:text-charcoal-600"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-charcoal-600 hover:text-forest-800 dark:text-warm-300 dark:hover:text-white cursor-pointer z-20 transition-colors"
                   tabIndex={-1}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-5 h-5 text-charcoal-700 dark:text-warm-200" /> : <Eye className="w-5 h-5 text-charcoal-700 dark:text-warm-200" />}
                 </button>
               </div>
 
@@ -211,10 +213,12 @@ export const ResetPasswordPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-charcoal-400 hover:text-charcoal-600"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-charcoal-600 hover:text-forest-800 dark:text-warm-300 dark:hover:text-white cursor-pointer z-20 transition-colors"
                   tabIndex={-1}
                 >
-                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5 text-charcoal-700 dark:text-warm-200" /> : <Eye className="w-5 h-5 text-charcoal-700 dark:text-warm-200" />}
                 </button>
               </div>
             </div>
