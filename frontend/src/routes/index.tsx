@@ -39,6 +39,10 @@ const NotFoundPage = lazy(() => import('../pages/NotFoundPage').then(m => ({ def
 
 // Admin route-level code splitting & lazy loading
 const LoginPage = lazy(() => import('../pages/admin/LoginPage').then(m => ({ default: m.default })));
+const RegisterPage = lazy(() => import('../pages/admin/RegisterPage').then(m => ({ default: m.RegisterPage })));
+const ForgotPasswordPage = lazy(() => import('../pages/admin/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
+const ResetPasswordPage = lazy(() => import('../pages/admin/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
+const SettingsPage = lazy(() => import('../pages/admin/SettingsPage').then(m => ({ default: m.SettingsPage })));
 const UnauthorizedPage = lazy(() => import('../pages/admin/UnauthorizedPage').then(m => ({ default: m.default })));
 const DashboardPage = lazy(() => import('../pages/admin/DashboardPage').then(m => ({ default: m.default })));
 const ContentManagementPage = lazy(() => import('../pages/admin/ContentManagementPage').then(m => ({ default: m.ContentManagementPage })));
@@ -103,6 +107,21 @@ export const AppRoutes: React.FC = () => {
             <LoginPage />
           </PublicOnlyRoute>
         } />
+        <Route path="/admin/register" element={
+          <PublicOnlyRoute>
+            <RegisterPage />
+          </PublicOnlyRoute>
+        } />
+        <Route path="/admin/forgot-password" element={
+          <PublicOnlyRoute>
+            <ForgotPasswordPage />
+          </PublicOnlyRoute>
+        } />
+        <Route path="/admin/reset-password" element={
+          <PublicOnlyRoute>
+            <ResetPasswordPage />
+          </PublicOnlyRoute>
+        } />
         <Route path="/admin/unauthorized" element={<UnauthorizedPage />} />
 
         {/* Protected Admin Routes */}
@@ -126,11 +145,7 @@ export const AppRoutes: React.FC = () => {
               <div>User Management - Coming Soon</div>
             </ProtectedRoute>
           } />
-          <Route path="settings" element={
-            <ProtectedRoute requiredPermission="SETTINGS_MANAGE">
-              <div>Settings - Coming Soon</div>
-            </ProtectedRoute>
-          } />
+          <Route path="settings" element={<SettingsPage />} />
           <Route path="audit" element={
             <ProtectedRoute requiredPermission="AUDIT_READ">
               <div>Audit Logs - Coming Soon</div>

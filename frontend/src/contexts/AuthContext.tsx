@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { authService, User, LoginCredentials, AuthError } from '../services/authService';
+import { authService, User, LoginCredentials, RegisterCredentials, ChangePasswordRequest, AuthError } from '../services/authService';
 
 interface AuthContextType {
   // State
@@ -10,8 +10,10 @@ interface AuthContextType {
 
   // Actions
   login: (credentials: LoginCredentials) => Promise<void>;
+  register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
+  changePassword: (data: ChangePasswordRequest) => Promise<void>;
   clearError: () => void;
 
   // Utility methods
@@ -76,6 +78,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setError(error.message);
       } else {
         setError('Login failed. Please try again.');
+      }
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const register = async (credentials: RegisterCredentials) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await authService.register(credentials);
+      setUser(response.user);
+    } catch (error) {
+      if (error instanceof AuthError) {
+        setError(error.message);
+      } else {
+        setError('Registration failed. Please try again.');
+      }
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const changePassword = async (data: ChangePasswordRequest) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await authService.changePassword(data);
+    } catch (error) {
+      if (error instanceof AuthError) {
+        setError(error.message);
+      } else {
+        setError('Failed to change password. Please check your current password.');
       }
       throw error;
     } finally {
@@ -148,8 +187,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Actions
     login,
+    register,
     logout,
     refreshToken,
+    changePassword,
     clearError,
 
     // Utilities

@@ -1,0 +1,293 @@
+import React, { useState } from 'react';
+import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { Eye, EyeOff, ShieldCheck, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+
+export const RegisterPage: React.FC = () => {
+  const { register, isAuthenticated, isLoading, error, clearError } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    role: 'CONTENT_ADMIN'
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    const from = (location.state as any)?.from?.pathname || '/admin/dashboard';
+    return <Navigate to={from} replace />;
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    if (error) clearError();
+    if (validationError) setValidationError(null);
+  };
+
+  const validatePassword = (pass: string): string | null => {
+    if (pass.length < 8) return 'Password must be at least 8 characters long.';
+    if (!/[A-Z]/.test(pass)) return 'Password must contain at least one uppercase letter.';
+    if (!/[0-9]/.test(pass)) return 'Password must contain at least one number.';
+    return null;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.name.trim() || !formData.email.trim() || !formData.password) {
+      setValidationError('Please complete all required fields.');
+      return;
+    }
+
+    const passErr = validatePassword(formData.password);
+    if (passErr) {
+      setValidationError(passErr);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setValidationError('Passwords do not match. Please verify.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await register({
+        name: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+        role: formData.role as any
+      });
+      navigate('/admin/dashboard', { replace: true });
+    } catch (err) {
+      console.error('Registration failed:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const hasLength = formData.password.length >= 8;
+  const hasUpper = /[A-Z]/.test(formData.password);
+  const hasNumber = /[0-9]/.test(formData.password);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-warm-50/70 dark:bg-charcoal-950 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white dark:bg-charcoal-900 p-8 sm:p-10 rounded-2xl shadow-elevated border border-warm-200 dark:border-charcoal-800">
+        {/* Header */}
+        <div className="text-center">
+          <Link to="/" className="inline-block transition-transform hover:scale-105">
+            <img
+              className="h-16 w-auto mx-auto"
+              src="/images/logo.png"
+              alt="Mwancha Senior Community"
+            />
+          </Link>
+          <h1 className="mt-4 text-2xl sm:text-3xl font-extrabold text-charcoal-900 dark:text-warm-50 font-display">
+            Admin Registration
+          </h1>
+          <p className="mt-2 text-sm text-charcoal-600 dark:text-warm-300">
+            Create an administrator account to manage MSC operations
+          </p>
+        </div>
+
+        {/* Global Error Banner */}
+        {(error || validationError) && (
+          <div className="rounded-xl bg-red-50 dark:bg-red-950/40 p-4 border border-red-200 dark:border-red-900/60 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-red-700 dark:text-red-300">
+              {validationError || error}
+            </div>
+          </div>
+        )}
+
+        {/* Form */}
+        <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="name" className="block text-xs font-bold uppercase tracking-wider text-charcoal-700 dark:text-warm-300 mb-1.5">
+              Full Legal Name *
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              value={formData.name}
+              onChange={handleInputChange}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 placeholder-charcoal-400 focus:outline-none focus:ring-2 focus:ring-forest-600 focus:border-transparent text-sm"
+              placeholder="e.g., Achaa Kevin"
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-charcoal-700 dark:text-warm-300 mb-1.5">
+              Official Email Address *
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={handleInputChange}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 placeholder-charcoal-400 focus:outline-none focus:ring-2 focus:ring-forest-600 focus:border-transparent text-sm"
+              placeholder="admin@mwanchasenior.com"
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="role" className="block text-xs font-bold uppercase tracking-wider text-charcoal-700 dark:text-warm-300 mb-1.5">
+              Administrative Role
+            </label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleInputChange}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 focus:outline-none focus:ring-2 focus:ring-forest-600 focus:border-transparent text-sm"
+              disabled={isSubmitting}
+            >
+              <option value="CONTENT_ADMIN">Content Administrator</option>
+              <option value="EDITOR">Editor / Staff</option>
+              <option value="REVIEWER">Reviewer / Approver</option>
+              <option value="FORM_MANAGER">Volunteer & Donor Manager</option>
+              <option value="SUPER_ADMIN">Super Administrator</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-charcoal-700 dark:text-warm-300 mb-1.5">
+              Password *
+            </label>
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={formData.password}
+                onChange={handleInputChange}
+                className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 placeholder-charcoal-400 focus:outline-none focus:ring-2 focus:ring-forest-600 focus:border-transparent text-sm"
+                placeholder="At least 8 characters"
+                disabled={isSubmitting}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-charcoal-400 hover:text-charcoal-600"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+
+            {/* Password Requirements Guidance */}
+            {formData.password && (
+              <div className="mt-2 text-xs space-y-1">
+                <div className={`flex items-center gap-1.5 ${hasLength ? 'text-emerald-600 dark:text-emerald-400' : 'text-charcoal-400'}`}>
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>At least 8 characters</span>
+                </div>
+                <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-emerald-600 dark:text-emerald-400' : 'text-charcoal-400'}`}>
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>At least one uppercase letter (A-Z)</span>
+                </div>
+                <div className={`flex items-center gap-1.5 ${hasNumber ? 'text-emerald-600 dark:text-emerald-400' : 'text-charcoal-400'}`}>
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>At least one number (0-9)</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="confirmPassword" className="block text-xs font-bold uppercase tracking-wider text-charcoal-700 dark:text-warm-300 mb-1.5">
+              Confirm Password *
+            </label>
+            <div className="relative">
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                required
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 placeholder-charcoal-400 focus:outline-none focus:ring-2 focus:ring-forest-600 focus:border-transparent text-sm"
+                placeholder="Re-enter password"
+                disabled={isSubmitting}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-charcoal-400 hover:text-charcoal-600"
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Submit */}
+          <div>
+            <button
+              type="submit"
+              disabled={isSubmitting || isLoading}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold text-white bg-forest-800 hover:bg-forest-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-forest-700 shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                  <span>Registering Account...</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Create Admin Account</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Sign In Link */}
+          <div className="text-center text-sm text-charcoal-600 dark:text-warm-300 pt-2 border-t border-warm-100 dark:border-charcoal-800">
+            Already have an admin account?{' '}
+            <Link
+              to="/admin/login"
+              className="font-bold text-forest-700 dark:text-emerald-400 hover:underline"
+            >
+              Sign In here &rarr;
+            </Link>
+          </div>
+        </form>
+
+        {/* Back Link */}
+        <div className="text-center">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-charcoal-500 hover:text-forest-800 dark:text-warm-400 dark:hover:text-warm-100 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Return to public website</span>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default RegisterPage;

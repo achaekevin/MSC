@@ -91,7 +91,7 @@ export const LoginPage: React.FC = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="admin@mwanchasenior.org"
+                placeholder="admin@mwanchasenior.com"
                 disabled={isSubmitting}
               />
             </div>
@@ -171,9 +171,20 @@ export const LoginPage: React.FC = () => {
           <div className="text-center">
             <Link
               to="/admin/forgot-password"
-              className="text-sm text-blue-600 hover:text-blue-500"
+              className="text-sm text-forest-700 hover:text-forest-900 font-medium"
             >
               Forgot your password?
+            </Link>
+          </div>
+
+          {/* Sign Up / Register Link */}
+          <div className="text-center text-sm text-gray-600 pt-2 border-t border-gray-200">
+            Don't have an admin account?{' '}
+            <Link
+              to="/admin/register"
+              className="font-bold text-forest-800 hover:underline"
+            >
+              Sign Up / Register &rarr;
             </Link>
           </div>
         </form>

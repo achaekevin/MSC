@@ -46,6 +46,13 @@ export interface LoginCredentials {
   password: string;
 }
 
+export interface RegisterCredentials {
+  name: string;
+  email: string;
+  password: string;
+  role?: UserRole;
+}
+
 export interface LoginResponse {
   user: User;
   accessToken: string;
@@ -164,6 +171,16 @@ class AuthService {
 
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     const response = await this.makeAuthRequest<LoginResponse>('/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials)
+    });
+
+    this.setAuthState(response.user, response.accessToken);
+    return response;
+  }
+
+  async register(credentials: RegisterCredentials): Promise<LoginResponse> {
+    const response = await this.makeAuthRequest<LoginResponse>('/register', {
       method: 'POST',
       body: JSON.stringify(credentials)
     });
