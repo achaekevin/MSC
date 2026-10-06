@@ -50,7 +50,8 @@ const DEFAULT_NEWS_INPUT: NewsArticleInput = {
   isFeatured: false,
   seoTitle: '',
   seoDescription: '',
-  changeNote: ''
+  changeNote: '',
+  status: 'PUBLISHED'
 };
 
 export const NewsManagementPage: React.FC = () => {
@@ -159,7 +160,8 @@ export const NewsManagementPage: React.FC = () => {
       isFeatured: article.isFeatured ?? false,
       seoTitle: article.seoTitle || '',
       seoDescription: article.seoDescription || '',
-      changeNote: ''
+      changeNote: '',
+      status: (article.status as any) || 'PUBLISHED'
     });
     setFormErrors({});
     setIsEditorOpen(true);
@@ -195,7 +197,12 @@ export const NewsManagementPage: React.FC = () => {
         setNotification({ type: 'success', message: `Article "${payload.title}" updated successfully.` });
       } else {
         await newsService.create(payload);
-        setNotification({ type: 'success', message: `Article "${payload.title}" created as Draft.` });
+        setNotification({ 
+          type: 'success', 
+          message: payload.status === 'PUBLISHED' 
+            ? `Article "${payload.title}" created and published live!` 
+            : `Article "${payload.title}" created as Draft.` 
+        });
       }
       setIsEditorOpen(false);
       fetchArticles();
@@ -532,7 +539,7 @@ export const NewsManagementPage: React.FC = () => {
                             </button>
                           )}
 
-                          {canPublish && art.status === 'APPROVED' && (
+                          {canPublish && art.status !== 'PUBLISHED' && art.status !== 'ARCHIVED' && (
                             <button
                               onClick={() =>
                                 setWorkflowDialog({
@@ -820,6 +827,26 @@ export const NewsManagementPage: React.FC = () => {
                 </div>
               )}
 
+              {/* Publication Status Selection */}
+              <div className="p-4 rounded-xl border border-gray-200 bg-emerald-50/40">
+                <label className="block text-xs font-bold text-forest-900 uppercase tracking-wider mb-1.5">
+                  Publication Status *
+                </label>
+                <select
+                  value={formInput.status || 'PUBLISHED'}
+                  onChange={(e) => setFormInput({ ...formInput, status: e.target.value as any })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-forest-300 text-sm focus:outline-none focus:ring-2 focus:ring-forest-600 bg-white font-medium text-charcoal-900"
+                >
+                  <option value="PUBLISHED">Published (Visible immediately on public website)</option>
+                  <option value="DRAFT">Draft (Save privately for editorial review)</option>
+                  <option value="IN_REVIEW">In Review (Queued for administrative sign-off)</option>
+                  <option value="APPROVED">Approved (Approved for publication)</option>
+                </select>
+                <p className="text-xs text-charcoal-500 mt-1.5">
+                  Setting to "Published" makes this article live immediately in the public news & stories archive.
+                </p>
+              </div>
+
               {/* Actions */}
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
                 <button
@@ -834,7 +861,7 @@ export const NewsManagementPage: React.FC = () => {
                   disabled={actionLoading}
                   className="px-6 py-2 bg-forest-800 hover:bg-forest-900 text-white text-sm font-semibold rounded-xl shadow-sm disabled:opacity-50"
                 >
-                  {actionLoading ? 'Saving...' : editingArticle ? 'Update Article' : 'Save as Draft'}
+                  {actionLoading ? 'Saving...' : editingArticle ? 'Update Article' : formInput.status === 'PUBLISHED' ? 'Publish Article Now' : 'Save as Draft'}
                 </button>
               </div>
             </form>

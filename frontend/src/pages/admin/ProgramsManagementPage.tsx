@@ -56,7 +56,8 @@ const DEFAULT_PROGRAM_INPUT: ProgramInput = {
   displayOrder: 1,
   seoTitle: '',
   seoDescription: '',
-  changeNote: ''
+  changeNote: '',
+  status: 'PUBLISHED'
 };
 
 export const ProgramsManagementPage: React.FC = () => {
@@ -173,7 +174,8 @@ export const ProgramsManagementPage: React.FC = () => {
       displayOrder: program.displayOrder ?? 0,
       seoTitle: program.seoTitle || '',
       seoDescription: program.seoDescription || '',
-      changeNote: ''
+      changeNote: '',
+      status: (program.status as any) || 'PUBLISHED'
     });
     setFormErrors({});
     setIsEditorOpen(true);
@@ -215,7 +217,12 @@ export const ProgramsManagementPage: React.FC = () => {
         setNotification({ type: 'success', message: `Program "${payload.title}" updated successfully.` });
       } else {
         await programManagementService.createProgram(payload);
-        setNotification({ type: 'success', message: `Program "${payload.title}" created as Draft.` });
+        setNotification({ 
+          type: 'success', 
+          message: payload.status === 'PUBLISHED' 
+            ? `Program "${payload.title}" created and published live!` 
+            : `Program "${payload.title}" created as Draft.` 
+        });
       }
       setIsEditorOpen(false);
       fetchPrograms();
@@ -554,7 +561,7 @@ export const ProgramsManagementPage: React.FC = () => {
                           )}
 
                           {/* Workflow: Publish */}
-                          {canPublish && prog.status === 'APPROVED' && (
+                          {canPublish && prog.status !== 'PUBLISHED' && prog.status !== 'ARCHIVED' && (
                             <button
                               onClick={() =>
                                 setWorkflowDialog({
@@ -863,6 +870,26 @@ export const ProgramsManagementPage: React.FC = () => {
                 </div>
               )}
 
+              {/* Publication Status Selection */}
+              <div className="p-4 rounded-xl border border-gray-200 bg-emerald-50/40">
+                <label className="block text-xs font-bold text-forest-900 uppercase tracking-wider mb-1.5">
+                  Publication Status *
+                </label>
+                <select
+                  value={formInput.status || 'PUBLISHED'}
+                  onChange={(e) => setFormInput({ ...formInput, status: e.target.value as any })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-forest-300 text-sm focus:outline-none focus:ring-2 focus:ring-forest-600 bg-white font-medium text-charcoal-900"
+                >
+                  <option value="PUBLISHED">Published (Visible immediately on public website)</option>
+                  <option value="DRAFT">Draft (Save privately for editorial review)</option>
+                  <option value="IN_REVIEW">In Review (Queued for administrative sign-off)</option>
+                  <option value="APPROVED">Approved (Approved for publication)</option>
+                </select>
+                <p className="text-xs text-charcoal-500 mt-1.5">
+                  Setting to "Published" makes this program live immediately in the public programs catalog.
+                </p>
+              </div>
+
               {/* Modal Actions */}
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
                 <button
@@ -877,7 +904,7 @@ export const ProgramsManagementPage: React.FC = () => {
                   disabled={actionLoading}
                   className="px-6 py-2 bg-forest-800 hover:bg-forest-900 text-white text-sm font-semibold rounded-xl shadow-sm disabled:opacity-50"
                 >
-                  {actionLoading ? 'Saving...' : editingProgram ? 'Update Program' : 'Save as Draft'}
+                  {actionLoading ? 'Saving...' : editingProgram ? 'Update Program' : formInput.status === 'PUBLISHED' ? 'Publish Program Now' : 'Save as Draft'}
                 </button>
               </div>
             </form>
