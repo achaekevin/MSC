@@ -5,6 +5,7 @@ import { PageLoader } from '../ui/Skeleton';
 
 interface ProtectedRouteProps {
   children: ReactNode;
+  requireAdmin?: boolean;
   requiredPermission?: string;
   requiredRole?: string;
   requiredPermissions?: string[];
@@ -13,6 +14,7 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
+  requireAdmin = false,
   requiredPermission,
   requiredRole,
   requiredPermissions = [],
@@ -29,6 +31,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
+  }
+
+  // Strictly verify admin access: only SUPER_ADMIN or CONTENT_ADMIN can access admin dashboard & administrative portal
+  const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'CONTENT_ADMIN';
+  if (requireAdmin && !isAdmin) {
+    return <Navigate to="/admin/unauthorized" replace />;
   }
 
   // Check role requirement
@@ -63,17 +71,20 @@ interface PublicOnlyRouteProps {
 
 export const PublicOnlyRoute: React.FC<PublicOnlyRouteProps> = ({
   children,
-  redirectTo = '/admin/dashboard'
+  redirectTo
 }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return <PageLoader />;
   }
 
-  // Redirect authenticated users away from public-only routes (like login page)
+  // Redirect authenticated users away from public-only routes (like login/register)
+  // Only actual admins are sent to /admin/dashboard; regular users are sent to the home page (/)
   if (isAuthenticated) {
-    return <Navigate to={redirectTo} replace />;
+    const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'CONTENT_ADMIN';
+    const target = redirectTo || (isAdmin ? '/admin/dashboard' : '/');
+    return <Navigate to={target} replace />;
   }
 
   return <>{children}</>;

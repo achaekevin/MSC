@@ -7,7 +7,8 @@ import { MSC_ORGANIZATION } from '../../constants';
 import { useAuth } from '../../contexts/AuthContext';
 
 export const Footer: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const isAdmin = isAuthenticated && (user?.role === 'SUPER_ADMIN' || user?.role === 'CONTENT_ADMIN');
   const currentYear = new Date().getFullYear();
 
   // Filter only social links that actually have URLs configured
@@ -123,15 +124,15 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <Link
-                  to={isAuthenticated ? "/admin/dashboard" : "/admin/login"}
+                  to={isAdmin ? "/admin/dashboard" : "/admin/login"}
                   className="hover:text-earth-300 transition-colors flex items-center gap-1.5 text-forest-300 font-medium"
                 >
-                  {isAuthenticated ? (
+                  {isAdmin ? (
                     <Shield className="w-3.5 h-3.5 text-emerald-400" />
                   ) : (
                     <Lock className="w-3.5 h-3.5 text-emerald-400" />
                   )}
-                  <span>{isAuthenticated ? 'Admin Dashboard' : 'Staff & Admin Portal'}</span>
+                  <span>{isAdmin ? 'Admin Dashboard' : 'Staff & Admin Portal'}</span>
                 </Link>
               </li>
             </ul>
@@ -244,15 +245,15 @@ export const Footer: React.FC = () => {
               Contact Desk
             </Link>
             <Link
-              to={isAuthenticated ? "/admin/dashboard" : "/admin/login"}
+              to={isAdmin ? "/admin/dashboard" : "/admin/login"}
               className="hover:text-forest-200 transition-colors flex items-center gap-1 text-forest-300 font-medium"
             >
-              {isAuthenticated ? (
+              {isAdmin ? (
                 <Shield className="w-3 h-3 text-emerald-400" />
               ) : (
                 <Lock className="w-3 h-3 text-emerald-400" />
               )}
-              <span>{isAuthenticated ? 'Admin Dashboard' : 'Admin Sign In'}</span>
+              <span>{isAdmin ? 'Admin Dashboard' : 'Admin Sign In'}</span>
             </Link>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { RootLayout } from '../layouts/RootLayout';
 import { AdminLayout } from '../layouts/AdminLayout';
 import { ProtectedRoute, PublicOnlyRoute } from '../components/auth/ProtectedRoute';
@@ -130,10 +130,11 @@ export const AppRoutes: React.FC = () => {
 
         {/* Protected Admin Routes */}
         <Route path="/admin" element={
-          <ProtectedRoute>
+          <ProtectedRoute requireAdmin>
             <AdminLayout />
           </ProtectedRoute>
         }>
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="content" element={<ContentManagementPage />} />
           {/* Placeholder routes for other admin pages */}

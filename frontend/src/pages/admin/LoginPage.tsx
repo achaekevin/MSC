@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
-  const { login, isAuthenticated, isLoading, error, clearError } = useAuth();
+  const { login, user, isAuthenticated, isLoading, error, clearError } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -18,6 +18,10 @@ export const LoginPage: React.FC = () => {
 
   // Redirect if already authenticated
   if (isAuthenticated) {
+    const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'CONTENT_ADMIN';
+    if (!isAdmin) {
+      return <Navigate to="/" replace />;
+    }
     return <Navigate to={from} replace />;
   }
 
@@ -48,8 +52,23 @@ export const LoginPage: React.FC = () => {
         email: formData.email.trim(),
         password: formData.password
       });
-      // Direct SPA navigation right away for instant, seamless transition
-      navigate(from, { replace: true });
+
+      // Retrieve user from storage to check role immediately
+      const stored = localStorage.getItem('msc_user');
+      let authedUser = user;
+      if (stored) {
+        try {
+          authedUser = JSON.parse(stored);
+        } catch {}
+      }
+
+      const isAdmin = authedUser?.role === 'SUPER_ADMIN' || authedUser?.role === 'CONTENT_ADMIN';
+      if (isAdmin) {
+        navigate(from, { replace: true });
+      } else {
+        // Non-admin accounts cannot access the admin dashboard
+        navigate('/admin/unauthorized', { replace: true });
+      }
     } catch (err) {
       console.error('Login failed:', err);
       // Error is handled by the AuthContext
@@ -176,15 +195,11 @@ export const LoginPage: React.FC = () => {
             </Link>
           </div>
 
-          {/* Sign Up / Register Link */}
-          <div className="text-center text-sm text-gray-600 pt-2 border-t border-gray-200">
-            Don't have an admin account?{' '}
-            <Link
-              to="/admin/register"
-              className="font-bold text-forest-800 hover:underline"
-            >
-              Sign Up / Register &rarr;
-            </Link>
+          {/* Restricted Access Advisory */}
+          <div className="pt-3 border-t border-gray-200 text-center">
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Administrative access is restricted to verified MSC personnel. Account provisioning and roles are authorized and configured by the MSC Systems Administrator.
+            </p>
           </div>
         </form>
 

@@ -51,11 +51,13 @@ export interface RegisterCredentials {
   email: string;
   password: string;
   role?: UserRole;
+  adminInviteCode: string;
 }
 
 export interface LoginResponse {
   user: User;
   accessToken: string;
+  refreshToken?: string;
 }
 
 export interface ForgotPasswordRequest {

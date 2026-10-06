@@ -9,7 +9,8 @@ import { NAVIGATION_LINKS, MSC_ORGANIZATION } from '../../constants';
 import { useAuth } from '../../contexts/AuthContext';
 
 export const Navbar: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const isAdmin = isAuthenticated && (user?.role === 'SUPER_ADMIN' || user?.role === 'CONTENT_ADMIN');
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -105,16 +106,16 @@ export const Navbar: React.FC = () => {
             </a>
             <span className="text-forest-700">|</span>
             <Link
-              to={isAuthenticated ? "/admin/dashboard" : "/admin/login"}
+              to={isAdmin ? "/admin/dashboard" : "/admin/login"}
               className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-warm-200 hover:text-white hover:bg-forest-900 transition-colors font-medium border border-forest-800"
-              title={isAuthenticated ? "Open Admin Dashboard" : "Administrator & Staff Sign In"}
+              title={isAdmin ? "Open Admin Dashboard" : "Administrator & Staff Sign In"}
             >
-              {isAuthenticated ? (
+              {isAdmin ? (
                 <Shield className="w-3.5 h-3.5 text-emerald-400" />
               ) : (
                 <Lock className="w-3.5 h-3.5 text-emerald-400" />
               )}
-              <span>{isAuthenticated ? 'Admin Dashboard' : 'Admin Sign In'}</span>
+              <span>{isAdmin ? 'Admin Dashboard' : 'Admin Sign In'}</span>
             </Link>
           </div>
         </div>
@@ -218,16 +219,16 @@ export const Navbar: React.FC = () => {
             <ThemeToggle />
 
             <Link
-              to={isAuthenticated ? "/admin/dashboard" : "/admin/login"}
+              to={isAdmin ? "/admin/dashboard" : "/admin/login"}
               className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-warm-100 dark:hover:bg-charcoal-800 border border-warm-200 dark:border-charcoal-700 transition-colors"
-              title={isAuthenticated ? "Open Admin Dashboard" : "Staff & Administrator Sign In"}
+              title={isAdmin ? "Open Admin Dashboard" : "Staff & Administrator Sign In"}
             >
-              {isAuthenticated ? (
+              {isAdmin ? (
                 <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               ) : (
                 <Lock className="w-3.5 h-3.5 text-forest-700 dark:text-emerald-400" />
               )}
-              <span>{isAuthenticated ? 'Dashboard' : 'Admin Sign In'}</span>
+              <span>{isAdmin ? 'Dashboard' : 'Admin Sign In'}</span>
             </Link>
 
             <Button
@@ -363,15 +364,15 @@ export const Navbar: React.FC = () => {
               {/* Mobile Admin Sign In Link */}
               <div className="pt-2 border-t border-warm-100 dark:border-charcoal-800/80">
                 <Link
-                  to={isAuthenticated ? "/admin/dashboard" : "/admin/login"}
+                  to={isAdmin ? "/admin/dashboard" : "/admin/login"}
                   className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-warm-100 dark:bg-charcoal-800 text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 text-xs font-semibold transition-colors"
                 >
-                  {isAuthenticated ? (
+                  {isAdmin ? (
                     <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   ) : (
                     <Lock className="w-3.5 h-3.5 text-forest-700 dark:text-emerald-400" />
                   )}
-                  <span>{isAuthenticated ? 'Admin Dashboard' : 'Staff & Admin Sign In'}</span>
+                  <span>{isAdmin ? 'Admin Dashboard' : 'Staff & Admin Sign In'}</span>
                 </Link>
               </div>
             </div>

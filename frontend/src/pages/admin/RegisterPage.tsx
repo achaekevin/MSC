@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Eye, EyeOff, ShieldCheck, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, ShieldCheck, ArrowLeft, CheckCircle2, AlertCircle, KeyRound, ShieldAlert } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
-  const { register, isAuthenticated, isLoading, error, clearError } = useAuth();
+  const { register, user, isAuthenticated, isLoading, error, clearError } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -13,7 +13,8 @@ export const RegisterPage: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'CONTENT_ADMIN'
+    role: 'CONTENT_ADMIN',
+    adminInviteCode: ''
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -23,6 +24,10 @@ export const RegisterPage: React.FC = () => {
 
   // Redirect if already authenticated
   if (isAuthenticated) {
+    const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'CONTENT_ADMIN';
+    if (!isAdmin) {
+      return <Navigate to="/" replace />;
+    }
     const from = (location.state as any)?.from?.pathname || '/admin/dashboard';
     return <Navigate to={from} replace />;
   }
@@ -48,8 +53,8 @@ export const RegisterPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name.trim() || !formData.email.trim() || !formData.password) {
-      setValidationError('Please complete all required fields.');
+    if (!formData.name.trim() || !formData.email.trim() || !formData.password || !formData.adminInviteCode.trim()) {
+      setValidationError('Please complete all required fields, including the Admin Authorization Key.');
       return;
     }
 
@@ -70,10 +75,11 @@ export const RegisterPage: React.FC = () => {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
-        role: formData.role as any
+        role: formData.role as any,
+        adminInviteCode: formData.adminInviteCode.trim()
       });
       navigate('/admin/dashboard', { replace: true });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Registration failed:', err);
     } finally {
       setIsSubmitting(false);
@@ -86,7 +92,7 @@ export const RegisterPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-warm-50/70 dark:bg-charcoal-950 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white dark:bg-charcoal-900 p-8 sm:p-10 rounded-2xl shadow-elevated border border-warm-200 dark:border-charcoal-800">
+      <div className="max-w-md w-full space-y-7 bg-white dark:bg-charcoal-900 p-8 sm:p-10 rounded-2xl shadow-elevated border border-warm-200 dark:border-charcoal-800">
         {/* Header */}
         <div className="text-center">
           <Link to="/" className="inline-block transition-transform hover:scale-105">
@@ -96,11 +102,15 @@ export const RegisterPage: React.FC = () => {
               alt="Mwancha Senior Community"
             />
           </Link>
-          <h1 className="mt-4 text-2xl sm:text-3xl font-extrabold text-charcoal-900 dark:text-warm-50 font-display">
-            Admin Registration
+          <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 text-xs font-semibold">
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>Restricted MSC Personnel Access</span>
+          </div>
+          <h1 className="mt-3 text-2xl sm:text-3xl font-extrabold text-charcoal-900 dark:text-warm-50 font-display">
+            Admin Account Setup
           </h1>
-          <p className="mt-2 text-sm text-charcoal-600 dark:text-warm-300">
-            Create an administrator account to manage MSC operations
+          <p className="mt-1.5 text-xs text-charcoal-600 dark:text-warm-300">
+            Administrative registration requires an official authorization key issued by MSC leadership.
           </p>
         </div>
 
@@ -108,7 +118,7 @@ export const RegisterPage: React.FC = () => {
         {(error || validationError) && (
           <div className="rounded-xl bg-red-50 dark:bg-red-950/40 p-4 border border-red-200 dark:border-red-900/60 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-red-700 dark:text-red-300">
+            <div className="text-sm text-red-700 dark:text-red-300 font-medium">
               {validationError || error}
             </div>
           </div>
@@ -166,8 +176,32 @@ export const RegisterPage: React.FC = () => {
               <option value="EDITOR">Editor / Staff</option>
               <option value="REVIEWER">Reviewer / Approver</option>
               <option value="FORM_MANAGER">Volunteer & Donor Manager</option>
-              <option value="SUPER_ADMIN">Super Administrator</option>
             </select>
+          </div>
+
+          {/* Admin Authorization Key */}
+          <div className="p-3.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/40">
+            <label htmlFor="adminInviteCode" className="block text-xs font-bold uppercase tracking-wider text-charcoal-800 dark:text-warm-200 mb-1.5 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <KeyRound className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+                <span>Admin Authorization Key *</span>
+              </span>
+              <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Required</span>
+            </label>
+            <input
+              id="adminInviteCode"
+              name="adminInviteCode"
+              type="password"
+              required
+              value={formData.adminInviteCode}
+              onChange={handleInputChange}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 dark:border-amber-700/60 bg-white dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 placeholder-charcoal-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm font-mono tracking-wider"
+              placeholder="Enter MSC Authorization Key"
+              disabled={isSubmitting}
+            />
+            <p className="mt-1.5 text-[11px] text-charcoal-600 dark:text-warm-400">
+              Only authorized personnel holding a valid MSC administrative key can create an admin account.
+            </p>
           </div>
 
           <div>
