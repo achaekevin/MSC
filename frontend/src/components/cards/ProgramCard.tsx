@@ -28,16 +28,16 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
   };
 
   return (
-    <Card className="flex flex-col h-full group" padding="none">
+    <Card className="flex flex-col h-full group hover:-translate-y-1 transition-all duration-200" padding="none">
       <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-forest-950">
         <img
           src={program.image}
           alt={program.imageAlt}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-90"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 opacity-90"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm p-2.5 rounded-xl shadow-sm">
+        <div className="absolute top-4 left-4 bg-white/95 dark:bg-charcoal-900/90 backdrop-blur-sm p-2.5 rounded-xl shadow-sm animate-float">
           {getIcon(program.iconName)}
         </div>
         {program.metadata && (

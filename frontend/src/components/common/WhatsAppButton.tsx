@@ -86,7 +86,7 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           aria-label={isOpen ? "Close WhatsApp contact prompt" : "Open WhatsApp direct chat with MSC"}
-          className="w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-emerald-400/40 relative"
+          className="w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-150 focus:outline-none focus:ring-4 focus:ring-emerald-400/40 relative animate-pulse-glow"
         >
           {isOpen ? (
             <X className="w-6 h-6" />

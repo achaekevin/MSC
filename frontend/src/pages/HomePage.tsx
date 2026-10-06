@@ -30,6 +30,8 @@ import { VERIFIED_IMPACT_METRICS } from '../data/impactData';
 import { NEWS_ARTICLES_DATA } from '../data/newsData';
 import { fadeIn, fadeInUp, staggerContainer } from '../animations';
 import { SEO } from '../components/common/SEO';
+import { AnimatedCounter } from '../components/common/AnimatedCounter';
+
 
 // Authentic Facilities for Full-Screen Cinematic Showcase
 const MSC_FACILITIES = [
@@ -101,10 +103,13 @@ export const HomePage: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  // Mandate tab state
+  // Mandate tab state & continuous auto-rotation
+  const mandateTabs: Array<'vision' | 'mission' | 'values'> = ['vision', 'mission', 'values'];
   const [activeMandateTab, setActiveMandateTab] = useState<'vision' | 'mission' | 'values'>('vision');
+  const [mandateProgress, setMandateProgress] = useState(0);
+  const MANDATE_DURATION = 4600; // 4.6 seconds per tab auto-advance
 
-  const SLIDE_DURATION = 6000; // 6 seconds per slide
+  const SLIDE_DURATION = 4200; // Snappy 4.2 seconds per slide
 
   // Preload all facility images immediately on mount so animations run instantly
   useEffect(() => {
@@ -114,11 +119,11 @@ export const HomePage: React.FC = () => {
     });
   }, []);
 
-  // Auto-advance facility showcase with smooth timer progress bar
+  // Continuous auto-advance facility showcase with smooth timer progress bar
   useEffect(() => {
     if (isPaused) return;
 
-    const interval = 50; // update progress every 50ms
+    const interval = 40; // update progress every 40ms for 60fps smoothness
     const step = (interval / SLIDE_DURATION) * 100;
 
     const timer = setInterval(() => {
@@ -140,6 +145,32 @@ export const HomePage: React.FC = () => {
       setProgress(0);
     }
   }, [progress]);
+
+  // Continuous auto-advance for mandate tabs (Vision -> Mission -> Values)
+  useEffect(() => {
+    const interval = 40;
+    const step = (interval / MANDATE_DURATION) * 100;
+
+    const timer = setInterval(() => {
+      setMandateProgress((prev) => {
+        if (prev + step >= 100) {
+          setActiveMandateTab((curr) => {
+            const nextIdx = (mandateTabs.indexOf(curr) + 1) % mandateTabs.length;
+            return mandateTabs[nextIdx];
+          });
+          return 0;
+        }
+        return prev + step;
+      });
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const selectMandateTab = (tab: 'vision' | 'mission' | 'values') => {
+    setActiveMandateTab(tab);
+    setMandateProgress(0);
+  };
 
   const selectFacility = (index: number) => {
     setActiveFacilityIndex(index);
@@ -166,30 +197,31 @@ export const HomePage: React.FC = () => {
       />
 
       {/* =========================================================================
-          FULL-PAGE IMMERSIVE CINEMATIC HERO (Full First Page Animation & High-Contrast Text)
+          FULL-PAGE IMMERSIVE CINEMATIC HERO (Continuous Non-Stop Animation & Fast Responsive UI)
           ========================================================================= */}
       <section
         className="relative min-h-[92vh] sm:min-h-screen flex flex-col justify-between overflow-hidden bg-charcoal-950 text-white select-none border-b-2 border-forest-900 transition-colors"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
       >
-        {/* Full-Bleed Animated Facility Background Carousel Covering the Entire First Page */}
+        {/* Full-Bleed Animated Facility Background Carousel with Continuous Ken Burns Float */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             <motion.img
               key={activeFacility.id}
               src={activeFacility.image}
               alt={activeFacility.title}
-              initial={{ opacity: 0, scale: 1.08 }}
-              animate={{ opacity: 1, scale: 1.0 }}
+              initial={{ opacity: 0, scale: 1.0 }}
+              animate={{ opacity: 1, scale: 1.08 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1.2, ease: 'easeInOut' }}
-              className="absolute inset-0 w-full h-full object-cover object-center filter contrast-110 saturate-110"
+              transition={{
+                opacity: { duration: 0.65, ease: 'easeInOut' },
+                scale: { duration: 4.8, ease: 'linear' }
+              }}
+              className="absolute inset-0 w-full h-full object-cover object-center filter contrast-110 saturate-110 will-change-transform"
               loading="eager"
             />
           </AnimatePresence>
 
-          {/* Solid Uniform Dark Scrim: Avoids any transparent/fading gradient while ensuring crystal-clear text readability */}
+          {/* Solid Uniform Dark Scrim: Ensures crystal-clear text readability */}
           <div className="absolute inset-0 bg-charcoal-950/70 sm:bg-black/65 z-10 pointer-events-none" />
         </div>
 
@@ -201,7 +233,7 @@ export const HomePage: React.FC = () => {
               <div className="bg-charcoal-900/90 backdrop-blur-md rounded-2xl px-3.5 py-2 border-2 border-charcoal-700 flex items-center gap-3 shadow-xl">
                 <div
                   style={{ backgroundColor: '#ffffff' }}
-                  className="preserve-white w-9 h-9 sm:w-10 sm:h-10 rounded-xl p-1 border-2 border-warm-200 shadow-xs flex items-center justify-center flex-shrink-0"
+                  className="preserve-white w-9 h-9 sm:w-10 sm:h-10 rounded-xl p-1 border-2 border-warm-200 shadow-xs flex items-center justify-center flex-shrink-0 animate-pulse-glow"
                 >
                   <img src="/logo.png" alt="MSC Emblem" className="w-full h-full object-contain" />
                 </div>
@@ -233,11 +265,11 @@ export const HomePage: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.4 }}
               className="max-w-4xl text-left space-y-6"
             >
               {/* Active Facility Tag Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400 text-charcoal-950 text-xs font-black uppercase tracking-wider shadow-lg">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400 text-charcoal-950 text-xs font-black uppercase tracking-wider shadow-lg animate-shimmer">
                 <span className="w-2.5 h-2.5 rounded-full bg-charcoal-950 animate-pulse" />
                 <span>Verified Site: {activeFacility.title}</span>
               </div>
@@ -255,19 +287,19 @@ export const HomePage: React.FC = () => {
                 {MSC_ORGANIZATION.mission}
               </p>
 
-              {/* High-Contrast Action Buttons (Unified Green Palette) */}
+              {/* High-Contrast Action Buttons (Unified Fast-Action Green Palette) */}
               <div className="pt-2 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3">
                 <Link
                   to="/donate"
-                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 border-2 border-emerald-400"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-base shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-150 border-2 border-emerald-400"
                 >
-                  <Heart className="w-5 h-5 fill-white text-white" />
+                  <Heart className="w-5 h-5 fill-white text-white animate-float" />
                   <span>Support Our Work</span>
                 </Link>
 
                 <Link
                   to="/about"
-                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 border-2 border-emerald-400"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-base shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-150 border-2 border-emerald-400"
                 >
                   <span>Explore Our Story</span>
                   <ArrowRight className="w-5 h-5 text-white" />
@@ -277,40 +309,46 @@ export const HomePage: React.FC = () => {
                   href={`https://wa.me/254790629439?text=${encodeURIComponent('Hello Mwancha Senior Community, I would like to inquire about your programs and support services.')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 border-2 border-emerald-400"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-base shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-150 border-2 border-emerald-400"
                   aria-label="Direct WhatsApp inquiry with MSC"
                 >
-                  <MessageCircle className="w-5 h-5 fill-white text-white" />
+                  <MessageCircle className="w-5 h-5 fill-white text-white animate-float" />
                   <span>WhatsApp Helpdesk</span>
                 </a>
               </div>
 
-              {/* 3 High-Contrast Impact Metrics Chips */}
+              {/* 3 High-Contrast Impact Metrics Chips with Animated Counters & Floating Icons */}
               <div className="grid grid-cols-3 gap-2.5 sm:gap-4 max-w-xl pt-2">
-                <div className="bg-charcoal-950/85 backdrop-blur-md rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-white/20 text-left shadow-xl">
+                <div className="bg-charcoal-950/85 backdrop-blur-md rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-white/20 text-left shadow-xl group hover:-translate-y-0.5 transition-transform duration-150">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <Users className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <Users className="w-4 h-4 text-emerald-400 flex-shrink-0 animate-float" />
                     <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-300 truncate">Beneficiaries</span>
                   </div>
-                  <p className="text-xl sm:text-2xl md:text-3xl font-black text-white font-display">1,203+</p>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-black text-white font-display">
+                    <AnimatedCounter value="1,203+" durationMs={1200} />
+                  </p>
                   <p className="text-xs text-warm-200 font-bold truncate">Households</p>
                 </div>
 
-                <div className="bg-charcoal-950/85 backdrop-blur-md rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-white/20 text-left shadow-xl">
+                <div className="bg-charcoal-950/85 backdrop-blur-md rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-white/20 text-left shadow-xl group hover:-translate-y-0.5 transition-transform duration-150">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <HeartHandshake className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                    <HeartHandshake className="w-4 h-4 text-amber-400 flex-shrink-0 animate-float" />
                     <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-300 truncate">Volunteers</span>
                   </div>
-                  <p className="text-xl sm:text-2xl md:text-3xl font-black text-white font-display">40</p>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-black text-white font-display">
+                    <AnimatedCounter value="40" durationMs={900} />
+                  </p>
                   <p className="text-xs text-warm-200 font-bold truncate">Coordinators</p>
                 </div>
 
-                <div className="bg-charcoal-950/85 backdrop-blur-md rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-white/20 text-left shadow-xl">
+                <div className="bg-charcoal-950/85 backdrop-blur-md rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-white/20 text-left shadow-xl group hover:-translate-y-0.5 transition-transform duration-150">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <Calendar className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <Calendar className="w-4 h-4 text-emerald-400 flex-shrink-0 animate-float" />
                     <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-300 truncate">Founded</span>
                   </div>
-                  <p className="text-xl sm:text-2xl md:text-3xl font-black text-white font-display">2016</p>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-black text-white font-display">
+                    <AnimatedCounter value="2016" durationMs={1100} />
+                  </p>
                   <p className="text-xs text-warm-200 font-bold truncate">Rooted</p>
                 </div>
               </div>
@@ -454,16 +492,33 @@ export const HomePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Right Column: Interactive Mandate Switcher */}
+              {/* Right Column: Dynamic Auto-Advancing Mandate Switcher */}
               <div className="lg:col-span-6 bg-warm-50 dark:bg-charcoal-950 rounded-xl sm:rounded-2xl p-4 sm:p-8 border-2 border-warm-200 dark:border-charcoal-700 shadow-sm text-left transition-colors">
+                {/* Continuous Progress Bar Indicator */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-forest-800 dark:text-emerald-400 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block" />
+                    Continuous Showcase
+                  </span>
+                  <span className="text-[10px] text-charcoal-500 dark:text-warm-300 font-bold">
+                    Auto-Cycling
+                  </span>
+                </div>
+                <div className="w-full bg-warm-200 dark:bg-charcoal-800 h-1.5 rounded-full mb-5 overflow-hidden border border-warm-300 dark:border-charcoal-700">
+                  <div
+                    className="bg-gradient-to-r from-amber-400 to-emerald-500 h-full rounded-full transition-all duration-75"
+                    style={{ width: `${mandateProgress}%` }}
+                  />
+                </div>
+
                 {/* Tabs */}
                 <div className="flex rounded-xl bg-warm-200 dark:bg-charcoal-800 p-1 mb-6 border border-warm-300 dark:border-charcoal-700">
                   <button
                     type="button"
-                    onClick={() => setActiveMandateTab('vision')}
-                    className={`flex-1 py-2.5 text-xs sm:text-sm font-black rounded-lg transition-all ${
+                    onClick={() => selectMandateTab('vision')}
+                    className={`flex-1 py-2.5 text-xs sm:text-sm font-black rounded-lg transition-all duration-150 active:scale-95 ${
                       activeMandateTab === 'vision'
-                        ? 'bg-forest-900 text-white dark:bg-amber-400 dark:text-charcoal-950 shadow-md'
+                        ? 'bg-forest-900 text-white dark:bg-amber-400 dark:text-charcoal-950 shadow-md ring-2 ring-emerald-500/50'
                         : 'text-charcoal-800 dark:text-warm-200 hover:text-black dark:hover:text-white'
                     }`}
                   >
@@ -471,10 +526,10 @@ export const HomePage: React.FC = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setActiveMandateTab('mission')}
-                    className={`flex-1 py-2.5 text-xs sm:text-sm font-black rounded-lg transition-all ${
+                    onClick={() => selectMandateTab('mission')}
+                    className={`flex-1 py-2.5 text-xs sm:text-sm font-black rounded-lg transition-all duration-150 active:scale-95 ${
                       activeMandateTab === 'mission'
-                        ? 'bg-forest-900 text-white dark:bg-amber-400 dark:text-charcoal-950 shadow-md'
+                        ? 'bg-forest-900 text-white dark:bg-amber-400 dark:text-charcoal-950 shadow-md ring-2 ring-emerald-500/50'
                         : 'text-charcoal-800 dark:text-warm-200 hover:text-black dark:hover:text-white'
                     }`}
                   >
@@ -482,10 +537,10 @@ export const HomePage: React.FC = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setActiveMandateTab('values')}
-                    className={`flex-1 py-2.5 text-xs sm:text-sm font-black rounded-lg transition-all ${
+                    onClick={() => selectMandateTab('values')}
+                    className={`flex-1 py-2.5 text-xs sm:text-sm font-black rounded-lg transition-all duration-150 active:scale-95 ${
                       activeMandateTab === 'values'
-                        ? 'bg-forest-900 text-white dark:bg-amber-400 dark:text-charcoal-950 shadow-md'
+                        ? 'bg-forest-900 text-white dark:bg-amber-400 dark:text-charcoal-950 shadow-md ring-2 ring-emerald-500/50'
                         : 'text-charcoal-800 dark:text-warm-200 hover:text-black dark:hover:text-white'
                     }`}
                   >
@@ -493,52 +548,78 @@ export const HomePage: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Tab Contents */}
-                {activeMandateTab === 'vision' && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                    <div className="flex items-center gap-2 text-forest-900 dark:text-emerald-400 font-extrabold text-sm uppercase tracking-wide">
-                      <Sparkles className="w-5 h-5 text-amber-500" />
-                      <span>The Vision of Mwancha Senior Community</span>
-                    </div>
-                    <blockquote className="text-charcoal-950 dark:text-white text-base sm:text-lg italic font-medium leading-relaxed pl-4 border-l-4 border-forest-600 dark:border-emerald-400 bg-white dark:bg-charcoal-900 p-5 rounded-r-xl border border-warm-200 dark:border-charcoal-700 shadow-sm transition-colors">
-                      "{MSC_ORGANIZATION.vision}"
-                    </blockquote>
-                    <p className="text-xs sm:text-sm text-charcoal-700 dark:text-warm-200 font-semibold">
-                      Guiding every intervention toward regional and global leadership in senior citizen rights and welfare.
-                    </p>
-                  </motion.div>
-                )}
+                {/* Animated Tab Contents */}
+                <AnimatePresence mode="wait">
+                  {activeMandateTab === 'vision' && (
+                    <motion.div
+                      key="vision"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.25 }}
+                      className="space-y-4"
+                    >
+                      <div className="flex items-center gap-2 text-forest-900 dark:text-emerald-400 font-extrabold text-sm uppercase tracking-wide">
+                        <Sparkles className="w-5 h-5 text-amber-500 animate-float" />
+                        <span>The Vision of Mwancha Senior Community</span>
+                      </div>
+                      <blockquote className="text-charcoal-950 dark:text-white text-base sm:text-lg italic font-medium leading-relaxed pl-4 border-l-4 border-forest-600 dark:border-emerald-400 bg-white dark:bg-charcoal-900 p-5 rounded-r-xl border border-warm-200 dark:border-charcoal-700 shadow-sm transition-colors">
+                        "{MSC_ORGANIZATION.vision}"
+                      </blockquote>
+                      <p className="text-xs sm:text-sm text-charcoal-700 dark:text-warm-200 font-semibold">
+                        Guiding every intervention toward regional and global leadership in senior citizen rights and welfare.
+                      </p>
+                    </motion.div>
+                  )}
 
-                {activeMandateTab === 'mission' && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                    <div className="flex items-center gap-2 text-forest-900 dark:text-emerald-400 font-extrabold text-sm uppercase tracking-wide">
-                      <ShieldCheck className="w-5 h-5 text-emerald-500" />
-                      <span>Our Operational Mission</span>
-                    </div>
-                    <blockquote className="text-charcoal-950 dark:text-white text-base sm:text-lg italic font-medium leading-relaxed pl-4 border-l-4 border-emerald-600 dark:border-emerald-400 bg-white dark:bg-charcoal-900 p-5 rounded-r-xl border border-warm-200 dark:border-charcoal-700 shadow-sm transition-colors">
-                      "{MSC_ORGANIZATION.mission}"
-                    </blockquote>
-                    <p className="text-xs sm:text-sm text-charcoal-700 dark:text-warm-200 font-semibold">
-                      Fostering health, economic empowerment, and psychosocial support to preserve dignity in later life.
-                    </p>
-                  </motion.div>
-                )}
+                  {activeMandateTab === 'mission' && (
+                    <motion.div
+                      key="mission"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.25 }}
+                      className="space-y-4"
+                    >
+                      <div className="flex items-center gap-2 text-forest-900 dark:text-emerald-400 font-extrabold text-sm uppercase tracking-wide">
+                        <ShieldCheck className="w-5 h-5 text-emerald-500 animate-float" />
+                        <span>Our Operational Mission</span>
+                      </div>
+                      <blockquote className="text-charcoal-950 dark:text-white text-base sm:text-lg italic font-medium leading-relaxed pl-4 border-l-4 border-emerald-600 dark:border-emerald-400 bg-white dark:bg-charcoal-900 p-5 rounded-r-xl border border-warm-200 dark:border-charcoal-700 shadow-sm transition-colors">
+                        "{MSC_ORGANIZATION.mission}"
+                      </blockquote>
+                      <p className="text-xs sm:text-sm text-charcoal-700 dark:text-warm-200 font-semibold">
+                        Fostering health, economic empowerment, and psychosocial support to preserve dignity in later life.
+                      </p>
+                    </motion.div>
+                  )}
 
-                {activeMandateTab === 'values' && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-                    <p className="text-xs font-black text-forest-900 dark:text-emerald-400 uppercase tracking-wider">
-                      Official Ethical Core Values:
-                    </p>
-                    <div className="grid grid-cols-2 gap-2.5">
-                      {MSC_ORGANIZATION.coreValues.map((val) => (
-                        <div key={val.title} className="p-3.5 bg-white dark:bg-charcoal-900 rounded-xl border border-warm-200 dark:border-charcoal-700 text-left shadow-xs transition-colors">
-                          <p className="font-black text-sm text-forest-950 dark:text-emerald-400">{val.title}</p>
-                          <p className="text-xs text-charcoal-700 dark:text-warm-200 font-medium line-clamp-2 mt-1">{val.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
+                  {activeMandateTab === 'values' && (
+                    <motion.div
+                      key="values"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.25 }}
+                      className="space-y-3"
+                    >
+                      <p className="text-xs font-black text-forest-900 dark:text-emerald-400 uppercase tracking-wider">
+                        Official Ethical Core Values:
+                      </p>
+                      <div className="grid grid-cols-2 gap-2.5">
+                        {MSC_ORGANIZATION.coreValues.map((val) => (
+                          <div
+                            key={val.title}
+                            className="p-3.5 bg-white dark:bg-charcoal-900 rounded-xl border border-warm-200 dark:border-charcoal-700 text-left shadow-xs hover:-translate-y-0.5 transition-transform duration-150"
+                          >
+                            <p className="font-black text-sm text-forest-950 dark:text-emerald-400">{val.title}</p>
+                            <p className="text-xs text-charcoal-700 dark:text-warm-200 font-medium line-clamp-2 mt-1">{val.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </div>
