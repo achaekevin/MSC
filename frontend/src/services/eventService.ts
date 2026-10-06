@@ -30,7 +30,7 @@ export const eventService = {
 
       const qs = query.toString() ? `?${query.toString()}` : '';
       const res = await apiClient.get<any>(`/events${qs}`);
-      const items = res.data?.items || res.data || [];
+      const items = Array.isArray(res) ? res : (res?.data || res?.items || []);
       return items.length > 0 ? items : EVENTS_DATA;
     } catch {
       return EVENTS_DATA;
@@ -62,7 +62,7 @@ export const eventService = {
   async getBySlug(slug: string): Promise<EventItem | null> {
     try {
       const res = await apiClient.get<any>(`/events/${slug}`);
-      const item = res.data?.data || res.data;
+      const item = res?.slug ? res : (res?.data || null);
       if (item) return item;
     } catch {
       // Fallback
@@ -74,7 +74,7 @@ export const eventService = {
   async getCategories(): Promise<EventCategory[]> {
     try {
       const res = await apiClient.get<any>('/events/categories');
-      const cats = res.data?.data || res.data || [];
+      const cats = Array.isArray(res) ? res : (res?.data || []);
       if (cats.length > 0) return cats;
     } catch {
       // Fallback
@@ -105,10 +105,10 @@ export const eventService = {
       if (params?.search) query.append('search', params.search);
 
       const qs = query.toString() ? `?${query.toString()}` : '';
-      const res = await apiClient.get<any>(`/admin/events${qs}`);
-      const items = res.data?.items || res.data || [];
-      const total = res.data?.pagination?.total ?? items.length;
-      const totalPages = res.data?.pagination?.totalPages ?? 1;
+      const res = await apiClient.getWithMeta<EventItem[]>(`/admin/events${qs}`);
+      const items = Array.isArray(res.data) ? res.data : [];
+      const total = res.pagination?.total ?? items.length;
+      const totalPages = res.pagination?.totalPages ?? (total > 0 ? Math.ceil(total / (params?.limit || 10)) : 1);
 
       return { items, total, totalPages };
     } catch {
@@ -125,7 +125,7 @@ export const eventService = {
   async getEventById(id: string): Promise<EventItem | null> {
     try {
       const res = await apiClient.get<any>(`/admin/events/${id}`);
-      return res.data?.data || res.data;
+      return res?.slug ? res : (res?.data || null);
     } catch {
       const fallback = EVENTS_DATA.find((e) => e.id === id);
       return fallback || null;
@@ -148,11 +148,12 @@ export const eventService = {
       registrationUrl: data.registrationUrl || null,
       image: data.image || null,
       organizer: data.organizer || 'Mwancha Senior Community',
-      source: data.source || 'OFFICIAL_PROFILE'
+      source: data.source || 'OFFICIAL_PROFILE',
+      status: data.status || 'DRAFT'
     };
 
     const res = await apiClient.post<any>('/admin/events', payload);
-    return res.data?.data || res.data;
+    return res?.id ? res : (res?.data || res);
   },
 
   async updateEvent(id: string, data: Partial<EventItem>): Promise<EventItem> {
@@ -170,36 +171,37 @@ export const eventService = {
       registrationRequired: data.registrationRequired,
       registrationUrl: data.registrationUrl,
       image: data.image,
-      organizer: data.organizer
+      organizer: data.organizer,
+      status: data.status
     };
 
     const res = await apiClient.put<any>(`/admin/events/${id}`, payload);
-    return res.data?.data || res.data;
+    return res?.id ? res : (res?.data || res);
   },
 
   async submitReview(id: string, notes?: string): Promise<EventItem> {
     const res = await apiClient.post<any>(`/admin/events/${id}/submit-review`, { reviewNotes: notes });
-    return res.data?.data || res.data;
+    return res?.id ? res : (res?.data || res);
   },
 
   async approveEvent(id: string, notes?: string): Promise<EventItem> {
     const res = await apiClient.post<any>(`/admin/events/${id}/approve`, { reviewNotes: notes });
-    return res.data?.data || res.data;
+    return res?.id ? res : (res?.data || res);
   },
 
   async publishEvent(id: string): Promise<EventItem> {
     const res = await apiClient.post<any>(`/admin/events/${id}/publish`, {});
-    return res.data?.data || res.data;
+    return res?.id ? res : (res?.data || res);
   },
 
   async deleteEvent(id: string): Promise<boolean> {
     const res = await apiClient.delete<any>(`/admin/events/${id}`);
-    return res.data?.success ?? true;
+    return res?.success ?? true;
   },
 
   async duplicateEvent(id: string): Promise<EventItem> {
     const res = await apiClient.post<any>(`/admin/events/${id}/duplicate`, {});
-    return res.data?.data || res.data;
+    return res?.id ? res : (res?.data || res);
   },
 
   async bulkUpdateStatus(ids: string[], status: ContentStatus): Promise<boolean> {

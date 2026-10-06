@@ -19,6 +19,7 @@ export interface NewsArticleInput {
   seoTitle?: string;
   seoDescription?: string;
   changeNote?: string;
+  status?: 'DRAFT' | 'IN_REVIEW' | 'APPROVED' | 'PUBLISHED' | 'ARCHIVED';
 }
 
 export interface NewsCategory {

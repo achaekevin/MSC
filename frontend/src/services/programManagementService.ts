@@ -26,6 +26,7 @@ export interface ProgramInput {
   seoTitle?: string;
   seoDescription?: string;
   changeNote?: string;
+  status?: 'DRAFT' | 'IN_REVIEW' | 'APPROVED' | 'PUBLISHED' | 'ARCHIVED';
 }
 
 export interface ProgramCategory {
