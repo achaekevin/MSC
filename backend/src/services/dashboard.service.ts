@@ -1,8 +1,20 @@
 import { prisma } from '../config/database.js';
 import { ContentStatus, FormStatus, ContactStatus } from '@prisma/client';
 
+// In-memory cache for fast dashboard loading
+let cachedSummary: { data: any; timestamp: number } | null = null;
+const CACHE_TTL_MS = 30000; // 30 seconds
+
+export function invalidateDashboardCache() {
+  cachedSummary = null;
+}
+
 export class DashboardService {
   async getDashboardSummary() {
+    if (cachedSummary && Date.now() - cachedSummary.timestamp < CACHE_TTL_MS) {
+      return cachedSummary.data;
+    }
+
     const [
       totalPrograms,
       publishedPrograms,
@@ -43,7 +55,7 @@ export class DashboardService {
 
     const pendingReviewsCount = pendingPrograms + pendingNews + pendingEvents + pendingTeam;
 
-    return {
+    const result = {
       contentMetrics: {
         programs: { total: totalPrograms, published: publishedPrograms },
         news: { total: totalNews, published: publishedNews },
@@ -58,6 +70,13 @@ export class DashboardService {
       },
       recentActivity: recentAuditLogs
     };
+
+    cachedSummary = {
+      data: result,
+      timestamp: Date.now()
+    };
+
+    return result;
   }
 }
 

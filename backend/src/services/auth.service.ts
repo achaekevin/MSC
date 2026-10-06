@@ -58,16 +58,6 @@ export class AuthService {
       throw new UnauthorizedError('Invalid email or password');
     }
 
-    // Reset failed attempts & update last login
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        failedLoginAttempts: 0,
-        lockUntil: null,
-        lastLoginAt: new Date()
-      }
-    });
-
     const authUser: AuthUser = {
       id: user.id,
       email: user.email,
@@ -83,16 +73,27 @@ export class AuthService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    await prisma.refreshToken.create({
-      data: {
-        token: refreshToken,
-        userId: user.id,
-        expiresAt
-      }
-    });
+    // Parallelize user last login update & refresh token creation for fast response
+    await Promise.all([
+      prisma.user.update({
+        where: { id: user.id },
+        data: {
+          failedLoginAttempts: 0,
+          lockUntil: null,
+          lastLoginAt: new Date()
+        }
+      }),
+      prisma.refreshToken.create({
+        data: {
+          token: refreshToken,
+          userId: user.id,
+          expiresAt
+        }
+      })
+    ]);
 
-    // Audit log successful login
-    await prisma.auditLog.create({
+    // Audit log successful login asynchronously in the background
+    prisma.auditLog.create({
       data: {
         userId: user.id,
         action: 'LOGIN_SUCCESS',
@@ -101,6 +102,8 @@ export class AuthService {
         ipAddress,
         userAgent
       }
+    }).catch(err => {
+      console.warn('Asynchronous login audit log creation failed:', err);
     });
 
     return {

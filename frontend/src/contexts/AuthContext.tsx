@@ -67,7 +67,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const login = async (credentials: LoginCredentials) => {
-    setIsLoading(true);
     setError(null);
 
     try {
@@ -80,13 +79,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setError('Login failed. Please try again.');
       }
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const register = async (credentials: RegisterCredentials) => {
-    setIsLoading(true);
     setError(null);
 
     try {
@@ -99,13 +95,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setError('Registration failed. Please try again.');
       }
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const changePassword = async (data: ChangePasswordRequest) => {
-    setIsLoading(true);
     setError(null);
 
     try {
@@ -117,13 +110,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setError('Failed to change password. Please check your current password.');
       }
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const logout = async () => {
-    setIsLoading(true);
     setError(null);
 
     try {
@@ -133,8 +123,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.warn('Logout failed:', error);
       // Clear local state even if logout API call fails
       setUser(null);
-    } finally {
-      setIsLoading(false);
     }
   };
 

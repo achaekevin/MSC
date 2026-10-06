@@ -46,10 +46,25 @@ interface DashboardData {
   }>;
 }
 
+const DASHBOARD_CACHE_KEY = 'msc_admin_dashboard_cache';
+
 export const DashboardPage: React.FC = () => {
   const { user, hasPermission } = useAuth();
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [data, setData] = useState<DashboardData | null>(() => {
+    try {
+      const cached = sessionStorage.getItem(DASHBOARD_CACHE_KEY);
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [loading, setLoading] = useState<boolean>(() => {
+    try {
+      return !sessionStorage.getItem(DASHBOARD_CACHE_KEY);
+    } catch {
+      return true;
+    }
+  });
   const [error, setError] = useState<string | null>(null);
 
   const fetchDashboard = useCallback(async () => {
@@ -59,6 +74,9 @@ export const DashboardPage: React.FC = () => {
       const res = await apiClient.get<any>('/admin/dashboard');
       const payload = res?.data || res;
       setData(payload);
+      try {
+        sessionStorage.setItem(DASHBOARD_CACHE_KEY, JSON.stringify(payload));
+      } catch {}
     } catch {
       // Fallback data if offline or starting up
       setData({
