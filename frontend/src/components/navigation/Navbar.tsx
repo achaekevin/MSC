@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, Heart, Phone, MessageCircle } from 'lucide-react';
+import { Menu, X, ChevronDown, Heart, Phone, MessageCircle, Lock, Shield } from 'lucide-react';
 import { Logo } from '../common/Logo';
 import { Button } from '../ui/Button';
 import { ThemeToggle } from '../common/ThemeToggle';
 import { NAVIGATION_LINKS, MSC_ORGANIZATION } from '../../constants';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const Navbar: React.FC = () => {
+  const { isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -95,6 +97,19 @@ export const Navbar: React.FC = () => {
               <MessageCircle className="w-3 h-3 fill-current" />
               <span>WhatsApp: +254 790 629439</span>
             </a>
+            <span className="text-forest-700">|</span>
+            <Link
+              to={isAuthenticated ? "/admin/dashboard" : "/admin/login"}
+              className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-warm-200 hover:text-white hover:bg-forest-900 transition-colors font-medium border border-forest-800"
+              title={isAuthenticated ? "Open Admin Dashboard" : "Administrator & Staff Sign In"}
+            >
+              {isAuthenticated ? (
+                <Shield className="w-3 h-3 text-emerald-400" />
+              ) : (
+                <Lock className="w-3 h-3 text-emerald-400" />
+              )}
+              <span>{isAuthenticated ? 'Admin Dashboard' : 'Admin Sign In'}</span>
+            </Link>
           </div>
         </div>
       </div>
@@ -177,8 +192,20 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Desktop Primary Action CTA & Theme Toggle */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-2.5">
             <ThemeToggle />
+            <Link
+              to={isAuthenticated ? "/admin/dashboard" : "/admin/login"}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-warm-100 dark:hover:bg-charcoal-800 border border-warm-200 dark:border-charcoal-700 transition-colors"
+              title={isAuthenticated ? "Open Admin Dashboard" : "Staff & Administrator Sign In"}
+            >
+              {isAuthenticated ? (
+                <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              ) : (
+                <Lock className="w-3.5 h-3.5 text-forest-700 dark:text-emerald-400" />
+              )}
+              <span>{isAuthenticated ? 'Dashboard' : 'Admin Sign In'}</span>
+            </Link>
             <Button
               to="/donate"
               variant="secondary"
@@ -296,6 +323,21 @@ export const Navbar: React.FC = () => {
                   <MessageCircle className="w-3.5 h-3.5 fill-current" />
                   <span>WhatsApp</span>
                 </a>
+              </div>
+
+              {/* Mobile Admin Sign In Link */}
+              <div className="pt-2 border-t border-warm-100 dark:border-charcoal-800/80">
+                <Link
+                  to={isAuthenticated ? "/admin/dashboard" : "/admin/login"}
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-warm-100 dark:bg-charcoal-800 text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 text-xs font-semibold transition-colors"
+                >
+                  {isAuthenticated ? (
+                    <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  ) : (
+                    <Lock className="w-3.5 h-3.5 text-forest-700 dark:text-emerald-400" />
+                  )}
+                  <span>{isAuthenticated ? 'Admin Dashboard' : 'Staff & Admin Sign In'}</span>
+                </Link>
               </div>
             </div>
           </div>

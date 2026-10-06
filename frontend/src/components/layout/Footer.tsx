@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, MapPin, Heart, ArrowRight, Phone } from 'lucide-react';
+import { Mail, MapPin, Heart, ArrowRight, Phone, Lock, Shield } from 'lucide-react';
 import { Logo } from '../common/Logo';
 import { Button } from '../ui/Button';
 import { MSC_ORGANIZATION } from '../../constants';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const Footer: React.FC = () => {
+  const { isAuthenticated } = useAuth();
   const currentYear = new Date().getFullYear();
 
   // Filter only social links that actually have URLs configured
@@ -119,6 +121,19 @@ export const Footer: React.FC = () => {
                   <span>Measurable Impact</span>
                 </Link>
               </li>
+              <li>
+                <Link
+                  to={isAuthenticated ? "/admin/dashboard" : "/admin/login"}
+                  className="hover:text-earth-300 transition-colors flex items-center gap-1.5 text-forest-300 font-medium"
+                >
+                  {isAuthenticated ? (
+                    <Shield className="w-3.5 h-3.5 text-emerald-400" />
+                  ) : (
+                    <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                  )}
+                  <span>{isAuthenticated ? 'Admin Dashboard' : 'Staff & Admin Portal'}</span>
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -218,7 +233,7 @@ export const Footer: React.FC = () => {
           <p>
             &copy; {currentYear} {MSC_ORGANIZATION.name}. All rights reserved. Registered community-based organization in Kenya.
           </p>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <Link to="/privacy" className="hover:text-forest-200 transition-colors">
               Privacy Policy
             </Link>
@@ -227,6 +242,17 @@ export const Footer: React.FC = () => {
             </Link>
             <Link to="/contact" className="hover:text-forest-200 transition-colors">
               Contact Desk
+            </Link>
+            <Link
+              to={isAuthenticated ? "/admin/dashboard" : "/admin/login"}
+              className="hover:text-forest-200 transition-colors flex items-center gap-1 text-forest-300 font-medium"
+            >
+              {isAuthenticated ? (
+                <Shield className="w-3 h-3 text-emerald-400" />
+              ) : (
+                <Lock className="w-3 h-3 text-emerald-400" />
+              )}
+              <span>{isAuthenticated ? 'Admin Dashboard' : 'Admin Sign In'}</span>
             </Link>
           </div>
         </div>
