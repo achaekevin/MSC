@@ -25,6 +25,7 @@ const EventsPage = lazy(() => import('../pages/events/EventsPage').then(m => ({ 
 const EventDetailPage = lazy(() => import('../pages/events/EventDetailPage').then(m => ({ default: m.EventDetailPage })));
 
 const GalleryPage = lazy(() => import('../pages/GalleryPage').then(m => ({ default: m.GalleryPage })));
+const SearchPage = lazy(() => import('../pages/SearchPage').then(m => ({ default: m.SearchPage })));
 
 const GetInvolvedPage = lazy(() => import('../pages/GetInvolvedPage').then(m => ({ default: m.GetInvolvedPage })));
 const VolunteerPage = lazy(() => import('../pages/VolunteerPage').then(m => ({ default: m.VolunteerPage })));
@@ -95,6 +96,9 @@ export const AppRoutes: React.FC = () => {
           {/* Giving & Contact */}
           <Route path="donate" element={<DonatePage />} />
           <Route path="contact" element={<ContactPage />} />
+
+          {/* Global Advanced Search */}
+          <Route path="search" element={<SearchPage />} />
 
           {/* Legal & Compliance */}
           <Route path="privacy" element={<PrivacyPage />} />
