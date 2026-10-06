@@ -6,8 +6,9 @@ export class SearchController {
   async searchPublicContent(req: Request, res: Response, next: NextFunction) {
     try {
       const q = req.query.q as string;
-      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 10;
-      const results = await searchService.searchPublicContent(q, limit);
+      const type = (req.query.type as string) || 'all';
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 12;
+      const results = await searchService.searchPublicContent(q, type, limit);
       return sendSuccess(res, results, 200);
     } catch (error) {
       next(error);
