@@ -40,6 +40,25 @@ const normalizeUrl = (endpoint: string): string => {
   return `${BASE_URL.replace(/\/$/, '')}${cleanEndpoint}`;
 };
 
+// Centralized handler for 401 Unauthorized responses to guarantee expired session behavior
+const handleUnauthorized = () => {
+  localStorage.removeItem('msc_access_token');
+  localStorage.removeItem('msc_user');
+  localStorage.removeItem('msc_refresh_token');
+  try {
+    sessionStorage.clear();
+  } catch {}
+
+  // Redirect to login if currently on an admin route
+  if (
+    typeof window !== 'undefined' &&
+    window.location.pathname.startsWith('/admin') &&
+    !window.location.pathname.startsWith('/admin/login')
+  ) {
+    window.location.href = '/admin/login';
+  }
+};
+
 export const apiClient = {
   async get<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const url = normalizeUrl(endpoint);
@@ -64,16 +83,8 @@ export const apiClient = {
           errData = { message: `Request failed with status ${response.status}` };
         }
 
-        // Handle authentication errors
         if (response.status === 401) {
-          // Token expired or invalid - clear local state
-          localStorage.removeItem('msc_access_token');
-          localStorage.removeItem('msc_user');
-          
-          // Redirect to login if on admin route
-          if (window.location.pathname.startsWith('/admin')) {
-            window.location.href = '/admin/login';
-          }
+          handleUnauthorized();
         }
 
         throw new ApiError(errData.message || 'API request failed', response.status, errData.errors);
@@ -115,11 +126,7 @@ export const apiClient = {
         }
 
         if (response.status === 401) {
-          localStorage.removeItem('msc_access_token');
-          localStorage.removeItem('msc_user');
-          if (window.location.pathname.startsWith('/admin')) {
-            window.location.href = '/admin/login';
-          }
+          handleUnauthorized();
         }
 
         throw new ApiError(errData.message || 'API request failed', response.status, errData.errors);
@@ -151,7 +158,7 @@ export const apiClient = {
           ...getAuthHeaders(),
           ...(options?.headers || {})
         },
-        credentials: 'include', // Include cookies for refresh token
+        credentials: 'include',
         body: JSON.stringify(data),
         ...options
       });
@@ -164,14 +171,8 @@ export const apiClient = {
           errData = { message: `Submission failed with status ${response.status}` };
         }
 
-        // Handle authentication errors
         if (response.status === 401) {
-          localStorage.removeItem('msc_access_token');
-          localStorage.removeItem('msc_user');
-          
-          if (window.location.pathname.startsWith('/admin')) {
-            window.location.href = '/admin/login';
-          }
+          handleUnauthorized();
         }
 
         throw new ApiError(errData.message || 'Form submission failed', response.status, errData.errors);
@@ -214,12 +215,7 @@ export const apiClient = {
         }
 
         if (response.status === 401) {
-          localStorage.removeItem('msc_access_token');
-          localStorage.removeItem('msc_user');
-          
-          if (window.location.pathname.startsWith('/admin')) {
-            window.location.href = '/admin/login';
-          }
+          handleUnauthorized();
         }
 
         throw new ApiError(errData.message || 'Update failed', response.status, errData.errors);
@@ -262,12 +258,7 @@ export const apiClient = {
         }
 
         if (response.status === 401) {
-          localStorage.removeItem('msc_access_token');
-          localStorage.removeItem('msc_user');
-          
-          if (window.location.pathname.startsWith('/admin')) {
-            window.location.href = '/admin/login';
-          }
+          handleUnauthorized();
         }
 
         throw new ApiError(errData.message || 'Patch failed', response.status, errData.errors);
@@ -309,12 +300,7 @@ export const apiClient = {
         }
 
         if (response.status === 401) {
-          localStorage.removeItem('msc_access_token');
-          localStorage.removeItem('msc_user');
-          
-          if (window.location.pathname.startsWith('/admin')) {
-            window.location.href = '/admin/login';
-          }
+          handleUnauthorized();
         }
 
         throw new ApiError(errData.message || 'Delete failed', response.status, errData.errors);

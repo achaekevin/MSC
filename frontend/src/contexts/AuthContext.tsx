@@ -49,18 +49,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const currentUser = await authService.getCurrentUser();
         setUser(currentUser);
       } else {
-        // Try to refresh token in case access token expired
-        try {
-          const response = await authService.refreshToken();
-          setUser(response.user);
-        } catch {
-          // Refresh failed - user needs to log in
-          authService.logout(); // Clear any stale local state
+        // Only attempt refresh if user previously had an active session
+        // If user explicitly logged out, msc_refresh_token is removed and no auto-login happens
+        const hasStoredRefreshToken = !!localStorage.getItem('msc_refresh_token');
+        if (hasStoredRefreshToken) {
+          try {
+            const response = await authService.refreshToken();
+            setUser(response.user);
+          } catch {
+            authService.clearAuthState();
+            setUser(null);
+          }
+        } else {
+          authService.clearAuthState();
+          setUser(null);
         }
       }
     } catch (error) {
       console.warn('Auth initialization failed:', error);
-      authService.logout();
+      authService.clearAuthState();
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -118,11 +126,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       await authService.logout();
-      setUser(null);
     } catch (error) {
-      console.warn('Logout failed:', error);
-      // Clear local state even if logout API call fails
+      console.warn('Logout error:', error);
+    } finally {
       setUser(null);
+      authService.clearAuthState();
+      try {
+        sessionStorage.clear();
+      } catch {}
     }
   };
 

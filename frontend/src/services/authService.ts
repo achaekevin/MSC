@@ -155,18 +155,27 @@ class AuthService {
     }
   }
 
-  private setAuthState(user: User, accessToken: string) {
+  private setAuthState(user: User, accessToken: string, refreshToken?: string) {
     this.user = user;
     this.accessToken = accessToken;
     localStorage.setItem('msc_user', JSON.stringify(user));
     localStorage.setItem('msc_access_token', accessToken);
+    if (refreshToken) {
+      localStorage.setItem('msc_refresh_token', refreshToken);
+    }
   }
 
-  private clearAuthState() {
+  clearAuthState() {
     this.user = null;
     this.accessToken = null;
     localStorage.removeItem('msc_user');
     localStorage.removeItem('msc_access_token');
+    localStorage.removeItem('msc_refresh_token');
+    try {
+      sessionStorage.clear();
+    } catch {
+      // Ignore if sessionStorage not accessible
+    }
   }
 
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
@@ -175,7 +184,7 @@ class AuthService {
       body: JSON.stringify(credentials)
     });
 
-    this.setAuthState(response.user, response.accessToken);
+    this.setAuthState(response.user, response.accessToken, response.refreshToken);
     return response;
   }
 
@@ -185,17 +194,19 @@ class AuthService {
       body: JSON.stringify(credentials)
     });
 
-    this.setAuthState(response.user, response.accessToken);
+    this.setAuthState(response.user, response.accessToken, response.refreshToken);
     return response;
   }
 
   async logout(): Promise<void> {
+    const refreshToken = localStorage.getItem('msc_refresh_token');
     try {
       await this.makeAuthRequest('/logout', {
-        method: 'POST'
+        method: 'POST',
+        body: JSON.stringify({ refreshToken })
       });
-    } catch {
-      // Continue with local logout even if server logout fails
+    } catch (err) {
+      console.warn('Server logout request failed:', err);
     } finally {
       this.clearAuthState();
     }
@@ -203,10 +214,13 @@ class AuthService {
 
   async refreshToken(): Promise<LoginResponse> {
     const response = await this.makeAuthRequest<LoginResponse>('/refresh', {
-      method: 'POST'
+      method: 'POST',
+      body: JSON.stringify({
+        refreshToken: localStorage.getItem('msc_refresh_token')
+      })
     });
 
-    this.setAuthState(response.user, response.accessToken);
+    this.setAuthState(response.user, response.accessToken, response.refreshToken);
     return response;
   }
 
