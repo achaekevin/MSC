@@ -33,11 +33,11 @@ export class AuthController {
 
   async register(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, password, name, role } = req.body;
+      const { email, password, name, role, adminInviteCode } = req.body;
       const ipAddress = req.ip || req.socket.remoteAddress;
       const userAgent = req.headers['user-agent'];
 
-      const result = await authService.register(email, password, name, role, ipAddress, userAgent);
+      const result = await authService.register(email, password, name, role, adminInviteCode, ipAddress, userAgent);
 
       // Set refresh token in secure HTTP-only cookie
       res.cookie('msc_refresh_token', result.refreshToken, {

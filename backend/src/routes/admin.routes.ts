@@ -62,7 +62,7 @@ router.use(authenticate);
 // ----------------------------------------------------
 // DASHBOARD (Section 70)
 // ----------------------------------------------------
-router.get('/dashboard', (req, res, next) => dashboardController.getDashboardSummary(req, res, next));
+router.get('/dashboard', requireRoles('SUPER_ADMIN', 'CONTENT_ADMIN'), (req, res, next) => dashboardController.getDashboardSummary(req, res, next));
 
 // ----------------------------------------------------
 // ORGANIZATION (Section 13)

@@ -113,7 +113,23 @@ export class AuthService {
     };
   }
 
-  async register(email: string, passwordPlain: string, name: string, role?: UserRole, ipAddress?: string, userAgent?: string) {
+  async register(
+    email: string,
+    passwordPlain: string,
+    name: string,
+    role?: UserRole,
+    adminInviteCode?: string,
+    ipAddress?: string,
+    userAgent?: string
+  ) {
+    // Enforce administrative authorization key
+    const expectedKey = env.ADMIN_INVITE_CODE || 'MSC-ADMIN-2024-SECURE';
+    if (!adminInviteCode || adminInviteCode.trim() !== expectedKey) {
+      throw new ForbiddenError(
+        'Unauthorized: A valid administrative authorization key issued by MSC leadership is required to create an admin account.'
+      );
+    }
+
     const normalizedEmail = email.toLowerCase().trim();
     const existing = await prisma.user.findUnique({
       where: { email: normalizedEmail }
@@ -125,9 +141,12 @@ export class AuthService {
 
     const passwordHash = await hashPassword(passwordPlain);
 
-    // If this is the very first user in the database, automatically grant SUPER_ADMIN
+    // If this is the very first user in the database, allow SUPER_ADMIN.
+    // Otherwise, restrict self-registration to CONTENT_ADMIN or lower to prevent self-elevation to SUPER_ADMIN.
     const userCount = await prisma.user.count();
-    const assignedRole = userCount === 0 ? 'SUPER_ADMIN' : (role || 'CONTENT_ADMIN');
+    const assignedRole = userCount === 0 
+      ? 'SUPER_ADMIN' 
+      : (role === 'SUPER_ADMIN' ? 'CONTENT_ADMIN' : (role || 'CONTENT_ADMIN'));
 
     const user = await prisma.user.create({
       data: {

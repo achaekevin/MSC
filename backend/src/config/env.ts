@@ -35,7 +35,9 @@ const envSchema = z.object({
 
   INITIAL_ADMIN_EMAIL: z.string().email().default('admin@mwanchasenior.com'),
   INITIAL_ADMIN_PASSWORD: z.string().min(1).default('admin@1'),
-  INITIAL_ADMIN_NAME: z.string().default('MSC System Administrator')
+  INITIAL_ADMIN_NAME: z.string().default('MSC System Administrator'),
+
+  ADMIN_INVITE_CODE: z.string().default('MSC-ADMIN-2024-SECURE')
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
