@@ -238,23 +238,29 @@ export class AuthService {
     };
   }
 
-  async logout(token: string, userId?: string) {
+  async logout(token?: string, userId?: string) {
     if (token) {
       await prisma.refreshToken.updateMany({
         where: { token, revokedAt: null },
         data: { revokedAt: new Date() }
-      });
+      }).catch(err => console.warn('Failed to revoke refresh token:', err));
     }
 
     if (userId) {
-      await prisma.auditLog.create({
+      // Invalidate ALL active refresh tokens for this user to guarantee session expiration
+      await prisma.refreshToken.updateMany({
+        where: { userId, revokedAt: null },
+        data: { revokedAt: new Date() }
+      }).catch(err => console.warn('Failed to revoke user tokens:', err));
+
+      prisma.auditLog.create({
         data: {
           userId,
           action: 'LOGOUT',
           entity: 'User',
           entityId: userId
         }
-      });
+      }).catch(() => {});
     }
 
     return true;

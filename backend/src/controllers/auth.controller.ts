@@ -3,6 +3,7 @@ import { authService } from '../services/auth.service.js';
 import { sendSuccess } from '../utils/apiResponse.js';
 import { AuthenticatedRequest } from '../types/index.js';
 import { env } from '../config/env.js';
+import { verifyAccessToken } from '../utils/jwt.js';
 
 export class AuthController {
   async login(req: Request, res: Response, next: NextFunction) {
@@ -85,10 +86,36 @@ export class AuthController {
 
   async logout(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const token = req.body.refreshToken || req.cookies?.msc_refresh_token;
-      await authService.logout(token, req.user?.id);
+      const token = req.body?.refreshToken || req.cookies?.msc_refresh_token;
+      let userId = req.user?.id;
 
-      res.clearCookie('msc_refresh_token');
+      // Extract user ID from bearer token if not populated by middleware
+      if (!userId && req.headers.authorization?.startsWith('Bearer ')) {
+        const accessToken = req.headers.authorization.split(' ')[1];
+        try {
+          const payload = verifyAccessToken(accessToken);
+          if (payload) userId = payload.id;
+        } catch {
+          // Token may already be expired, continue with token cleanup
+        }
+      }
+
+      await authService.logout(token, userId);
+
+      // Clear cookie with exact matching attributes & path
+      res.clearCookie('msc_refresh_token', {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      });
+      res.clearCookie('msc_access_token', {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      });
+
       return sendSuccess(res, { message: 'Logged out successfully' }, 200);
     } catch (error) {
       next(error);
