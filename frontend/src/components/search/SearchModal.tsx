@@ -51,7 +51,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   });
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Focus input when opened
   useEffect(() => {

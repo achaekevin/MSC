@@ -49,6 +49,6 @@ export const searchService = {
     });
 
     const res = await apiClient.get<SearchResponse>(`/search?${params.toString()}`);
-    return res.data;
+    return res;
   }
 };

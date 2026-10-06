@@ -184,7 +184,7 @@ export const EventsManagementPage: React.FC = () => {
       registrationUrl: item.registrationUrl || '',
       organizer: item.organizer || 'Mwancha Senior Community',
       image: item.image || '/images/mwancha-pavilion-gathering.jpg',
-      status: item.status || 'PUBLISHED'
+      status: (item.status as ContentStatus) || 'PUBLISHED'
     });
     setIsEditorOpen(true);
   };
