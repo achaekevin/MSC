@@ -30,6 +30,31 @@ export class AuthController {
     }
   }
 
+  async register(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, password, name, role } = req.body;
+      const ipAddress = req.ip || req.socket.remoteAddress;
+      const userAgent = req.headers['user-agent'];
+
+      const result = await authService.register(email, password, name, role, ipAddress, userAgent);
+
+      // Set refresh token in secure HTTP-only cookie
+      res.cookie('msc_refresh_token', result.refreshToken, {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      return sendSuccess(res, {
+        user: result.user,
+        accessToken: result.accessToken
+      }, 201);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async refresh(req: Request, res: Response, next: NextFunction) {
     try {
       const token = req.body.refreshToken || req.cookies?.msc_refresh_token;

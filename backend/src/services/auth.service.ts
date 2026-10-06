@@ -110,6 +110,74 @@ export class AuthService {
     };
   }
 
+  async register(email: string, passwordPlain: string, name: string, role?: UserRole, ipAddress?: string, userAgent?: string) {
+    const normalizedEmail = email.toLowerCase().trim();
+    const existing = await prisma.user.findUnique({
+      where: { email: normalizedEmail }
+    });
+
+    if (existing) {
+      throw new ConflictError('A user account with this email address already exists');
+    }
+
+    const passwordHash = await hashPassword(passwordPlain);
+
+    // If this is the very first user in the database, automatically grant SUPER_ADMIN
+    const userCount = await prisma.user.count();
+    const assignedRole = userCount === 0 ? 'SUPER_ADMIN' : (role || 'CONTENT_ADMIN');
+
+    const user = await prisma.user.create({
+      data: {
+        email: normalizedEmail,
+        name: name.trim(),
+        passwordHash,
+        role: assignedRole as any,
+        isActive: true,
+        lastLoginAt: new Date()
+      }
+    });
+
+    const authUser: AuthUser = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role as UserRole,
+      permissions: ROLE_PERMISSIONS[user.role as UserRole] || []
+    };
+
+    const accessToken = signAccessToken(user as { id: string; email: string; role: UserRole; name: string });
+    const refreshToken = signRefreshToken(user as { id: string; email: string; role: UserRole; name: string });
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    await prisma.refreshToken.create({
+      data: {
+        token: refreshToken,
+        userId: user.id,
+        expiresAt
+      }
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'USER_REGISTERED',
+        entity: 'User',
+        entityId: user.id,
+        ipAddress,
+        userAgent,
+        newData: JSON.stringify({ email: user.email, role: user.role })
+      }
+    });
+
+    return {
+      user: authUser,
+      accessToken,
+      refreshToken
+    };
+  }
+
   async refreshToken(oldRefreshToken: string) {
     const payload = verifyRefreshToken(oldRefreshToken);
     if (!payload) {
