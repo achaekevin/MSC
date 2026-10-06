@@ -154,11 +154,13 @@ export class ProgramService {
         relatedSlugs: JSON.stringify(data.relatedSlugs || data.relatedProgramSlugs || []),
         displayOrder: data.displayOrder ?? 0,
         featured: data.featured ?? false,
-        status: ContentStatus.DRAFT,
+        status: (data.status as ContentStatus) || ContentStatus.DRAFT,
+        publishedAt: data.status === 'PUBLISHED' ? new Date() : null,
         source: (data.source as ContentSource) || ContentSource.OFFICIAL_PROFILE,
-        approvalRequired: true,
+        approvalRequired: data.status === 'PUBLISHED' ? false : true,
         seoTitle: data.seoTitle,
-        seoDescription: data.seoDescription
+        seoDescription: data.seoDescription,
+        createdById: userId
       },
       include: {
         category: true
@@ -324,17 +326,18 @@ export class ProgramService {
 
   async publishProgram(id: string, publisherId?: string) {
     const program = await prisma.program.findUnique({ where: { id } });
-    if (!program) throw new NotFoundError('Program not found');
+    if (!program || program.deletedAt) throw new NotFoundError('Program not found');
 
-    if (program.status !== ContentStatus.APPROVED) {
-      throw new BadRequestError('Only APPROVED content can transition to PUBLISHED.');
+    if (program.status === ContentStatus.ARCHIVED) {
+      throw new BadRequestError('Archived programs cannot be published directly. Restore first.');
     }
 
     const updated = await prisma.program.update({
       where: { id },
       data: {
         status: ContentStatus.PUBLISHED,
-        publishedAt: new Date()
+        publishedAt: new Date(),
+        updatedById: publisherId
       }
     });
 

@@ -208,11 +208,13 @@ export class NewsService {
         category: data.category || 'Community Story',
         tags: JSON.stringify(data.tags || []),
         isFeatured: data.isFeatured ?? false,
-        status: ContentStatus.DRAFT,
+        status: (data.status as ContentStatus) || ContentStatus.DRAFT,
+        publishedAt: data.status === 'PUBLISHED' ? new Date() : null,
         source: (data.source as ContentSource) || ContentSource.OFFICIAL_PROFILE,
-        approvalRequired: true,
+        approvalRequired: data.status === 'PUBLISHED' ? false : true,
         seoTitle: data.seoTitle,
-        seoDescription: data.seoDescription
+        seoDescription: data.seoDescription,
+        authorId: userId
       },
       include: {
         categoryRelation: true
@@ -371,17 +373,18 @@ export class NewsService {
 
   async publishNews(id: string, publisherId?: string) {
     const article = await prisma.newsArticle.findUnique({ where: { id } });
-    if (!article) throw new NotFoundError('News article not found');
+    if (!article || article.deletedAt) throw new NotFoundError('News article not found');
 
-    if (article.status !== ContentStatus.APPROVED) {
-      throw new BadRequestError('Only APPROVED articles can transition to PUBLISHED.');
+    if (article.status === ContentStatus.ARCHIVED) {
+      throw new BadRequestError('Archived articles cannot be published directly. Restore first.');
     }
 
     const updated = await prisma.newsArticle.update({
       where: { id },
       data: {
         status: ContentStatus.PUBLISHED,
-        publishedAt: new Date()
+        publishedAt: new Date(),
+        updatedById: publisherId
       }
     });
 

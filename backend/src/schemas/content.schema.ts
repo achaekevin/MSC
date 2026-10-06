@@ -60,6 +60,7 @@ export const createProgramSchema = z.object({
   relatedProgramSlugs: z.array(z.string()).optional(),
   displayOrder: z.number().int().default(0),
   featured: z.boolean().default(false),
+  status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED']).optional(),
   source: contentSourceEnum.default('OFFICIAL_PROFILE'),
   seoTitle: z.string().optional().nullable(),
   seoDescription: z.string().optional().nullable()
@@ -93,6 +94,7 @@ export const updateProgramSchema = z.object({
   relatedProgramSlugs: z.array(z.string()).optional(),
   displayOrder: z.number().int().optional(),
   featured: z.boolean().optional(),
+  status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED']).optional(),
   source: contentSourceEnum.optional(),
   changeNote: z.string().optional(),
   seoTitle: z.string().optional().nullable(),
@@ -113,6 +115,7 @@ export const createNewsSchema = z.object({
   category: z.string().default('Community Story'),
   tags: z.array(z.string()).default([]),
   isFeatured: z.boolean().default(false),
+  status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED']).optional(),
   source: contentSourceEnum.default('OFFICIAL_PROFILE'),
   seoTitle: z.string().optional().nullable(),
   seoDescription: z.string().optional().nullable()
@@ -138,6 +141,7 @@ export const createEventSchema = z.object({
   registrationUrl: z.string().optional().nullable(),
   image: z.string().optional().nullable(),
   organizer: z.string().default('Mwancha Senior Community'),
+  status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED']).optional(),
   source: contentSourceEnum.default('OFFICIAL_PROFILE')
 });
 

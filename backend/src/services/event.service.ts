@@ -181,8 +181,10 @@ export class EventService {
         registrationUrl: data.registrationUrl,
         image: data.image,
         organizer: data.organizer || 'Mwancha Senior Community',
-        status: ContentStatus.DRAFT,
-        source: (data.source as ContentSource) || ContentSource.OFFICIAL_PROFILE
+        status: (data.status as ContentStatus) || ContentStatus.DRAFT,
+        publishedAt: data.status === 'PUBLISHED' ? new Date() : null,
+        source: (data.source as ContentSource) || ContentSource.OFFICIAL_PROFILE,
+        createdById: userId
       }
     });
 
@@ -287,17 +289,40 @@ export class EventService {
 
   async publishEvent(id: string, publisherId?: string) {
     const event = await prisma.event.findUnique({ where: { id } });
-    if (!event) throw new NotFoundError('Event not found');
+    if (!event || event.deletedAt) throw new NotFoundError('Event not found');
 
-    if (event.status !== ContentStatus.APPROVED) {
-      throw new BadRequestError('Only APPROVED events can be PUBLISHED.');
+    if (event.status === ContentStatus.ARCHIVED) {
+      throw new BadRequestError('Archived events cannot be published directly. Restore first.');
     }
 
     const updated = await prisma.event.update({
       where: { id },
       data: {
         status: ContentStatus.PUBLISHED,
-        publishedAt: new Date()
+        publishedAt: new Date(),
+        updatedById: publisherId
+      }
+    });
+
+    await prisma.contentReview.create({
+      data: {
+        entityType: 'Event',
+        entityId: id,
+        currentStatus: ContentStatus.PUBLISHED,
+        previousStatus: event.status,
+        requestedAction: 'PUBLISH',
+        reviewerId: publisherId,
+        decidedAt: new Date()
+      }
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: publisherId,
+        action: 'PUBLISH',
+        entity: 'Event',
+        entityId: id,
+        newData: JSON.stringify({ status: ContentStatus.PUBLISHED })
       }
     });
 
