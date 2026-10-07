@@ -20,6 +20,7 @@ import { testimonialController } from '../controllers/testimonial.controller.js'
 import { storyController } from '../controllers/story.controller.js';
 import { userController } from '../controllers/user.controller.js';
 import { notificationController } from '../controllers/notification.controller.js';
+import { backupController } from '../controllers/backup.controller.js';
 
 import {
   createProgramSchema,
@@ -502,6 +503,60 @@ router.patch(
 router.patch(
   '/notifications/mark-all-read',
   (req, res, next) => notificationController.markAllAsRead(req, res, next)
+);
+
+// ----------------------------------------------------
+// AUTOMATED BACKUPS & DISASTER RECOVERY
+// ----------------------------------------------------
+router.get(
+  '/backups',
+  requireRoles('SUPER_ADMIN'),
+  (req, res, next) => backupController.getOverview(req, res, next)
+);
+router.post(
+  '/backups/create',
+  requireRoles('SUPER_ADMIN'),
+  (req, res, next) => backupController.createBackup(req, res, next)
+);
+router.post(
+  '/backups/:id/test-restore',
+  requireRoles('SUPER_ADMIN'),
+  (req, res, next) => backupController.testRestore(req, res, next)
+);
+router.post(
+  '/backups/:id/restore',
+  requireRoles('SUPER_ADMIN'),
+  (req, res, next) => backupController.restoreDatabase(req, res, next)
+);
+router.get(
+  '/backups/:id/download',
+  requireRoles('SUPER_ADMIN'),
+  (req, res, next) => backupController.downloadBackup(req, res, next)
+);
+router.delete(
+  '/backups/:id',
+  requireRoles('SUPER_ADMIN'),
+  (req, res, next) => backupController.deleteBackup(req, res, next)
+);
+router.get(
+  '/backups/media/manifest',
+  requireRoles('SUPER_ADMIN', 'CONTENT_ADMIN'),
+  (req, res, next) => backupController.getMediaManifest(req, res, next)
+);
+router.get(
+  '/backups/media/export',
+  requireRoles('SUPER_ADMIN', 'CONTENT_ADMIN'),
+  (req, res, next) => backupController.exportMediaManifest(req, res, next)
+);
+router.get(
+  '/backups/media/health',
+  requireRoles('SUPER_ADMIN', 'CONTENT_ADMIN'),
+  (req, res, next) => backupController.checkMediaHealth(req, res, next)
+);
+router.put(
+  '/backups/config',
+  requireRoles('SUPER_ADMIN'),
+  (req, res, next) => backupController.updateConfig(req, res, next)
 );
 
 export default router;

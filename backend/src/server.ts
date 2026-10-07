@@ -2,6 +2,7 @@ import { app } from './app.js';
 import { env } from './config/env.js';
 import { logger } from './config/logger.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
+import { backupSchedulerService } from './services/backupScheduler.service.js';
 
 const PORT = env.PORT || 5000;
 const HOST = env.HOST || '0.0.0.0';
@@ -24,11 +25,15 @@ const startServer = async () => {
     if (env.NODE_ENV === 'development') {
       logger.info(`🔓 Development mode: CORS allows all origins`);
     }
+
+    // Start Automated Backup & Retention Daemon
+    backupSchedulerService.start();
   });
 
   // Graceful Shutdown Handling (Section 62)
   const shutdown = async (signal: string) => {
     logger.info(`Received ${signal}. Initiating graceful server termination...`);
+    backupSchedulerService.stop();
     server.close(async () => {
       logger.info('HTTP server closed.');
       await disconnectDatabase();

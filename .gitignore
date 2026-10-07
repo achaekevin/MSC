@@ -48,3 +48,9 @@ coverage/
 Thumbs.db
 .vscode/
 .idea/
+
+# Database backup archives
+backend/storage/backups/*.sql.gz
+backend/storage/backups/*.sql
+backend/storage/backups/manifest.json
+!backend/storage/backups/.gitkeep
