@@ -19,6 +19,7 @@ import { auditController } from '../controllers/audit.controller.js';
 import { testimonialController } from '../controllers/testimonial.controller.js';
 import { storyController } from '../controllers/story.controller.js';
 import { userController } from '../controllers/user.controller.js';
+import { notificationController } from '../controllers/notification.controller.js';
 
 import {
   createProgramSchema,
@@ -485,6 +486,22 @@ router.get(
   '/audit',
   requirePermissions('AUDIT_READ'),
   (req, res, next) => auditController.getAuditLogs(req, res, next)
+);
+
+// ----------------------------------------------------
+// NOTIFICATION CENTER
+// ----------------------------------------------------
+router.get(
+  '/notifications',
+  (req, res, next) => notificationController.getSummary(req, res, next)
+);
+router.patch(
+  '/notifications/:id/read',
+  (req, res, next) => notificationController.markAsRead(req, res, next)
+);
+router.patch(
+  '/notifications/mark-all-read',
+  (req, res, next) => notificationController.markAllAsRead(req, res, next)
 );
 
 export default router;

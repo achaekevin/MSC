@@ -117,6 +117,7 @@ export const createNewsSchema = z.object({
   isFeatured: z.boolean().default(false),
   status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED']).optional(),
   source: contentSourceEnum.default('OFFICIAL_PROFILE'),
+  publishedAt: z.string().optional().nullable(),
   seoTitle: z.string().optional().nullable(),
   seoDescription: z.string().optional().nullable()
 });

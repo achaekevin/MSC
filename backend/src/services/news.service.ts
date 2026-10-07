@@ -74,8 +74,10 @@ export class NewsService {
 
   async getPublicNews(page = 1, limit = 10, category?: string) {
     const skip = (page - 1) * limit;
+    const now = new Date();
     const where: any = {
       status: ContentStatus.PUBLISHED,
+      publishedAt: { lte: now },
       deletedAt: null
     };
 
@@ -112,10 +114,12 @@ export class NewsService {
   }
 
   async getPublicNewsBySlug(slug: string) {
+    const now = new Date();
     const article = await prisma.newsArticle.findFirst({
       where: {
         slug,
         status: ContentStatus.PUBLISHED,
+        publishedAt: { lte: now },
         deletedAt: null
       },
       include: {
@@ -209,7 +213,11 @@ export class NewsService {
         tags: JSON.stringify(data.tags || []),
         isFeatured: data.isFeatured ?? false,
         status: (data.status as ContentStatus) || ContentStatus.DRAFT,
-        publishedAt: data.status === 'PUBLISHED' ? new Date() : null,
+        publishedAt: data.publishedAt
+          ? new Date(data.publishedAt)
+          : data.status === 'PUBLISHED'
+          ? new Date()
+          : null,
         source: (data.source as ContentSource) || ContentSource.OFFICIAL_PROFILE,
         approvalRequired: data.status === 'PUBLISHED' ? false : true,
         seoTitle: data.seoTitle,
@@ -246,14 +254,24 @@ export class NewsService {
         : JSON.stringify([data.content])
       : undefined;
 
+    const { changeNote, publishedAt, ...cleanData } = data;
+
+    const updatePayload: any = {
+      ...cleanData,
+      categoryId: cleanData.categoryId !== undefined ? (cleanData.categoryId || null) : undefined,
+      content: contentFormatted,
+      tags: cleanData.tags ? JSON.stringify(cleanData.tags) : undefined
+    };
+
+    if (publishedAt) {
+      updatePayload.publishedAt = new Date(publishedAt);
+    } else if (cleanData.status === 'PUBLISHED' && !existing.publishedAt) {
+      updatePayload.publishedAt = new Date();
+    }
+
     const updated = await prisma.newsArticle.update({
       where: { id },
-      data: {
-        ...data,
-        categoryId: data.categoryId !== undefined ? (data.categoryId || null) : undefined,
-        content: contentFormatted,
-        tags: data.tags ? JSON.stringify(data.tags) : undefined
-      },
+      data: updatePayload,
       include: {
         categoryRelation: true
       }
