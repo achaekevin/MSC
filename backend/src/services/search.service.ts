@@ -281,8 +281,12 @@ export class SearchService {
         title: n.title,
         summary: n.summary,
         type: 'story' as const,
-        path: `/news/${n.slug}`,
-        badge: 'Community Story',
+        path: ['Book', 'Publication', 'Policy Brief', 'Field Manual'].includes(n.category)
+          ? `/publications/${n.slug}`
+          : `/news/${n.slug}`,
+        badge: ['Book', 'Publication', 'Policy Brief', 'Field Manual'].includes(n.category)
+          ? n.category
+          : 'Community Story',
         image: n.featuredImage,
         date: n.publishedAt ? new Date(n.publishedAt).toLocaleDateString('en-KE', { dateStyle: 'medium' }) : null
       }));
