@@ -162,7 +162,7 @@ async function main() {
         name: 'Mwancha Senior Community',
         formerName: 'Mwancha Home for the Elderly',
         tagline: 'Dignity, Care & Wellbeing for Older Persons',
-        address: 'Headquarters: Kebirigo, Nyamira County, Western Kenya',
+        address: 'Headquarters: Mwancha House - Ekerenyo, Nyamira County, Western Kenya',
         postalCode: '40506',
         county: 'Nyamira',
         country: 'Kenya',
@@ -275,7 +275,7 @@ async function main() {
     {
       type: 'ADDRESS',
       label: 'Headquarters & Elder Community Center',
-      value: 'Kebirigo, Nyamira County, Western Kenya',
+      value: 'Ekerenyo, Nyamira County, Western Kenya',
       isPrimary: true
     },
     {
@@ -459,7 +459,7 @@ async function main() {
       approach: 'Grassroots, human-rights based case support that restores immediate safety while connecting the individual to enduring community and public health mechanisms.',
       iconName: 'HeartHandshake',
       image: '/images/mwancha-facility-main.jpg',
-      imageAlt: 'Mwancha Senior Community headquarters and elder care facility in Kebirigo, Nyamira',
+      imageAlt: 'Mwancha Senior Community headquarters and elder care facility in Ekerenyo, Nyamira',
       metricsHighlight: 'Direct relief and case mapping across 1,203+ households',
       relatedSlugs: ['psychosocial-support', 'advocacy'],
       displayOrder: 1,
@@ -843,7 +843,7 @@ async function main() {
       name: 'MSC Facilities, Grounds & Community Spaces',
       title: 'Official Mwancha Senior Community Headquarters & Grounds',
       slug: 'msc-facilities-and-grounds',
-      description: 'Photographic documentation of our community center, gathering pavilion, therapeutic gardens, and agricultural projects in Kebirigo, Nyamira County.',
+      description: 'Photographic documentation of our community center, gathering pavilion, therapeutic gardens, and agricultural projects in Ekerenyo, Nyamira County.',
       status: ContentStatus.APPROVED,
       createdById: superAdminId
     }
@@ -859,7 +859,7 @@ async function main() {
       fileSize: 450200,
       width: 1920,
       height: 1080,
-      altText: 'Mwancha Senior Community headquarters and elder care facility in Kebirigo, Nyamira',
+      altText: 'Mwancha Senior Community headquarters and elder care facility in Ekerenyo, Nyamira',
       caption: 'The central administration and elder day-care facility serving seniors across Nyamira County.',
       category: 'facilities',
       displayOrder: 1

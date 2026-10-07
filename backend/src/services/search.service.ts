@@ -45,7 +45,7 @@ export class SearchService {
       {
         id: 'org-story-history',
         title: 'Our Journey & Founding Heritage',
-        summary: 'Founded in 2016 in Kebirigo, Nyamira County as Mwancha Home for the Elderly, transitioning in 2024 to Mwancha Senior Community.',
+        summary: 'Founded in 2016 in Ekerenyo, Nyamira County as Mwancha Home for the Elderly, transitioning in 2024 to Mwancha Senior Community.',
         type: 'organization',
         path: '/about/story',
         badge: 'History & Heritage'
@@ -69,7 +69,7 @@ export class SearchService {
       {
         id: 'org-contact-helpline',
         title: 'Helpline, Headquarters & Contacts',
-        summary: 'Helpline: +254 790 629439 | Email: mwachahomeforelderly@gmail.com | Kebirigo, Nyamira County, Kenya.',
+        summary: 'Helpline: +254 790 629439 | Email: mwachahomeforelderly@gmail.com | Ekerenyo, Nyamira County, Kenya.',
         type: 'organization',
         path: '/contact',
         badge: 'Helpline & Office'

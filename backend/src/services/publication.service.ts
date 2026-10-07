@@ -39,8 +39,8 @@ const DEFAULT_MSC_PUBLICATIONS = [
         body: `One of the most harrowing perils confronting vulnerable elders in Western Kenya is the weaponization of witchcraft allegations. Land dispossession, greed, and cultural scapegoating frequently lead to horrifying violence against defenceless elderly men and women.\n\nMSC's community mobilization model pairs legal sensitization with local administrative barazas (Chifs, Nyumba Kumi, and religious leaders) to actively de-escalate community paranoia, defend property rights, and protect elders from violent eviction.`
       },
       {
-        title: 'Chapter 4: The Grassroots Respite Care Model (The Kebirigo Approach)',
-        body: `Established in 2016 in Kebirigo, MSC’s dual approach combines center-based respite care with ward-based mobile volunteer rolls. Rather than institutionalizing older citizens away from their ancestral homes, the Kebirigo Model empowers trained community volunteers who reside within the same village to deliver weekly home check-ins, medication adherence monitoring, and psychosocial fellowship.\n\nThis preservation of familial continuity combined with structured professional oversight represents a cost-effective, culturally resonant blueprint for scale throughout Kenya.`
+        title: 'Chapter 4: The Grassroots Respite Care Model (The Ekerenyo Approach)',
+        body: `Established in 2016 in Ekerenyo, MSC’s dual approach combines center-based respite care with ward-based mobile volunteer rolls. Rather than institutionalizing older citizens away from their ancestral homes, the Ekerenyo Model empowers trained community volunteers who reside within the same village to deliver weekly home check-ins, medication adherence monitoring, and psychosocial fellowship.\n\nThis preservation of familial continuity combined with structured professional oversight represents a cost-effective, culturally resonant blueprint for scale throughout Kenya.`
       },
       {
         title: 'Chapter 5: Policy Recommendations for National Stakeholders',
@@ -51,7 +51,7 @@ const DEFAULT_MSC_PUBLICATIONS = [
   {
     id: 'pub-grassroots-case-management-manual',
     slug: 'grassroots-elder-care-and-case-management-manual',
-    title: 'Grassroots Elder Care & Case Management Manual: The MSC Kebirigo Model',
+    title: 'Grassroots Elder Care & Case Management Manual: The MSC Ekerenyo Model',
     subtitle: 'Standard Operating Procedures for Ward Volunteers, Community Health Promoters & Social Workers',
     summary: 'The operational manual utilized by Mwancha Senior Community’s 40 ward volunteers. Contains field screening checklists, psychosocial counseling guidelines, safeguarding protocols, and intergenerational referral pathways.',
     category: 'Field Manual',

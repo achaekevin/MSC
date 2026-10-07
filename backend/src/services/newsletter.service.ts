@@ -90,10 +90,10 @@ export class NewsletterService {
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; line-height: 1.6;">
           <h2 style="color: #14532d;">Stay Connected with Mwancha Senior Community</h2>
           <p>Thank you for subscribing to our community newsletters and policy briefings.</p>
-          <p>You will receive authentic updates regarding our elder welfare programs, field barazas, medical outreach camps, and stories of impact from Kebirigo, Nyamira County, and across Kenya.</p>
+          <p>You will receive authentic updates regarding our elder welfare programs, field barazas, medical outreach camps, and stories of impact from Ekerenyo, Nyamira County, and across Kenya.</p>
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
           <p style="font-size: 12px; color: #64748b;">
-            Mwancha Senior Community &bull; P.O. Box 21-40506, Kebirigo, Kenya<br />
+            Mwancha Senior Community &bull; Mwancha House - Ekerenyo &bull; P.O. Box 162-40506, Ekerenyo-Nyamira, Kenya<br />
             To unsubscribe at any time, visit our website or contact us at ${env.ADMIN_NOTIFICATION_EMAIL}.
           </p>
         </div>
