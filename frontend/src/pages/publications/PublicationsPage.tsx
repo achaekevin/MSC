@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { publicationService, PublicationItem } from '../../services/publicationService';
+import { downloadPublicationPdf } from '../../utils/pdfGenerator';
 import { useAuth } from '../../contexts/AuthContext';
 import { Container } from '../../components/ui/Container';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
@@ -267,14 +268,15 @@ export const PublicationsPage: React.FC = () => {
                     <span>Read Online</span>
                   </Link>
 
-                  <Link
-                    to={`/publications/${pub.slug}#export`}
-                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-warm-100 dark:bg-charcoal-800 hover:bg-warm-200 dark:hover:bg-charcoal-700 text-charcoal-800 dark:text-warm-100 font-bold text-xs transition-colors border border-warm-200 dark:border-charcoal-700"
-                    title="Download as PDF or Export Document"
+                  <button
+                    type="button"
+                    onClick={() => downloadPublicationPdf(pub)}
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-warm-100 dark:bg-charcoal-800 hover:bg-forest-100 hover:text-forest-900 dark:hover:bg-charcoal-700 text-charcoal-800 dark:text-warm-100 font-bold text-xs transition-all border border-warm-200 dark:border-charcoal-700 cursor-pointer active:scale-95"
+                    title="Download publication as PDF"
                   >
                     <Download className="w-3.5 h-3.5 text-forest-800 dark:text-emerald-400" />
                     <span>PDF</span>
-                  </Link>
+                  </button>
                 </div>
               </div>
             ))}

@@ -28,6 +28,7 @@ import {
   ZoomOut
 } from 'lucide-react';
 import { MSC_ORGANIZATION } from '../../constants';
+import { downloadPublicationPdf } from '../../utils/pdfGenerator';
 
 type ReaderTheme = 'light' | 'sepia' | 'dark';
 type FontSize = 'sm' | 'md' | 'lg' | 'xl';
@@ -83,21 +84,17 @@ export const PublicationReaderPage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Handle direct PDF download or browser print export
+  // Handle direct PDF generation and download
   const handleExportPDF = () => {
-    if (publication?.pdfUrl && publication.pdfUrl.endsWith('.pdf')) {
-      const link = document.createElement('a');
-      link.href = publication.pdfUrl;
-      link.download = `${publication.slug}.pdf`;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      return;
-    }
+    if (!publication) return;
 
-    // Launch optimized print-to-PDF
-    window.print();
+    try {
+      downloadPublicationPdf(publication);
+    } catch (err) {
+      console.error('Client-side PDF generation fallback:', err);
+      // Fallback to print
+      window.print();
+    }
   };
 
   // Copy link
