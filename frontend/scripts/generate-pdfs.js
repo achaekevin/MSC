@@ -36,8 +36,8 @@ const publications = [
         content: `One of the most harrowing perils confronting vulnerable elders in Western Kenya is the weaponization of witchcraft allegations. Land dispossession, greed, and cultural scapegoating frequently lead to horrifying violence against defenceless elderly men and women.\n\nMSC's community mobilization model pairs legal sensitization with local administrative barazas (Chiefs, Nyumba Kumi, and religious leaders) to actively de-escalate community paranoia, defend property rights, and protect elders from violent eviction.`
       },
       {
-        title: 'Chapter 4: The Grassroots Respite Care Model (The Kebirigo Approach)',
-        content: `Established in 2016 in Kebirigo, MSC's dual approach combines center-based respite care with ward-based mobile volunteer rolls. Rather than institutionalizing older citizens away from their ancestral homes, the Kebirigo Model empowers trained community volunteers who reside within the same village to deliver weekly home check-ins, medication adherence monitoring, and psychosocial fellowship.\n\nThis preservation of familial continuity combined with structured professional oversight represents a cost-effective, culturally resonant blueprint for scale throughout Kenya.`
+        title: 'Chapter 4: The Grassroots Respite Care Model (The Ekerenyo Approach)',
+        content: `Established in 2016 in Ekerenyo, MSC's dual approach combines center-based respite care with ward-based mobile volunteer rolls. Rather than institutionalizing older citizens away from their ancestral homes, the Ekerenyo Model empowers trained community volunteers who reside within the same village to deliver weekly home check-ins, medication adherence monitoring, and psychosocial fellowship.\n\nThis preservation of familial continuity combined with structured professional oversight represents a cost-effective, culturally resonant blueprint for scale throughout Kenya.`
       },
       {
         title: 'Chapter 5: Policy Recommendations for National Stakeholders',
@@ -47,7 +47,7 @@ const publications = [
   },
   {
     fileName: 'msc-case-management-manual.pdf',
-    title: 'Grassroots Elder Care & Case Management Manual: The MSC Kebirigo Model',
+    title: 'Grassroots Elder Care & Case Management Manual: The MSC Ekerenyo Model',
     subtitle: 'Standard Operating Procedures for Ward Volunteers, Community Health Promoters & Social Workers',
     category: 'Field Operations Manual',
     author: 'MSC Programs & Field Operations',
@@ -185,7 +185,7 @@ function buildPdf(pub) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(148, 163, 184);
-  doc.text('Official Publication of Mwancha Senior Community • Kebirigo, Nyamira County, Kenya', margin, pageHeight - 35);
+  doc.text('Official Publication of Mwancha Senior Community • Ekerenyo, Nyamira County, Kenya', margin, pageHeight - 35);
 
   // CHAPTER PAGES
   for (const chapter of pub.chapters) {
@@ -271,7 +271,7 @@ function buildPdf(pub) {
   doc.setTextColor(...charcoal);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10.5);
-  const aboutText = `Mwancha Senior Community (MSC), founded in 2016 as Mwancha Home for the Elderly and legally registered under the Societies Act of Kenya, is dedicated to defending the dignity, health, and holistic wellbeing of vulnerable older persons in Kenya.\n\nThrough our community care center and network of 40 active ward-based volunteers across Nyamira and Kisii counties, MSC delivers compassionate home check-ins, medical escorts, emergency nutrition, and legal defense against elder abuse and property dispossession.\n\nFor inquiries, partnerships, or academic citation permissions, please contact:\nHeadquarters: Mwancha House - Ekerenyo, Ekerenyo-Owari-Magwagwa Road, Nyamira North, Nyamira County, Kenya\nPostal Address: P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya\nEmail: mwachahomeforelderly@gmail.com / mwanchacommunity.seniors.com\nWebsite: https://mwancha.org`;
+  const aboutText = `Mwancha Senior Community (MSC), founded in 2016 as Mwancha Home for the Elderly and legally registered under the Societies Act of Kenya, is dedicated to defending the dignity, health, and holistic wellbeing of vulnerable older persons in Kenya.\n\nThrough our community care center and network of 40 active ward-based volunteers across Nyamira and Kisii counties, MSC delivers compassionate home check-ins, medical escorts, emergency nutrition, and legal defense against elder abuse and property dispossession.\n\nFor inquiries, partnerships, or academic citation permissions, please contact:\nHeadquarters: Mwancha House - Ekerenyo, Ekerenyo-Obwari-Magwagwa Road, Nyamira North, Nyamira County, Kenya\nPostal Address: P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya\nEmail: mwachahomeforelderly@gmail.com / mwanchacommunity.seniors.com\nWebsite: https://mwancha.org`;
 
   const aboutLines = doc.splitTextToSize(aboutText, contentWidth);
   doc.text(aboutLines, margin, colY);

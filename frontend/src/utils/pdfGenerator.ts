@@ -101,7 +101,7 @@ export const downloadPublicationPdf = (pub: PublicationItem): void => {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(148, 163, 184);
-  doc.text('Official Publication of Mwancha Senior Community • Kebirigo, Nyamira County, Kenya', margin, pageHeight - 35);
+  doc.text('Official Publication of Mwancha Senior Community • Ekerenyo, Nyamira County, Kenya', margin, pageHeight - 35);
 
   // ================= 2. CHAPTERS / CONTENT =================
   const chapters = pub.chapters || [];
@@ -216,7 +216,7 @@ export const downloadPublicationPdf = (pub: PublicationItem): void => {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10.5);
   const aboutText =
-    `Mwancha Senior Community (MSC), founded in 2016 as Mwancha Home for the Elderly and legally registered under the Societies Act of Kenya, is dedicated to defending the dignity, health, and holistic wellbeing of vulnerable older persons in Kenya.\n\nThrough our community care center and network of 40 active ward-based volunteers across Nyamira and Kisii counties, MSC delivers compassionate home check-ins, medical escorts, emergency nutrition, and legal defense against elder abuse and property dispossession.\n\nCitation Notice: Readers, researchers, and civil society partners are welcome to share and cite this document with appropriate attribution to Mwancha Senior Community (MSC).\n\nHeadquarters: Mwancha House - Ekerenyo, Ekerenyo-Owari-Magwagwa Road, Nyamira North, Nyamira County, Kenya\nPostal Address: P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya\nEmail: mwachahomeforelderly@gmail.com / mwanchacommunity.seniors.com\nWebsite: https://mwancha.org`;
+    `Mwancha Senior Community (MSC), founded in 2016 as Mwancha Home for the Elderly and legally registered under the Societies Act of Kenya, is dedicated to defending the dignity, health, and holistic wellbeing of vulnerable older persons in Kenya.\n\nThrough our community care center and network of 40 active ward-based volunteers across Nyamira and Kisii counties, MSC delivers compassionate home check-ins, medical escorts, emergency nutrition, and legal defense against elder abuse and property dispossession.\n\nCitation Notice: Readers, researchers, and civil society partners are welcome to share and cite this document with appropriate attribution to Mwancha Senior Community (MSC).\n\nHeadquarters: Mwancha House - Ekerenyo, Ekerenyo-Obwari-Magwagwa Road, Nyamira North, Nyamira County, Kenya\nPostal Address: P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya\nEmail: mwachahomeforelderly@gmail.com / mwanchacommunity.seniors.com\nWebsite: https://mwancha.org`;
 
   const aboutLines = doc.splitTextToSize(aboutText, contentWidth);
   doc.text(aboutLines, margin, colY);
