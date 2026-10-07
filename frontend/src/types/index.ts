@@ -249,6 +249,21 @@ export interface DonationMethod {
   metadata?: ContentMetadata;
 }
 
+export interface InKindDonationRequest {
+  fullName: string;
+  email: string;
+  phone: string;
+  donorType?: string;
+  donationCategory: string;
+  itemDescription: string;
+  estimatedQuantity?: string;
+  deliveryMethod: string;
+  pickupAddress?: string;
+  preferredDate?: string;
+  notes?: string;
+  consent?: boolean;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
