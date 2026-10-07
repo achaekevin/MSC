@@ -128,6 +128,7 @@ export const NAVIGATION_LINKS = [
     href: "/programs",
     dropdown: [
       { name: "All Programs", href: "/programs" },
+      { name: "Health Training & Free Medical Camps", href: "/programs/health-training-medical-camps" },
       { name: "Case Management", href: "/programs/case-management" },
       { name: "Psychosocial Support", href: "/programs/psychosocial-support" },
       { name: "Advocacy & Sensitization", href: "/programs/advocacy-sensitization" },

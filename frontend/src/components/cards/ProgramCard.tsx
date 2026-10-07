@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Program } from '../../types';
 import { Card } from '../ui/Card';
-import { ArrowRight, HeartHandshake, Users, Megaphone, Building2, LineChart } from 'lucide-react';
+import { ArrowRight, HeartHandshake, Users, Megaphone, Building2, LineChart, Stethoscope, Activity } from 'lucide-react';
 import { ContentStatusBadge } from '../common/ContentStatusBadge';
 
 interface ProgramCardProps {
@@ -12,6 +12,10 @@ interface ProgramCardProps {
 export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
   const getIcon = (name: string) => {
     switch (name) {
+      case 'Stethoscope':
+        return <Stethoscope className="w-6 h-6 text-forest-800" />;
+      case 'Activity':
+        return <Activity className="w-6 h-6 text-forest-800" />;
       case 'HeartHandshake':
         return <HeartHandshake className="w-6 h-6 text-forest-800" />;
       case 'Users':
