@@ -4,11 +4,11 @@ export const GALLERY_DATA: GalleryItem[] = [
   {
     id: 'gal-1',
     title: 'Mwancha Senior Community Residential Facility & Center',
-    caption: 'The central residential care facility and headquarters of Mwancha Senior Community in Kebirigo, Nyamira County, providing dignified shelter and compassionate support.',
+    caption: 'The central residential care facility and headquarters of Mwancha Senior Community in Ekerenyo, Nyamira County, providing dignified shelter and compassionate support.',
     category: 'Community Outreach',
     imageUrl: '/images/mwancha-facility-main.jpg',
     date: '2024-04-12',
-    location: 'Kebirigo, Nyamira County',
+    location: 'Ekerenyo, Nyamira County',
     isPlaceholderNotice: false
   },
   {
@@ -18,17 +18,17 @@ export const GALLERY_DATA: GalleryItem[] = [
     category: 'Psychosocial Sessions',
     imageUrl: '/images/mwancha-pavilion-gathering.jpg',
     date: '2024-05-18',
-    location: 'Mwancha Center, Kebirigo',
+    location: 'Mwancha Center, Ekerenyo',
     isPlaceholderNotice: false
   },
   {
     id: 'gal-3',
     title: 'Outreach Operations Base & Community Compound',
-    caption: 'The active field operations base and compound grounds in Kebirigo, facilitating mobile home visits, logistics, and multi-agency coordination across Nyamira County.',
+    caption: 'The active field operations base and compound grounds in Ekerenyo, facilitating mobile home visits, logistics, and multi-agency coordination across Nyamira County.',
     category: 'Community Outreach',
     imageUrl: '/images/mwancha-community-grounds.jpg',
     date: '2024-06-25',
-    location: 'Kebirigo, Nyamira County',
+    location: 'Ekerenyo, Nyamira County',
     isPlaceholderNotice: false
   },
   {
@@ -38,7 +38,7 @@ export const GALLERY_DATA: GalleryItem[] = [
     category: 'Sensitization',
     imageUrl: '/images/mwancha-garden-pathway.jpg',
     date: '2024-07-14',
-    location: 'Mwancha Gardens, Kebirigo',
+    location: 'Mwancha Gardens, Ekerenyo',
     isPlaceholderNotice: false
   },
   {
@@ -54,11 +54,11 @@ export const GALLERY_DATA: GalleryItem[] = [
   {
     id: 'gal-6',
     title: 'Intergenerational Gathering & Community Grounds',
-    caption: 'Peaceful, shaded compound environment in Kebirigo designed to foster elder dignity, safety, and intergenerational solidarity.',
+    caption: 'Peaceful, shaded compound environment in Ekerenyo designed to foster elder dignity, safety, and intergenerational solidarity.',
     category: 'Advocacy',
     imageUrl: '/images/mwancha-community-grounds.jpg',
     date: '2024-09-30',
-    location: 'Kebirigo, Nyamira County',
+    location: 'Ekerenyo, Nyamira County',
     isPlaceholderNotice: false
   }
 ];

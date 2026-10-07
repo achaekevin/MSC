@@ -30,7 +30,7 @@ export const PROGRAMS_DATA: Program[] = [
     approach: 'Grassroots, human-rights based case support that restores immediate safety while connecting the individual to enduring community and public health mechanisms.',
     iconName: 'HeartHandshake',
     image: '/images/mwancha-facility-main.jpg',
-    imageAlt: 'Mwancha Senior Community headquarters and residential facility in Kebirigo, Nyamira',
+    imageAlt: 'Mwancha Senior Community headquarters and residential facility in Ekerenyo, Nyamira',
     metricsHighlight: 'Direct relief and case mapping across 1,203+ households',
     relatedProgramSlugs: ['psychosocial-support', 'systems-strengthening'],
     featured: true,

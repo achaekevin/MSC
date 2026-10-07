@@ -14,7 +14,7 @@ export const NEWS_ARTICLES_DATA: NewsArticle[] = [
     ],
     category: 'Organizational News',
     featuredImage: '/images/mwancha-facility-main.jpg',
-    imageAlt: 'Mwancha Senior Community headquarters and residential facility in Kebirigo, Nyamira',
+    imageAlt: 'Mwancha Senior Community headquarters and residential facility in Ekerenyo, Nyamira',
     publishedAt: '2024-03-15',
     author: {
       name: 'MSC Communications Desk',

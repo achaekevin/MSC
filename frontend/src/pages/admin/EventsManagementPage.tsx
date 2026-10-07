@@ -922,7 +922,7 @@ export const EventsManagementPage: React.FC = () => {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Kebirigo Community Hall"
+                    placeholder="e.g. Ekerenyo Community Hall"
                     value={formData.location}
                     onChange={(e) => setFormData((prev) => ({ ...prev, location: e.target.value }))}
                     className="w-full px-4 py-2.5 rounded-xl border border-warm-300 text-sm focus:outline-none focus:ring-2 focus:ring-forest-600 bg-white"
@@ -1089,7 +1089,7 @@ export const EventsManagementPage: React.FC = () => {
               rows={3}
               value={reviewDialog.notes}
               onChange={(e) => setReviewDialog((prev) => ({ ...prev, notes: e.target.value }))}
-              placeholder="e.g. Venue confirmed with Kebirigo administration and county health officials."
+              placeholder="e.g. Venue confirmed with Ekerenyo administration and county health officials."
               className="w-full px-3.5 py-2 rounded-xl border border-warm-300 text-sm focus:outline-none focus:ring-2 focus:ring-forest-600 mb-4"
             />
 

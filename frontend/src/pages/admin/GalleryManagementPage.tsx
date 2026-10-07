@@ -886,7 +886,7 @@ export const GalleryManagementPage: React.FC = () => {
                   <strong>Alt Text:</strong> {previewMedia.altText || 'Not specified'}
                 </div>
                 <div>
-                  <strong>Location:</strong> {previewMedia.location || 'Kebirigo, Nyamira County'}
+                  <strong>Location:</strong> {previewMedia.location || 'Ekerenyo, Nyamira County'}
                 </div>
                 <div>
                   <strong>Safeguarding Consent:</strong> {previewMedia.consentConfirmed ? 'Verified & On File' : 'Pending'}

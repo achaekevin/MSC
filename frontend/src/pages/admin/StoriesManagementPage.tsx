@@ -618,7 +618,7 @@ export const StoriesManagementPage: React.FC = () => {
                     type="text"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    placeholder="Kebirigo, Nyamira County"
+                    placeholder="Ekerenyo, Nyamira County"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-forest-600"
                   />
                 </div>

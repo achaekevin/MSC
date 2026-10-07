@@ -173,7 +173,7 @@ export const applicationManagementService = {
             email: 'pomwega@example.com',
             phone: '+254 722 444 333',
             subject: 'Inquiry regarding residential admission for vulnerable aunt',
-            message: 'My aunt is 84 and lives alone in Kebirigo with limited mobility. I would like to consult on the MSC day-care and residential assessment procedure.',
+            message: 'My aunt is 84 and lives alone in Ekerenyo with limited mobility. I would like to consult on the MSC day-care and residential assessment procedure.',
             status: 'NEW',
             submittedAt: new Date(Date.now() - 86400000 * 1).toISOString()
           }
