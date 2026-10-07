@@ -22,6 +22,16 @@ export class ImpactController {
     }
   }
 
+  async getMetricById(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const data = await impactService.getMetricById(id);
+      return sendSuccess(res, data, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async createMetric(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const data = await impactService.createMetric(req.body, req.user?.id);

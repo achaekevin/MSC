@@ -165,19 +165,37 @@ export const updateTeamMemberSchema = createTeamMemberSchema.partial();
 
 // Impact metric creation and update
 export const createImpactMetricSchema = z.object({
-  name: z.string().min(2).max(150),
+  name: z.string().min(1).max(150).optional(),
+  label: z.string().min(1).max(150).optional(),
   value: z.string().min(1).max(50),
-  unit: z.string().max(50).optional(),
-  description: z.string().max(500).optional(),
+  unit: z.string().max(50).optional().nullable(),
+  description: z.string().max(500).optional().nullable(),
   category: z.string().default('beneficiaries'),
   icon: z.string().default('Users'),
   source: contentSourceEnum.default('OFFICIAL_PROFILE'),
   sourceDocument: z.string().default('MSC Organizational Profile 2024'),
   reportingPeriod: z.string().default('2024-2026'),
-  displayOrder: z.number().int().default(0)
+  displayOrder: z.number().int().default(0),
+  status: contentStatusEnum.optional()
+}).refine(data => data.name || data.label, {
+  message: 'Either name or label must be provided'
 });
 
-export const updateImpactMetricSchema = createImpactMetricSchema.partial();
+export const updateImpactMetricSchema = z.object({
+  name: z.string().min(1).max(150).optional(),
+  label: z.string().min(1).max(150).optional(),
+  value: z.string().min(1).max(50).optional(),
+  unit: z.string().max(50).optional().nullable(),
+  description: z.string().max(500).optional().nullable(),
+  category: z.string().optional(),
+  icon: z.string().optional(),
+  source: contentSourceEnum.optional(),
+  sourceDocument: z.string().optional(),
+  reportingPeriod: z.string().optional(),
+  displayOrder: z.number().int().optional(),
+  status: contentStatusEnum.optional(),
+  changeNote: z.string().optional()
+});
 
 // Testimonial creation and update schemas
 export const createTestimonialSchema = z.object({

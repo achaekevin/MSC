@@ -25,27 +25,44 @@ export class ImpactService {
   }
 
   async getAdminMetrics() {
-    return prisma.impactMetric.findMany({
+    const metrics = await prisma.impactMetric.findMany({
       where: { deletedAt: null },
       orderBy: { displayOrder: 'asc' }
     });
+    return metrics.map(m => ({
+      ...m,
+      label: m.name
+    }));
+  }
+
+  async getMetricById(id: string) {
+    const metric = await prisma.impactMetric.findUnique({
+      where: { id }
+    });
+    if (!metric || metric.deletedAt) throw new NotFoundError('Metric not found');
+    return {
+      ...metric,
+      label: metric.name
+    };
   }
 
   async createMetric(data: any, userId?: string) {
     const metric = await prisma.impactMetric.create({
       data: {
-        name: data.name,
-        value: data.value,
-        unit: data.unit,
-        description: data.description,
+        name: data.name || data.label || 'Impact Metric',
+        value: String(data.value),
+        unit: data.unit ?? null,
+        description: data.description ?? null,
         category: data.category || 'beneficiaries',
         icon: data.icon || 'Users',
         source: (data.source as ContentSource) || ContentSource.OFFICIAL_PROFILE,
         sourceDocument: data.sourceDocument || 'MSC Organizational Profile 2024',
         reportingPeriod: data.reportingPeriod || '2024-2026',
         displayOrder: data.displayOrder ?? 0,
-        status: ContentStatus.DRAFT,
-        approvalRequired: true
+        status: (data.status as ContentStatus) || ContentStatus.APPROVED,
+        approvalRequired: false,
+        createdById: userId,
+        publishedAt: data.status === ContentStatus.PUBLISHED ? new Date() : new Date()
       }
     });
 
@@ -59,16 +76,39 @@ export class ImpactService {
       }
     });
 
-    return metric;
+    return {
+      ...metric,
+      label: metric.name
+    };
   }
 
   async updateMetric(id: string, data: any, userId?: string) {
     const existing = await prisma.impactMetric.findUnique({ where: { id } });
     if (!existing || existing.deletedAt) throw new NotFoundError('Metric not found');
 
+    const updatePayload: any = {};
+    if (data.name !== undefined) updatePayload.name = data.name;
+    if (data.label !== undefined) updatePayload.name = data.label;
+    if (data.value !== undefined) updatePayload.value = String(data.value);
+    if (data.unit !== undefined) updatePayload.unit = data.unit;
+    if (data.description !== undefined) updatePayload.description = data.description;
+    if (data.category !== undefined) updatePayload.category = data.category;
+    if (data.icon !== undefined) updatePayload.icon = data.icon;
+    if (data.source !== undefined) updatePayload.source = data.source as ContentSource;
+    if (data.sourceDocument !== undefined) updatePayload.sourceDocument = data.sourceDocument;
+    if (data.reportingPeriod !== undefined) updatePayload.reportingPeriod = data.reportingPeriod;
+    if (data.displayOrder !== undefined) updatePayload.displayOrder = data.displayOrder;
+    if (data.status !== undefined) {
+      updatePayload.status = data.status as ContentStatus;
+      if (data.status === ContentStatus.PUBLISHED || data.status === ContentStatus.APPROVED) {
+        updatePayload.publishedAt = new Date();
+      }
+    }
+    if (userId) updatePayload.updatedById = userId;
+
     const updated = await prisma.impactMetric.update({
       where: { id },
-      data
+      data: updatePayload
     });
 
     await prisma.$transaction([
@@ -78,7 +118,7 @@ export class ImpactService {
           entityId: id,
           previousVal: JSON.stringify(existing),
           newVal: JSON.stringify(updated),
-          changeNote: data.changeNote || 'Impact statistic adjusted',
+          changeNote: data.changeNote || 'Impact statistic adjusted by admin',
           changedById: userId
         }
       }),
@@ -88,12 +128,15 @@ export class ImpactService {
           action: 'UPDATE',
           entity: 'ImpactMetric',
           entityId: id,
-          newData: JSON.stringify(data)
+          newData: JSON.stringify(updatePayload)
         }
       })
     ]);
 
-    return updated;
+    return {
+      ...updated,
+      label: updated.name
+    };
   }
 
   async approveMetric(id: string, reviewerId?: string) {
