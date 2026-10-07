@@ -24,6 +24,9 @@ const NewsDetailPage = lazy(() => import('../pages/news/NewsDetailPage').then(m 
 const StoriesPage = lazy(() => import('../pages/stories/StoriesPage').then(m => ({ default: m.StoriesPage })));
 const StoryDetailPage = lazy(() => import('../pages/stories/StoryDetailPage').then(m => ({ default: m.StoryDetailPage })));
 
+const PublicationsPage = lazy(() => import('../pages/publications/PublicationsPage').then(m => ({ default: m.PublicationsPage })));
+const PublicationReaderPage = lazy(() => import('../pages/publications/PublicationReaderPage').then(m => ({ default: m.PublicationReaderPage })));
+
 const EventsPage = lazy(() => import('../pages/events/EventsPage').then(m => ({ default: m.EventsPage })));
 const EventDetailPage = lazy(() => import('../pages/events/EventDetailPage').then(m => ({ default: m.EventDetailPage })));
 
@@ -53,6 +56,7 @@ const ContentManagementPage = lazy(() => import('../pages/admin/ContentManagemen
 const ProgramsManagementPage = lazy(() => import('../pages/admin/ProgramsManagementPage').then(m => ({ default: m.ProgramsManagementPage })));
 const NewsManagementPage = lazy(() => import('../pages/admin/NewsManagementPage').then(m => ({ default: m.NewsManagementPage })));
 const StoriesManagementPage = lazy(() => import('../pages/admin/StoriesManagementPage').then(m => ({ default: m.StoriesManagementPage })));
+const PublicationsManagementPage = lazy(() => import('../pages/admin/PublicationsManagementPage').then(m => ({ default: m.PublicationsManagementPage })));
 const ImpactManagementPage = lazy(() => import('../pages/admin/ImpactManagementPage').then(m => ({ default: m.ImpactManagementPage })));
 const EventsManagementPage = lazy(() => import('../pages/admin/EventsManagementPage').then(m => ({ default: m.EventsManagementPage })));
 const GalleryManagementPage = lazy(() => import('../pages/admin/GalleryManagementPage').then(m => ({ default: m.GalleryManagementPage })));
@@ -86,6 +90,10 @@ export const AppRoutes: React.FC = () => {
           {/* Stories of Impact */}
           <Route path="stories" element={<StoriesPage />} />
           <Route path="stories/:slug" element={<StoryDetailPage />} />
+
+          {/* Publications & Books Library */}
+          <Route path="publications" element={<PublicationsPage />} />
+          <Route path="publications/:slug" element={<PublicationReaderPage />} />
 
           {/* News */}
           <Route path="news" element={<NewsPage />} />
@@ -152,6 +160,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="programs" element={<ProgramsManagementPage />} />
           <Route path="impact" element={<ImpactManagementPage />} />
           <Route path="stories" element={<StoriesManagementPage />} />
+          <Route path="publications" element={<PublicationsManagementPage />} />
           <Route path="news" element={<NewsManagementPage />} />
           <Route path="events" element={<EventsManagementPage />} />
           <Route path="gallery" element={<GalleryManagementPage />} />

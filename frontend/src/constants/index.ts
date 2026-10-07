@@ -138,6 +138,7 @@ export const NAVIGATION_LINKS = [
     ]
   },
   { name: "Stories of Impact", href: "/stories" },
+  { name: "Publications", href: "/publications" },
   { name: "News", href: "/news" },
   { name: "Events", href: "/events" },
   { name: "Gallery", href: "/gallery" },

@@ -129,6 +129,12 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/publications" className="hover:text-earth-300 transition-colors flex items-center gap-1.5 font-medium text-warm-200">
+                  <ArrowRight className="w-3.5 h-3.5 text-forest-500" />
+                  <span>Publications & Books</span>
+                </Link>
+              </li>
+              <li>
                 <Link
                   to={isAdmin ? "/admin/dashboard" : "/admin/login"}
                   className="hover:text-earth-300 transition-colors flex items-center gap-1.5 text-forest-300 font-medium"
