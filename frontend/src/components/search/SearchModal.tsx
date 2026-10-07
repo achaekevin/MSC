@@ -350,7 +350,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                   'Health Outreaches',
                   'Ward Volunteers',
                   'Elder Rights & Advocacy',
-                  'Kebirigo Center',
+                  'Ekerenyo Center',
                   'Community Stories'
                 ].map(topic => (
                   <button

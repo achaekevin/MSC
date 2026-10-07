@@ -118,7 +118,7 @@ export const ImpactDashboardSection: React.FC<ImpactDashboardSectionProps> = ({
       value: '2016',
       category: 'operations',
       icon: 'Calendar',
-      description: 'Founded in Kebirigo, Nyamira County as Mwancha Home for the Elderly, scaling to national advocacy in 2024.',
+      description: 'Founded in Ekerenyo, Nyamira County as Mwancha Home for the Elderly, scaling to national advocacy in 2024.',
       source: 'MSC Founding Charter & Registration',
       sourceDocument: 'Registrar of Societies Kenya',
       reportingPeriod: '2016–Present'

@@ -106,7 +106,7 @@ export const GalleryPage: React.FC = () => {
           <div className="mb-8 p-4 rounded-2xl bg-forest-50/90 border border-forest-200 text-left flex items-start gap-3 max-w-4xl shadow-xs">
             <CheckCircle2 className="w-5 h-5 text-forest-700 flex-shrink-0 mt-0.5" />
             <p className="text-xs sm:text-sm text-forest-900 leading-relaxed font-medium">
-              <strong>Verified Field Documentation:</strong> Photographic records depicting official Mwancha Senior Community infrastructure, residential care center, traditional gathering pavilion, wellness garden trail, and sustainable food plots in Kebirigo, Nyamira County.
+              <strong>Verified Field Documentation:</strong> Photographic records depicting official Mwancha Senior Community infrastructure, residential care center, traditional gathering pavilion, wellness garden trail, and sustainable food plots in Ekerenyo, Nyamira County.
             </p>
           </div>
 

@@ -40,8 +40,8 @@ const MSC_FACILITIES = [
     id: 'grounds',
     title: 'Community Compound & Outreach Hub',
     category: 'Field Operations',
-    description: 'The central operational grounds in Kebirigo, Nyamira County, serving as the launching pad for mobile medical outreaches, stakeholder assemblies, and emergency food distributions.',
-    location: 'Kebirigo, Nyamira County',
+    description: 'The central operational grounds in Ekerenyo, Nyamira County, serving as the launching pad for mobile medical outreaches, stakeholder assemblies, and emergency food distributions.',
+    location: 'Ekerenyo, Nyamira County',
     image: '/images/mwancha-community-grounds.jpg',
     tag: 'Verified Headquarters'
   },
@@ -50,7 +50,7 @@ const MSC_FACILITIES = [
     title: 'Main Care Center & Residence',
     category: 'Care & Respite',
     description: 'Our permanent two-story residential center providing safe shelter, case management coordination, and compassionate respite care for vulnerable seniors.',
-    location: 'Kebirigo, Nyamira County',
+    location: 'Ekerenyo, Nyamira County',
     image: '/images/mwancha-facility-main.jpg',
     tag: 'Safe Elder Shelter'
   },
@@ -90,7 +90,7 @@ const TICKER_ITEMS = [
   '40 Ward-Based Active Volunteers',
   'Defending Against False Accusations & Elder Abuse',
   'Holistic Geriatric Healthcare & Psychosocial Support',
-  'Established 2016 in Kebirigo, Nyamira County',
+  'Established 2016 in Ekerenyo, Nyamira County',
   'Palliative Care & Safe Elder Shelter',
   'Intergenerational Cohesion & Community Barazas'
 ];
@@ -243,7 +243,7 @@ export const HomePage: React.FC = () => {
                     Mwancha Senior Community
                   </p>
                   <p className="text-[10px] sm:text-[11px] text-amber-300 font-black uppercase tracking-wider">
-                    Kebirigo, Nyamira County, Kenya
+                    Ekerenyo, Nyamira County, Kenya
                   </p>
                 </div>
               </div>
@@ -473,11 +473,11 @@ export const HomePage: React.FC = () => {
                   Authentic Background
                 </span>
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-charcoal-950 dark:text-white font-display transition-colors">
-                  From Grassroots Compassion in Kebirigo to a National Movement
+                  From Grassroots Compassion in Ekerenyo to a National Movement
                 </h2>
                 <div className="text-charcoal-800 dark:text-warm-100 space-y-3.5 text-base sm:text-lg leading-relaxed font-medium transition-colors">
                   <p>
-                    <strong className="text-forest-900 dark:text-emerald-400 font-bold">Mwancha Senior Community (MSC)</strong> was originally founded in <strong>2016</strong> as <strong>Mwancha Home for the Elderly</strong> in Kebirigo, Nyamira County, Kenya. It began as an urgent community response to the heartbreaking neglect, physical frailty, and abandonment experienced by older citizens.
+                    <strong className="text-forest-900 dark:text-emerald-400 font-bold">Mwancha Senior Community (MSC)</strong> was originally founded in <strong>2016</strong> as <strong>Mwancha Home for the Elderly</strong> in Ekerenyo, Nyamira County, Kenya. It began as an urgent community response to the heartbreaking neglect, physical frailty, and abandonment experienced by older citizens.
                   </p>
                   <p>
                     In <strong>2024</strong>, the organization formally transitioned its name to <strong>Mwancha Senior Community</strong>. This evolution marks an expansion from localized welfare sheltering to a rights-based, community-driven institution advocating for senior citizen dignity across Kenya.
@@ -636,7 +636,7 @@ export const HomePage: React.FC = () => {
             centered
             badge="Verified Field Operations"
             title="Our Community Headquarters & Grounds"
-            subtitle="Authentic photographs of Mwancha Senior Community in Kebirigo, Nyamira County, Kenya. Here, vulnerable elders find safe shelter, communal warmth, and therapeutic green spaces."
+            subtitle="Authentic photographs of Mwancha Senior Community in Ekerenyo, Nyamira County, Kenya. Here, vulnerable elders find safe shelter, communal warmth, and therapeutic green spaces."
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-10">

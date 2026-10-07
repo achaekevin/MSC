@@ -18,16 +18,16 @@ const APPROVED_MILESTONES: TimelineMilestone[] = [
     year: '2016',
     badge: 'Foundation',
     title: 'Founded as Mwancha Home for the Elderly',
-    subtitle: 'Grassroots Community Mobilization in Kebirigo',
-    description: 'In response to acute elder neglect, food insecurity, and the erosion of rural family safety nets, community leaders in Kebirigo, Nyamira County established Mwancha Home for the Elderly as a compassionate grassroots sanctuary.',
+    subtitle: 'Grassroots Community Mobilization in Ekerenyo',
+    description: 'In response to acute elder neglect, food insecurity, and the erosion of rural family safety nets, community leaders in Ekerenyo, Nyamira County established Mwancha Home for the Elderly as a compassionate grassroots sanctuary.',
     achievements: [
-      'Established original care center and headquarters in Kebirigo',
+      'Established original care center and headquarters in Ekerenyo',
       'Launched emergency nutrition and warm blanket distributions',
       'Initiated home visits for bedridden and abandoned older persons'
     ],
-    location: 'Kebirigo, Nyamira County',
+    location: 'Ekerenyo, Nyamira County',
     image: '/images/mwancha-facility-main.jpg',
-    highlightStat: '1st Grassroots Elder Sanctuary in Kebirigo'
+    highlightStat: '1st Grassroots Elder Sanctuary in Ekerenyo'
   },
   {
     year: '2018',

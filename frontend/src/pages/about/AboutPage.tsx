@@ -39,7 +39,7 @@ export const AboutPage: React.FC = () => {
               </h2>
               <div className="text-charcoal-700 space-y-4 text-base sm:text-lg leading-relaxed">
                 <p>
-                  Established in <strong>2016</strong> as <em>Mwancha Home for the Elderly</em>, our work began in Kebirigo, Nyamira County, out of a pressing need to protect older community members facing acute malnutrition, social neglect, and perilous cultural stigmatization.
+                  Established in <strong>2016</strong> as <em>Mwancha Home for the Elderly</em>, our work began in Ekerenyo, Nyamira County, out of a pressing need to protect older community members facing acute malnutrition, social neglect, and perilous cultural stigmatization.
                 </p>
                 <p>
                   In <strong>2024</strong>, our organization formally changed its name to <strong>Mwancha Senior Community (MSC)</strong>. This evolution marks our expansion from a localized direct-support center to a nationwide community-driven catalyst that defends elder rights, facilitates multi-agency partnerships, and addresses geriatric health needs across Kenya.
@@ -104,7 +104,7 @@ export const AboutPage: React.FC = () => {
                   <span>Geographic Scope</span>
                 </div>
                 <p className="text-charcoal-700 text-sm leading-relaxed">
-                  Headquartered in Kebirigo, Nyamira County, with a verified community workforce of 40 ward volunteers and an operational mandate that extends across Kenya.
+                  Headquartered in Ekerenyo, Nyamira County, with a verified community workforce of 40 ward volunteers and an operational mandate that extends across Kenya.
                 </p>
               </div>
             </div>
@@ -167,7 +167,7 @@ export const AboutPage: React.FC = () => {
             centered
             badge="Field Infrastructure"
             title="Our Community Center & Grounds"
-            subtitle="Anchored at our physical headquarters in Kebirigo, Nyamira County, providing compassionate shelter, communal spaces, and agricultural sustainability."
+            subtitle="Anchored at our physical headquarters in Ekerenyo, Nyamira County, providing compassionate shelter, communal spaces, and agricultural sustainability."
           />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left mt-8">

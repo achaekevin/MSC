@@ -88,7 +88,7 @@ export const ContactPage: React.FC = () => {
     <div className="pb-20 space-y-16">
       <SEO
         title="Contact Us & Secretariat"
-        description="Contact Mwancha Senior Community (MSC). Mwancha House - Ekerenyo, Ekerenyo-Owari-Magwagwa Road, Nyamira North. P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya."
+        description="Contact Mwancha Senior Community (MSC). Mwancha House - Ekerenyo, Ekerenyo-Obwari-Magwagwa Road, Nyamira North. P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya."
       />
       {/* Header */}
       <section className="bg-warm-100/80 border-b border-warm-200 py-12">

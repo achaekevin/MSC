@@ -182,7 +182,7 @@ export const PartnerPage: React.FC = () => {
                 </h4>
                 <p className="text-xs sm:text-sm text-forest-100 leading-relaxed">
                   Mwancha House - Ekerenyo<br />
-                  Ekerenyo-Owari-Magwagwa Road, Nyamira North<br />
+                  Ekerenyo-Obwari-Magwagwa Road, Nyamira North<br />
                   P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya<br />
                   Email:{' '}
                   <a href="mailto:mwachahomeforelderly@gmail.com" className="underline underline-offset-2">

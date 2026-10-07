@@ -14,7 +14,7 @@ export const StoryPage: React.FC = () => {
       title: 'Founding as Mwancha Home for the Elderly',
       badge: 'Establishment',
       description:
-        'Founded in Kebirigo, Nyamira County, as Mwancha Home for the Elderly. The initiative arose from direct grassroots witness to the extreme vulnerability, isolation, malnutrition, and abuse suffered by older persons living in rural households.'
+        'Founded in Ekerenyo, Nyamira County, as Mwancha Home for the Elderly. The initiative arose from direct grassroots witness to the extreme vulnerability, isolation, malnutrition, and abuse suffered by older persons living in rural households.'
     },
     {
       year: '2016 - 2023',
@@ -57,7 +57,7 @@ export const StoryPage: React.FC = () => {
               The Mwancha Senior Community Story
             </h1>
             <p className="mt-4 text-lg text-charcoal-700 leading-relaxed">
-              How a compassionate grassroots response in Kebirigo grew into a community-based organization championing senior rights across Kenya.
+              How a compassionate grassroots response in Ekerenyo grew into a community-based organization championing senior rights across Kenya.
             </p>
           </div>
         </Container>
@@ -75,7 +75,7 @@ export const StoryPage: React.FC = () => {
                 In many rural communities across Kenya, the traditional family safety net has experienced severe strain due to economic migration, disease burdens, and shifting social dynamics. Older persons, who once enjoyed veneration and assured communal care, frequently find themselves left behind, frail, and forgotten.
               </p>
               <p>
-                In 2016, a collective of concerned community leaders in Kebirigo, Nyamira County, came together to confront this reality. The organization was founded as <strong>Mwancha Home for the Elderly</strong>, dedicated to reaching out to abandoned, bedridden, and destitute elders.
+                In 2016, a collective of concerned community leaders in Ekerenyo, Nyamira County, came together to confront this reality. The organization was founded as <strong>Mwancha Home for the Elderly</strong>, dedicated to reaching out to abandoned, bedridden, and destitute elders.
               </p>
               <p>
                 Over seven years of frontline intervention, our field workers encountered the complex realities of elderly vulnerability: not only hunger and chronic diseases, but psychological trauma, property dispossession by relatives, and perilous violence triggered by false accusations of witchcraft.
@@ -87,7 +87,7 @@ export const StoryPage: React.FC = () => {
               <div className="aspect-[16/9] sm:aspect-[21/9] overflow-hidden bg-warm-200">
                 <img
                   src="/images/mwancha-facility-main.jpg"
-                  alt="Mwancha Senior Community original headquarters and residential facility in Kebirigo, established in 2016"
+                  alt="Mwancha Senior Community original headquarters and residential facility in Ekerenyo, established in 2016"
                   className="w-full h-full object-cover object-center hover:scale-102 transition-transform duration-300"
                 />
               </div>
@@ -97,7 +97,7 @@ export const StoryPage: React.FC = () => {
                     Mwancha Senior Community Headquarters & Center
                   </p>
                   <p className="text-xs text-charcoal-600 mt-0.5">
-                    Kebirigo, Nyamira County, Western Kenya &bull; Operating continuously since 2016
+                    Ekerenyo, Nyamira County, Western Kenya &bull; Operating continuously since 2016
                   </p>
                 </div>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-forest-50 text-forest-800 text-xs font-bold border border-forest-200 self-start sm:self-auto">
