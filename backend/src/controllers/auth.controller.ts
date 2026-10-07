@@ -174,6 +174,27 @@ export class AuthController {
       next(error);
     }
   }
+
+  async verifyEmail(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { token, code } = req.body;
+      const tokenOrCode = token || code;
+      const result = await authService.verifyEmail(tokenOrCode);
+      return sendSuccess(res, result, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async resendVerification(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body;
+      const result = await authService.resendVerification(email);
+      return sendSuccess(res, result, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const authController = new AuthController();

@@ -1,8 +1,32 @@
 import { z } from 'zod';
+import { SpamDetector } from '../utils/spamDetector.js';
+
+// Common anti-spam and honeypot validation fields
+const spamFields = {
+  website_hp: z.string().optional(),
+  hp_confirm: z.string().optional(),
+  bot_trap: z.string().optional(),
+  fax_number: z.string().optional(),
+  _formStartTime: z.union([z.number(), z.string()]).optional(),
+  challengeToken: z.string().optional(),
+  challengeAnswer: z.union([z.string(), z.number()]).optional(),
+  turnstileToken: z.string().optional()
+};
+
+const safeEmailSchema = (requiredMessage = 'Valid email is required') =>
+  z.string()
+    .email(requiredMessage)
+    .toLowerCase()
+    .trim()
+    .refine(
+      (email) => !SpamDetector.isDisposableEmail(email),
+      'Disposable and temporary email addresses are not permitted. Please use your permanent email address.'
+    );
 
 export const contactSubmissionSchema = z.object({
+  ...spamFields,
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
-  email: z.string().email('Please provide a valid email address').toLowerCase().trim(),
+  email: safeEmailSchema('Please provide a valid email address'),
   phone: z.string().max(30).optional().or(z.literal('')),
   subject: z.string().min(3, 'Subject must be at least 3 characters').max(150),
   message: z.string().min(10, 'Message must be at least 10 characters').max(3000),
@@ -10,8 +34,9 @@ export const contactSubmissionSchema = z.object({
 });
 
 export const volunteerApplicationSchema = z.object({
+  ...spamFields,
   fullName: z.string().min(2, 'Full name must be at least 2 characters').max(100),
-  email: z.string().email('Valid email is required').toLowerCase().trim(),
+  email: safeEmailSchema('Valid email is required'),
   phone: z.string().min(8, 'Valid phone number is required').max(30),
   county: z.string().min(2, 'County is required').max(50),
   subCounty: z.string().max(50).optional().or(z.literal('')),
@@ -33,9 +58,10 @@ export const partnershipApplicationSchema = z.preprocess((data: any) => {
   }
   return data;
 }, z.object({
+  ...spamFields,
   organizationName: z.string().min(2, 'Organization name must be at least 2 characters').max(150),
   contactPerson: z.string().min(2, 'Contact person name must be at least 2 characters').max(100),
-  email: z.string().email('Valid email is required').toLowerCase().trim(),
+  email: safeEmailSchema('Valid email is required'),
   phone: z.string().min(8, 'Valid phone number is required').max(30),
   organizationType: z.string().min(2, 'Organization type is required').max(80),
   partnershipInterests: z.string().min(2, 'Area of partnership interest is required').max(150),
@@ -45,8 +71,9 @@ export const partnershipApplicationSchema = z.preprocess((data: any) => {
 }));
 
 export const inKindDonationSchema = z.object({
+  ...spamFields,
   fullName: z.string().min(2, 'Full name or organization must be at least 2 characters').max(150),
-  email: z.string().email('Valid email is required').toLowerCase().trim(),
+  email: safeEmailSchema('Valid email is required'),
   phone: z.string().min(8, 'Valid phone number is required').max(30),
   donorType: z.string().max(80).optional().default('Individual'),
   donationCategory: z.string().min(2, 'Donation category is required').max(100),

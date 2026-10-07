@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import { prisma } from '../config/database.js';
 import { hashPassword, comparePassword } from '../utils/password.js';
 import { signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken } from '../utils/jwt.js';
@@ -191,6 +192,34 @@ export class AuthService {
         userAgent,
         newData: JSON.stringify({ email: user.email, role: user.role })
       }
+    });
+
+    // Generate 6-digit email verification code and signed token
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationToken = jwt.sign(
+      { userId: user.id, email: user.email, purpose: 'email_verification' },
+      env.JWT_ACCESS_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'EMAIL_VERIFICATION_SENT',
+        entity: 'User',
+        entityId: user.id,
+        newData: JSON.stringify({ code: verificationCode, token: verificationToken, sentAt: new Date() })
+      }
+    });
+
+    // Send email asynchronously in background
+    const verifyUrl = `${env.FRONTEND_URL || 'http://localhost:5173'}/admin/verify-email?token=${verificationToken}`;
+    mailService.sendEmail({
+      to: user.email,
+      subject: 'Verify Your Email Address - Mwancha Senior Community',
+      html: emailTemplates.emailVerification(user.name, verifyUrl, verificationCode)
+    }).catch(err => {
+      console.warn('Asynchronous verification email delivery failed:', err);
     });
 
     return {
@@ -391,6 +420,103 @@ export class AuthService {
     });
 
     return { message: 'Password updated successfully' };
+  }
+
+  async verifyEmail(tokenOrCode: string) {
+    if (!tokenOrCode || tokenOrCode.trim().length === 0) {
+      throw new BadRequestError('Verification token or 6-digit code is required');
+    }
+
+    const trimmed = tokenOrCode.trim();
+
+    // 1. Try decoding as JWT verification token
+    try {
+      const payload = jwt.verify(trimmed, env.JWT_ACCESS_SECRET) as { userId: string; email: string; purpose: string };
+      if (payload && payload.purpose === 'email_verification') {
+        const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+        if (!user) throw new NotFoundError('User not found');
+
+        await prisma.auditLog.create({
+          data: {
+            userId: user.id,
+            action: 'EMAIL_VERIFIED',
+            entity: 'User',
+            entityId: user.id,
+            newData: JSON.stringify({ email: user.email, verifiedAt: new Date() })
+          }
+        });
+
+        return { message: 'Email address verified successfully. Your administrative account is confirmed.' };
+      }
+    } catch {
+      // Continue to check 6-digit code
+    }
+
+    // 2. Check 6-digit code stored in audit records
+    const recentAudit = await prisma.auditLog.findFirst({
+      where: {
+        action: 'EMAIL_VERIFICATION_SENT',
+        newData: { contains: trimmed }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    if (!recentAudit || !recentAudit.userId) {
+      throw new BadRequestError('Invalid or expired verification code. Please request a new verification code.');
+    }
+
+    const ageMs = Date.now() - new Date(recentAudit.createdAt).getTime();
+    if (ageMs > 24 * 60 * 60 * 1000) {
+      throw new BadRequestError('Verification code has expired. Please request a new one.');
+    }
+
+    await prisma.auditLog.create({
+      data: {
+        userId: recentAudit.userId,
+        action: 'EMAIL_VERIFIED',
+        entity: 'User',
+        entityId: recentAudit.userId,
+        newData: JSON.stringify({ code: trimmed, verifiedAt: new Date() })
+      }
+    });
+
+    return { message: 'Email address verified successfully. Your administrative account is confirmed.' };
+  }
+
+  async resendVerification(email: string) {
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+    if (!user) {
+      return { message: 'If an account exists with this email, a verification link has been sent.' };
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, purpose: 'email_verification' },
+      env.JWT_ACCESS_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'EMAIL_VERIFICATION_SENT',
+        entity: 'User',
+        entityId: user.id,
+        newData: JSON.stringify({ code, token, resentAt: new Date() })
+      }
+    });
+
+    const verifyUrl = `${env.FRONTEND_URL || 'http://localhost:5173'}/admin/verify-email?token=${token}`;
+    mailService.sendEmail({
+      to: user.email,
+      subject: 'Verify Your Email Address - Mwancha Senior Community',
+      html: emailTemplates.emailVerification(user.name, verifyUrl, code)
+    }).catch(err => {
+      console.warn('Failed to resend verification email:', err);
+    });
+
+    return { message: 'Verification email sent. Please check your inbox and spam folder.' };
   }
 }
 

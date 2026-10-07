@@ -159,5 +159,26 @@ export const emailTemplates = {
       </div>
       <p style="font-size: 12px; color: #6B7280;">If you did not request this reset, please ignore this email or notify your system administrator immediately.</p>
     </div>
+  `,
+
+  emailVerification: (name: string, verifyUrl: string, code: string) => `
+    <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #E5E7EB; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #1B4332; padding: 24px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 20px;">Mwancha Senior Community (MSC)</h1>
+        <p style="color: #D8F3DC; margin: 4px 0 0 0; font-size: 13px;">Official Email Address Verification</p>
+      </div>
+      <div style="padding: 24px;">
+        <p style="font-size: 15px;">Hello <strong>${name}</strong>,</p>
+        <p style="font-size: 14px; line-height: 1.6;">Thank you for registering on the Mwancha Senior Community administrative portal. To protect system integrity and confirm your identity, please verify your email address.</p>
+        <div style="background: #f4fbf7; border: 1px solid #b7e4c7; border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center;">
+          <p style="font-size: 12px; color: #2d6a4f; margin: 0 0 8px 0; text-transform: uppercase; font-weight: bold;">Your 6-Digit Verification Code</p>
+          <div style="font-size: 28px; font-weight: 800; letter-spacing: 4px; color: #1b4332;">${code}</div>
+        </div>
+        <p style="font-size: 14px; text-align: center; margin: 20px 0;">
+          <a href="${verifyUrl}" style="background-color: #2D6A4F; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">Verify Email Address</a>
+        </p>
+        <p style="font-size: 12px; color: #6B7280; margin-top: 24px;">If you did not initiate this registration, please disregard this email or contact MSC Secretariat immediately.</p>
+      </div>
+    </div>
   `
 };
