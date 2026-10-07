@@ -63,6 +63,7 @@ const GalleryManagementPage = lazy(() => import('../pages/admin/GalleryManagemen
 const ApplicationsManagementPage = lazy(() => import('../pages/admin/ApplicationsManagementPage').then(m => ({ default: m.ApplicationsManagementPage })));
 const TeamManagementPage = lazy(() => import('../pages/admin/TeamManagementPage').then(m => ({ default: m.TeamManagementPage })));
 const UsersManagementPage = lazy(() => import('../pages/admin/UsersManagementPage').then(m => ({ default: m.UsersManagementPage })));
+const BackupManagementPage = lazy(() => import('../pages/admin/BackupManagementPage').then(m => ({ default: m.BackupManagementPage })));
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -169,6 +170,11 @@ export const AppRoutes: React.FC = () => {
           <Route path="users" element={
             <ProtectedRoute requiredPermission="USER_MANAGE">
               <UsersManagementPage />
+            </ProtectedRoute>
+          } />
+          <Route path="backups" element={
+            <ProtectedRoute requiredPermission="USER_MANAGE">
+              <BackupManagementPage />
             </ProtectedRoute>
           } />
           <Route path="settings" element={<SettingsPage />} />

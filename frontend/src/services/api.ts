@@ -10,7 +10,7 @@ const getBaseUrl = (): string => {
   return 'http://localhost:5000/api/v1';
 };
 
-const BASE_URL = getBaseUrl();
+export const BASE_URL = getBaseUrl();
 
 export class ApiError extends Error {
   constructor(
