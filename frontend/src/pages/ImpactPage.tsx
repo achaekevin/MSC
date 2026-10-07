@@ -8,6 +8,7 @@ import { Button } from '../components/ui/Button';
 import { ShieldCheck, HeartHandshake, FileCheck, CheckCircle } from 'lucide-react';
 import { PageLoader } from '../components/ui/Skeleton';
 import { SEO } from '../components/common/SEO';
+import { ImpactDashboardSection } from '../components/impact/ImpactDashboardSection';
 
 export const ImpactPage: React.FC = () => {
   const { metrics, organizedMetrics, categories, isLoading, error } = useImpactMetrics();
@@ -59,6 +60,9 @@ export const ImpactPage: React.FC = () => {
           </div>
         </Container>
       </section>
+
+      {/* Interactive Impact Dashboard with Viewport-Animated Figures */}
+      <ImpactDashboardSection className="rounded-3xl mx-4 sm:mx-6 lg:mx-8" />
 
       {/* Dynamic Core Metrics */}
       <section>

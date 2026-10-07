@@ -53,6 +53,7 @@ const ContentManagementPage = lazy(() => import('../pages/admin/ContentManagemen
 const ProgramsManagementPage = lazy(() => import('../pages/admin/ProgramsManagementPage').then(m => ({ default: m.ProgramsManagementPage })));
 const NewsManagementPage = lazy(() => import('../pages/admin/NewsManagementPage').then(m => ({ default: m.NewsManagementPage })));
 const StoriesManagementPage = lazy(() => import('../pages/admin/StoriesManagementPage').then(m => ({ default: m.StoriesManagementPage })));
+const ImpactManagementPage = lazy(() => import('../pages/admin/ImpactManagementPage').then(m => ({ default: m.ImpactManagementPage })));
 const EventsManagementPage = lazy(() => import('../pages/admin/EventsManagementPage').then(m => ({ default: m.EventsManagementPage })));
 const GalleryManagementPage = lazy(() => import('../pages/admin/GalleryManagementPage').then(m => ({ default: m.GalleryManagementPage })));
 const ApplicationsManagementPage = lazy(() => import('../pages/admin/ApplicationsManagementPage').then(m => ({ default: m.ApplicationsManagementPage })));
@@ -149,6 +150,7 @@ export const AppRoutes: React.FC = () => {
           {/* Placeholder routes for other admin pages */}
           <Route path="organization" element={<div>Organization Management - Coming Soon</div>} />
           <Route path="programs" element={<ProgramsManagementPage />} />
+          <Route path="impact" element={<ImpactManagementPage />} />
           <Route path="stories" element={<StoriesManagementPage />} />
           <Route path="news" element={<NewsManagementPage />} />
           <Route path="events" element={<EventsManagementPage />} />

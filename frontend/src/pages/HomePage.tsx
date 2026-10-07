@@ -31,6 +31,7 @@ import { NEWS_ARTICLES_DATA } from '../data/newsData';
 import { fadeIn, fadeInUp, staggerContainer } from '../animations';
 import { SEO } from '../components/common/SEO';
 import { AnimatedCounter } from '../components/common/AnimatedCounter';
+import { ImpactDashboardSection } from '../components/impact/ImpactDashboardSection';
 
 
 // Authentic Facilities for Full-Screen Cinematic Showcase
@@ -743,38 +744,9 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* =========================================================================
-          MEASURABLE VERIFIED IMPACT (Strict Source of Truth)
+          MEASURABLE VERIFIED IMPACT (Interactive Dashboard Section)
           ========================================================================= */}
-      <section className="bg-gradient-to-br from-forest-950 via-forest-900 to-forest-950 text-warm-50 py-16 sm:py-20 rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-2xl relative overflow-hidden border-2 border-forest-800">
-        {/* Decorative Light Radial */}
-        <div className="ambient-glow top-0 right-1/4 w-80 h-80 bg-emerald-500/20" />
-
-        <Container>
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 relative z-10">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-forest-800 text-amber-300 text-xs font-bold tracking-wider uppercase border border-forest-700 mb-3 shadow-xs">
-              Strict Source of Truth
-            </span>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black font-display text-white">
-              Documented Ground Impact
-            </h2>
-            <p className="mt-3 text-base text-forest-100 max-w-2xl mx-auto">
-              Verified programmatic milestones from Mwancha Senior Community's field operations. We report documented facts without embellishment.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
-            {VERIFIED_IMPACT_METRICS.map((metric) => (
-              <ImpactStatCard key={metric.id} metric={metric} />
-            ))}
-          </div>
-
-          <div className="mt-12 p-5 rounded-2xl bg-forest-850/80 border border-forest-700/60 max-w-3xl mx-auto text-center text-xs sm:text-sm text-forest-200 relative z-10">
-            <p>
-              * In adherence to our organizational core value of <strong>Accountability</strong>, figures reflect verified beneficiary records and trained volunteer registries. Broader national impact datasets will be updated continuously.
-            </p>
-          </div>
-        </Container>
-      </section>
+      <ImpactDashboardSection />
 
       {/* =========================================================================
           OUR METHODOLOGY & COMMITMENTS

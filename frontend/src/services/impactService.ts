@@ -3,22 +3,24 @@ import { apiClient } from './api';
 export interface ImpactMetric {
   id: string;
   organizationId?: string;
-  label: string;  // Changed from 'name' to match frontend types
+  label: string;
+  name?: string;
   value: string;
   unit?: string;
   description?: string;
-  category: 'beneficiaries' | 'volunteers' | 'coverage' | 'operations' | string;
-  icon: string;
-  source: string;
-  sourceDocument: string;
-  reportingPeriod: string;
-  status: string;
-  approvalRequired: boolean;
-  displayOrder: number;
+  category?: 'beneficiaries' | 'volunteers' | 'coverage' | 'operations' | string;
+  icon?: string;
+  source?: string;
+  sourceDocument?: string;
+  reportingPeriod?: string;
+  status?: string;
+  approvalRequired?: boolean;
+  displayOrder?: number;
   publishedAt?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   deletedAt?: string;
+  metadata?: any;
 }
 
 export interface ImpactMetricsResponse {
@@ -59,7 +61,7 @@ class ImpactService {
     status?: string;
     category?: string;
     search?: string;
-  }): Promise<ImpactMetricsResponse> {
+  }): Promise<ImpactMetric[]> {
     const query = new URLSearchParams();
     
     if (params?.page) query.set('page', params.page.toString());
@@ -69,7 +71,10 @@ class ImpactService {
     if (params?.search) query.set('search', params.search);
 
     const queryString = query.toString();
-    return apiClient.get(`${this.baseEndpoint}/admin/metrics${queryString ? `?${queryString}` : ''}`);
+    const res = await apiClient.get<any>(`${this.baseEndpoint}/admin/metrics${queryString ? `?${queryString}` : ''}`);
+    if (Array.isArray(res)) return res;
+    if (res && Array.isArray(res.metrics)) return res.metrics;
+    return [];
   }
 
   /**

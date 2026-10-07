@@ -60,16 +60,17 @@ export const useOrganizedImpactMetrics = () => {
   const { metrics, isLoading, error, refetch } = usePublicImpactMetrics();
 
   const organizedMetrics = metrics.reduce((acc, metric) => {
-    if (!acc[metric.category]) {
-      acc[metric.category] = [];
+    const cat = metric.category || 'general';
+    if (!acc[cat]) {
+      acc[cat] = [];
     }
-    acc[metric.category].push(metric);
+    acc[cat].push(metric);
     return acc;
   }, {} as Record<string, ImpactMetric[]>);
 
   // Sort metrics within each category by displayOrder
   Object.keys(organizedMetrics).forEach(category => {
-    organizedMetrics[category].sort((a, b) => a.displayOrder - b.displayOrder);
+    organizedMetrics[category].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
   });
 
   return { 
