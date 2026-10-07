@@ -1,0 +1,1 @@
+import"./rolldown-runtime-hePW80VL.js";import{n as e,t}from"./jsx-runtime-BNakU3Ej.js";e();var n=t(),r=({size:e=`lg`,className:t=``,children:r,...i})=>(0,n.jsx)(`div`,{className:`w-full mx-auto px-4 sm:px-6 lg:px-8 ${{sm:`max-w-4xl`,md:`max-w-5xl`,lg:`max-w-7xl`,full:`max-w-full`}[e]} ${t}`,...i,children:r});export{r as t};
