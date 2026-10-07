@@ -21,6 +21,9 @@ const TeamPage = lazy(() => import('../pages/TeamPage').then(m => ({ default: m.
 const NewsPage = lazy(() => import('../pages/news/NewsPage').then(m => ({ default: m.NewsPage })));
 const NewsDetailPage = lazy(() => import('../pages/news/NewsDetailPage').then(m => ({ default: m.NewsDetailPage })));
 
+const StoriesPage = lazy(() => import('../pages/stories/StoriesPage').then(m => ({ default: m.StoriesPage })));
+const StoryDetailPage = lazy(() => import('../pages/stories/StoryDetailPage').then(m => ({ default: m.StoryDetailPage })));
+
 const EventsPage = lazy(() => import('../pages/events/EventsPage').then(m => ({ default: m.EventsPage })));
 const EventDetailPage = lazy(() => import('../pages/events/EventDetailPage').then(m => ({ default: m.EventDetailPage })));
 
@@ -49,6 +52,7 @@ const DashboardPage = lazy(() => import('../pages/admin/DashboardPage').then(m =
 const ContentManagementPage = lazy(() => import('../pages/admin/ContentManagementPage').then(m => ({ default: m.ContentManagementPage })));
 const ProgramsManagementPage = lazy(() => import('../pages/admin/ProgramsManagementPage').then(m => ({ default: m.ProgramsManagementPage })));
 const NewsManagementPage = lazy(() => import('../pages/admin/NewsManagementPage').then(m => ({ default: m.NewsManagementPage })));
+const StoriesManagementPage = lazy(() => import('../pages/admin/StoriesManagementPage').then(m => ({ default: m.StoriesManagementPage })));
 const EventsManagementPage = lazy(() => import('../pages/admin/EventsManagementPage').then(m => ({ default: m.EventsManagementPage })));
 const GalleryManagementPage = lazy(() => import('../pages/admin/GalleryManagementPage').then(m => ({ default: m.GalleryManagementPage })));
 const ApplicationsManagementPage = lazy(() => import('../pages/admin/ApplicationsManagementPage').then(m => ({ default: m.ApplicationsManagementPage })));
@@ -78,7 +82,11 @@ export const AppRoutes: React.FC = () => {
           <Route path="impact" element={<ImpactPage />} />
           <Route path="team" element={<TeamPage />} />
 
-          {/* News & Stories */}
+          {/* Stories of Impact */}
+          <Route path="stories" element={<StoriesPage />} />
+          <Route path="stories/:slug" element={<StoryDetailPage />} />
+
+          {/* News */}
           <Route path="news" element={<NewsPage />} />
           <Route path="news/:slug" element={<NewsDetailPage />} />
 
@@ -141,6 +149,7 @@ export const AppRoutes: React.FC = () => {
           {/* Placeholder routes for other admin pages */}
           <Route path="organization" element={<div>Organization Management - Coming Soon</div>} />
           <Route path="programs" element={<ProgramsManagementPage />} />
+          <Route path="stories" element={<StoriesManagementPage />} />
           <Route path="news" element={<NewsManagementPage />} />
           <Route path="events" element={<EventsManagementPage />} />
           <Route path="gallery" element={<GalleryManagementPage />} />

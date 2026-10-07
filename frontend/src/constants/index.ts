@@ -129,8 +129,16 @@ export const NAVIGATION_LINKS = [
       { name: "MEAL", href: "/programs/meal" },
     ]
   },
-  { name: "Impact", href: "/impact" },
-  { name: "Stories & News", href: "/news" },
+  {
+    name: "Impact",
+    href: "/impact",
+    dropdown: [
+      { name: "Impact Overview", href: "/impact" },
+      { name: "Stories of Impact", href: "/stories" },
+    ]
+  },
+  { name: "Stories of Impact", href: "/stories" },
+  { name: "News", href: "/news" },
   { name: "Events", href: "/events" },
   { name: "Gallery", href: "/gallery" },
   {

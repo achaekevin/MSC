@@ -143,6 +143,15 @@ export const ImpactPage: React.FC = () => {
                     <span className="text-sm font-medium">Source attribution</span>
                   </div>
                 </div>
+
+                <div className="mt-6 pt-4 border-t border-forest-100 flex flex-wrap gap-4 items-center">
+                  <Button to="/stories" variant="primary" size="md">
+                    Explore Stories of Impact
+                  </Button>
+                  <span className="text-xs text-charcoal-500">
+                    Client-approved accounts of transformation across our community.
+                  </span>
+                </div>
               </div>
             </div>
           </div>
