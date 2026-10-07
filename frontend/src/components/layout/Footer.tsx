@@ -203,19 +203,31 @@ export const Footer: React.FC = () => {
             <ul className="space-y-3 text-sm text-forest-200">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-earth-400 mt-1 flex-shrink-0" />
-                <span>
-                  {MSC_ORGANIZATION.postalAddress}<br />
-                  {MSC_ORGANIZATION.county}, {MSC_ORGANIZATION.country}
+                <span className="leading-snug">
+                  <strong className="text-warm-100 block">{MSC_ORGANIZATION.physicalFacility}</strong>
+                  <span className="text-xs text-forest-300 block">{MSC_ORGANIZATION.road}</span>
+                  <span className="text-xs text-forest-300 block">{MSC_ORGANIZATION.postalAddress}</span>
+                  <span className="text-xs text-forest-400 block">{MSC_ORGANIZATION.subCounty}, {MSC_ORGANIZATION.county}</span>
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
                 <Mail className="w-4 h-4 text-earth-400 mt-1 flex-shrink-0" />
-                <a
-                  href={`mailto:${MSC_ORGANIZATION.email}`}
-                  className="hover:text-earth-300 underline underline-offset-2 break-all"
-                >
-                  {MSC_ORGANIZATION.email}
-                </a>
+                <div className="space-y-1">
+                  <a
+                    href={`mailto:${MSC_ORGANIZATION.email}`}
+                    className="hover:text-earth-300 underline underline-offset-2 break-all block text-xs"
+                    title="Primary Email"
+                  >
+                    {MSC_ORGANIZATION.email}
+                  </a>
+                  <a
+                    href={`mailto:${MSC_ORGANIZATION.secondaryEmail || 'mwanchacommunity.seniors@gmail.com'}`}
+                    className="hover:text-earth-300 underline underline-offset-2 break-all block text-xs text-forest-300"
+                    title="Secondary Email"
+                  >
+                    {MSC_ORGANIZATION.secondaryEmailAddress || MSC_ORGANIZATION.secondaryEmail}
+                  </a>
+                </div>
               </li>
               {MSC_ORGANIZATION.phone && (
                 <li className="flex items-start gap-2.5">

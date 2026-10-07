@@ -40,7 +40,7 @@ export const PrivacyPage: React.FC = () => {
                 1. Organizational Commitment to Privacy
               </h2>
               <p className="text-sm sm:text-base text-charcoal-700 leading-relaxed">
-                Mwancha Senior Community ("MSC", "we", "our", or "us"), headquartered in Kebirigo, Nyamira County, Kenya, is dedicated to upholding the fundamental rights, dignity, and personal privacy of all individuals with whom we interact. This includes our senior citizens, OVC households, volunteers, partner representatives, donors, and website visitors.
+                Mwancha Senior Community ("MSC", "we", "our", or "us"), headquartered at Mwancha House - Ekerenyo, Nyamira North, Nyamira County, Kenya, is dedicated to upholding the fundamental rights, dignity, and personal privacy of all individuals with whom we interact. This includes our senior citizens, OVC households, volunteers, partner representatives, donors, and website visitors.
               </p>
             </div>
 
@@ -95,8 +95,9 @@ export const PrivacyPage: React.FC = () => {
               </p>
               <div className="not-prose mt-4 p-5 rounded-2xl bg-warm-50 border border-warm-200 text-sm text-charcoal-800 space-y-1">
                 <p className="font-bold">Mwancha Senior Community Secretariat</p>
-                <p>P.O. Box 21-40506, Kebirigo, Nyamira County, Kenya</p>
-                <p>Email: <a href={`mailto:${MSC_ORGANIZATION.email}`} className="text-forest-800 underline">{MSC_ORGANIZATION.email}</a></p>
+                <p>{MSC_ORGANIZATION.physicalFacility}, {MSC_ORGANIZATION.road}</p>
+                <p>{MSC_ORGANIZATION.postalAddress}, {MSC_ORGANIZATION.subCounty}, {MSC_ORGANIZATION.county}, {MSC_ORGANIZATION.country}</p>
+                <p>Email: <a href={`mailto:${MSC_ORGANIZATION.email}`} className="text-forest-800 underline">{MSC_ORGANIZATION.email}</a> / <a href={`mailto:${MSC_ORGANIZATION.secondaryEmail || 'mwanchacommunity.seniors@gmail.com'}`} className="text-forest-800 underline">{MSC_ORGANIZATION.secondaryEmailAddress || MSC_ORGANIZATION.secondaryEmail}</a></p>
               </div>
             </div>
           </div>

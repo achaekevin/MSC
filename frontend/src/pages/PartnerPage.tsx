@@ -181,10 +181,16 @@ export const PartnerPage: React.FC = () => {
                   Mwancha Senior Community Secretariat
                 </h4>
                 <p className="text-xs sm:text-sm text-forest-100 leading-relaxed">
-                  P.O. Box 21-40506, Kebirigo, Nyamira County, Kenya<br />
+                  Mwancha House - Ekerenyo<br />
+                  Ekerenyo-Owari-Magwagwa Road, Nyamira North<br />
+                  P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya<br />
                   Email:{' '}
                   <a href="mailto:mwachahomeforelderly@gmail.com" className="underline underline-offset-2">
                     mwachahomeforelderly@gmail.com
+                  </a>{' '}
+                  /{' '}
+                  <a href="mailto:mwanchacommunity.seniors@gmail.com" className="underline underline-offset-2">
+                    mwanchacommunity.seniors.com
                   </a>
                 </p>
               </div>

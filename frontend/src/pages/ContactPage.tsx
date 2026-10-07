@@ -88,7 +88,7 @@ export const ContactPage: React.FC = () => {
     <div className="pb-20 space-y-16">
       <SEO
         title="Contact Us & Secretariat"
-        description="Contact Mwancha Senior Community (MSC). Email: mwachahomeforelderly@gmail.com, P.O. Box 21-40506, Kebirigo, Nyamira County, Kenya."
+        description="Contact Mwancha Senior Community (MSC). Mwancha House - Ekerenyo, Ekerenyo-Owari-Magwagwa Road, Nyamira North. P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya."
       />
       {/* Header */}
       <section className="bg-warm-100/80 border-b border-warm-200 py-12">
@@ -119,8 +119,8 @@ export const ContactPage: React.FC = () => {
                   <h3 className="text-xl font-bold font-display text-charcoal-900 mb-1">
                     Secretariat Headquarters
                   </h3>
-                  <p className="text-sm text-charcoal-600">
-                    Mwancha Senior Community (MSC)
+                  <p className="text-sm font-semibold text-forest-800">
+                    Mwancha House - Ekerenyo
                   </p>
                 </div>
 
@@ -130,9 +130,21 @@ export const ContactPage: React.FC = () => {
                       <MapPin className="w-5 h-5 text-forest-700" />
                     </div>
                     <div>
+                      <span className="font-bold text-charcoal-900 block mb-0.5">Physical Facility &amp; Road</span>
+                      <span className="font-semibold text-charcoal-900 block">{MSC_ORGANIZATION.physicalFacility}</span>
+                      <span className="text-charcoal-700 block text-xs mt-0.5">Road: {MSC_ORGANIZATION.road}</span>
+                      <span className="block text-charcoal-500 text-xs mt-0.5">{MSC_ORGANIZATION.subCounty}, {MSC_ORGANIZATION.county}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-forest-50 text-forest-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <MapPin className="w-5 h-5 text-forest-700" />
+                    </div>
+                    <div>
                       <span className="font-bold text-charcoal-900 block mb-0.5">Official Postal Address</span>
                       <span>{MSC_ORGANIZATION.postalAddress}</span>
-                      <span className="block text-charcoal-500">{MSC_ORGANIZATION.county}, {MSC_ORGANIZATION.country}</span>
+                      <span className="block text-charcoal-500 text-xs">{MSC_ORGANIZATION.country}</span>
                     </div>
                   </div>
 
@@ -141,13 +153,27 @@ export const ContactPage: React.FC = () => {
                       <Mail className="w-5 h-5 text-forest-700" />
                     </div>
                     <div>
-                      <span className="font-bold text-charcoal-900 block mb-0.5">Official Email</span>
-                      <a
-                        href={`mailto:${MSC_ORGANIZATION.email}`}
-                        className="text-forest-800 hover:text-forest-950 underline underline-offset-2 break-all font-medium"
-                      >
-                        {MSC_ORGANIZATION.email}
-                      </a>
+                      <span className="font-bold text-charcoal-900 block mb-0.5">Official Communication Emails</span>
+                      <div className="space-y-1">
+                        <div>
+                          <span className="text-[11px] font-bold uppercase text-charcoal-400 block">Primary:</span>
+                          <a
+                            href={`mailto:${MSC_ORGANIZATION.email}`}
+                            className="text-forest-800 hover:text-forest-950 underline underline-offset-2 break-all font-medium text-xs sm:text-sm"
+                          >
+                            {MSC_ORGANIZATION.email}
+                          </a>
+                        </div>
+                        <div>
+                          <span className="text-[11px] font-bold uppercase text-charcoal-400 block">Secondary:</span>
+                          <a
+                            href={`mailto:${MSC_ORGANIZATION.secondaryEmail || 'mwanchacommunity.seniors@gmail.com'}`}
+                            className="text-forest-800 hover:text-forest-950 underline underline-offset-2 break-all font-medium text-xs sm:text-sm"
+                          >
+                            {MSC_ORGANIZATION.secondaryEmailAddress || MSC_ORGANIZATION.secondaryEmail}
+                          </a>
+                        </div>
+                      </div>
                     </div>
                   </div>
 

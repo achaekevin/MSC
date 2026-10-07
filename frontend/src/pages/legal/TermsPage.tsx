@@ -79,8 +79,9 @@ export const TermsPage: React.FC = () => {
               </p>
               <div className="not-prose mt-4 p-5 rounded-2xl bg-warm-50 border border-warm-200 text-sm text-charcoal-800 space-y-1">
                 <p className="font-bold">Mwancha Senior Community</p>
-                <p>P.O. Box 21-40506, Kebirigo, Nyamira County, Kenya</p>
-                <p>Email: <a href={`mailto:${MSC_ORGANIZATION.email}`} className="text-forest-800 underline">{MSC_ORGANIZATION.email}</a></p>
+                <p>{MSC_ORGANIZATION.physicalFacility}, {MSC_ORGANIZATION.road}</p>
+                <p>{MSC_ORGANIZATION.postalAddress}, {MSC_ORGANIZATION.subCounty}, {MSC_ORGANIZATION.county}, {MSC_ORGANIZATION.country}</p>
+                <p>Email: <a href={`mailto:${MSC_ORGANIZATION.email}`} className="text-forest-800 underline">{MSC_ORGANIZATION.email}</a> / <a href={`mailto:${MSC_ORGANIZATION.secondaryEmail || 'mwanchacommunity.seniors@gmail.com'}`} className="text-forest-800 underline">{MSC_ORGANIZATION.secondaryEmailAddress || MSC_ORGANIZATION.secondaryEmail}</a></p>
               </div>
             </div>
           </div>

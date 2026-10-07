@@ -7,14 +7,20 @@ export const MSC_ORGANIZATION = {
   nameChangeYear: 2024,
   foundedYear: 2016,
   
-  // Official Postal Address & Location
-  postalAddress: "P.O. Box 21-40506, Kebirigo",
+  // Official Physical & Postal Address
+  physicalFacility: "Mwancha House - Ekerenyo",
+  subCounty: "Nyamira North",
   county: "Nyamira County",
   country: "Kenya",
-  fullLocation: "P.O. Box 21-40506, Kebirigo, Nyamira County, Kenya",
+  road: "Ekerenyo-Owari-Magwagwa Road",
+  postalAddress: "P.O. Box 162-40506 Ekerenyo-Nyamira",
+  physicalAddress: "Mwancha House - Ekerenyo, Ekerenyo-Owari-Magwagwa Road, Nyamira North, Nyamira County",
+  fullLocation: "Mwancha House - Ekerenyo, Ekerenyo-Owari-Magwagwa Road, Nyamira North, P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya",
   
   // Official Contact
   email: "mwachahomeforelderly@gmail.com",
+  secondaryEmail: "mwanchacommunity.seniors@gmail.com",
+  secondaryEmailAddress: "mwanchacommunity.seniors.com",
   phone: "+254 790 629439",
   whatsapp: "+254 790 629439",
   whatsappDigits: "254790629439",
