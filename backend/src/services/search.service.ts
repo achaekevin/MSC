@@ -293,9 +293,9 @@ export class SearchService {
         title: s.title,
         summary: s.summary,
         type: 'story' as const,
-        path: `/about/story`,
+        path: `/stories/${s.slug}`,
         location: s.location,
-        badge: 'Impact Narrative',
+        badge: 'Stories of Impact',
         date: s.date ? new Date(s.date).toLocaleDateString('en-KE', { dateStyle: 'medium' }) : null
       })),
       ...storyFromNews

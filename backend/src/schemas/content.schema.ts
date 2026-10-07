@@ -194,14 +194,20 @@ export const updateTestimonialSchema = createTestimonialSchema.partial();
 
 // Success story creation and update schemas
 export const createStorySchema = z.object({
-  title: z.string().min(5).max(200),
-  summary: z.string().min(10).max(500),
-  story: z.string().min(50),
-  images: z.array(z.string().url()).optional().default([]),
+  title: z.string().min(3, 'Title is required').max(255),
+  summary: z.string().max(1000).optional(),
+  story: z.string().optional(),
+  coverImage: z.string().optional(),
+  situation: z.string().optional(),
+  intervention: z.string().optional(),
+  outcome: z.string().optional(),
+  relatedProgram: z.string().optional(),
+  media: z.array(z.string()).optional(),
+  images: z.array(z.string()).optional().default([]),
   beneficiaryConsent: z.boolean().default(false),
   privacyStatus: z.enum(['anonymized', 'identified_with_consent']).default('anonymized'),
   location: z.string().default('Nyamira County'),
-  date: z.string().refine(val => !isNaN(Date.parse(val)), 'Invalid date format').optional(),
+  date: z.string().optional(),
   source: contentSourceEnum.default('OFFICIAL_PROFILE')
 });
 
