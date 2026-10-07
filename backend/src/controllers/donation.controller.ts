@@ -31,6 +31,15 @@ export class DonationController {
       next(error);
     }
   }
+
+  async submitInKindDonation(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await donationService.submitInKindDonation(req.body);
+      return sendSuccess(res, result, 201);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const donationController = new DonationController();

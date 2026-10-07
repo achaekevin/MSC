@@ -430,6 +430,44 @@ async function main() {
 
   const officialPrograms = [
     {
+      slug: 'health-training-medical-camps',
+      categorySlug: 'elder-care',
+      title: 'Health Training, Caregiver Forums & Free Medical Camps',
+      summary: 'Empowering community caregivers and Community Health Promoters (CHPs), paired with regular Free Medical Outreach Camps providing clinical screenings, prescription medicines, and hospital referrals for rural elders.',
+      description: 'Health vulnerability and lack of specialized geriatric care represent severe threats to senior citizens across rural Kenya. Mwancha Senior Community delivers integrated community health interventions through specialized Health Training Forums for family caregivers and Community Health Promoters (CHPs), coupled with high-impact Free Medical Outreach Camps. In collaboration with licensed medical practitioners, nurses, clinical officers, pharmacists, and public health institutions, our Free Medical Camps offer comprehensive geriatric checkups, chronic Non-Communicable Disease (NCD) screenings (hypertension, diabetes), free eye checkups with reading glasses, free prescription medication dispensaries, and immediate referral pathways for advanced treatment.',
+      objectives: [
+        'Conduct regular, decentralized Free Medical Outreach Camps bringing licensed clinicians, doctors, and pharmacists directly to rural elders.',
+        'Provide free diagnostic screenings for hypertension, diabetes, cardiovascular conditions, and musculoskeletal ailments.',
+        'Dispense free essential prescription maintenance medications and reading/corrective glasses to older persons.',
+        'Host practical health training forums for Community Health Promoters (CHPs) and family caregivers on dementia, palliative nursing, and dignified elder care.',
+        'Establish seamless referral pathways to sub-county and county referral hospitals for specialized surgeries and tertiary clinical interventions.'
+      ],
+      activities: [
+        'Organizing community Free Medical Outreach Camps in Ekerenyo and surrounding wards across Nyamira County',
+        'Free clinical consultations, geriatric triage, vital signs monitoring, and nutritional assessments',
+        'Free blood pressure checks, blood glucose testing, and non-communicable disease triage',
+        'On-site free pharmacy dispensing essential medications for hypertension, diabetes, and joint pain',
+        'Free eye examinations, cataract detection, and distribution of reading glasses',
+        'Interactive Community Health Forums training family caregivers on bed-bound patient hygiene, pressure sore prevention, and mental wellness',
+        'Specialized CHP capacity-building workshops on geriatric symptom identification and emergency elder triage'
+      ],
+      targetPopulation: [
+        'Vulnerable and low-income senior citizens unable to afford clinic consultation fees, travel costs, or pharmaceuticals',
+        'Elders living with unmanaged chronic conditions including hypertension, diabetes, osteoarthritis, and eye ailments',
+        'Bedridden, mobility-impaired, and chronically ill seniors requiring home-based palliative care',
+        'Family caregivers and Community Health Promoters (CHPs) attending to aging village residents'
+      ],
+      thematicArea: 'Healthcare Access, Free Medical Outreach & Geriatric Wellness',
+      approach: 'Compassionate, community-centered preventive healthcare that removes financial and distance obstacles, bringing quality clinical care directly to vulnerable elders.',
+      iconName: 'Stethoscope',
+      image: '/images/mwancha-pavilion-gathering.jpg',
+      imageAlt: 'Free Medical Camps and health training forums for senior citizens at Mwancha Senior Community',
+      metricsHighlight: 'Regular Free Medical Camps with 100% free screenings, medicines, and caregiver training',
+      relatedSlugs: ['case-management', 'advocacy'],
+      displayOrder: 1,
+      featured: true
+    },
+    {
       slug: 'case-management',
       categorySlug: 'elder-care',
       title: 'Case Management',

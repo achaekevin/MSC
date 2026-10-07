@@ -106,6 +106,27 @@ export const emailTemplates = {
     </div>
   `,
 
+  inKindDonationReceived: (fullName: string, category: string, deliveryMethod: string, referenceNumber: string) => `
+    <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #E5E7EB; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #1E3A2F; color: #FFFFFF; padding: 20px; text-align: center;">
+        <h2 style="margin: 0; font-size: 20px;">Mwancha Senior Community</h2>
+        <p style="margin: 5px 0 0 0; font-size: 13px; color: #A7F3D0;">In-Kind Donation Pledge Received</p>
+      </div>
+      <div style="padding: 24px; line-height: 1.6;">
+        <p>Dear <strong>${fullName}</strong>,</p>
+        <p>Thank you for your generous pledge of food supplies and donation materials to support vulnerable senior citizens.</p>
+        <div style="background-color: #F9FAFB; border-left: 4px solid #1E3A2F; padding: 12px 16px; margin: 16px 0;">
+          <p style="margin: 0 0 6px 0;"><strong>Reference Number:</strong> ${referenceNumber}</p>
+          <p style="margin: 0 0 6px 0;"><strong>Category:</strong> ${category}</p>
+          <p style="margin: 0;"><strong>Handover Method:</strong> ${deliveryMethod.includes('DROP_OFF') || deliveryMethod.includes('Ekerenyo') ? 'Drop-off at Mwancha House - Ekerenyo' : 'Field Volunteer Collection'}</p>
+        </div>
+        <p><strong>Physical Facility Drop-off Location:</strong><br/>Mwancha House - Ekerenyo<br/>Ekerenyo-Obwari-Magwagwa Road, Nyamira North, Nyamira County, Kenya<br/>Helpline & WhatsApp: +254 790 629439</p>
+        <p>Our Relief & Distribution Coordinator will review your submission and contact you shortly to coordinate receipt and issue an official acknowledgement receipt.</p>
+        <p style="margin-top: 24px;">With profound gratitude,<br/><strong>Donations & Logistics Secretariat</strong><br/>Mwancha Senior Community</p>
+      </div>
+    </div>
+  `,
+
   contentSubmittedForReview: (entityType: string, title: string, submittedBy: string) => `
     <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #E2E8F0; border-radius: 8px;">
       <h3 style="color: #1E3A2F; margin-top: 0;">MSC Content Review Alert: [IN REVIEW]</h3>

@@ -44,6 +44,21 @@ export const partnershipApplicationSchema = z.preprocess((data: any) => {
   consent: z.boolean().default(true).refine(val => val === true, 'You must consent to partnership evaluation by MSC')
 }));
 
+export const inKindDonationSchema = z.object({
+  fullName: z.string().min(2, 'Full name or organization must be at least 2 characters').max(150),
+  email: z.string().email('Valid email is required').toLowerCase().trim(),
+  phone: z.string().min(8, 'Valid phone number is required').max(30),
+  donorType: z.string().max(80).optional().default('Individual'),
+  donationCategory: z.string().min(2, 'Donation category is required').max(100),
+  itemDescription: z.string().min(5, 'Please describe the food items or materials').max(3000),
+  estimatedQuantity: z.string().max(100).optional().or(z.literal('')),
+  deliveryMethod: z.string().min(2, 'Delivery or drop-off method is required').max(100),
+  pickupAddress: z.string().max(300).optional().or(z.literal('')),
+  preferredDate: z.string().max(50).optional().or(z.literal('')),
+  notes: z.string().max(1000).optional().or(z.literal('')),
+  consent: z.boolean().default(true).refine(val => val === true, 'You must consent to donation processing terms')
+});
+
 export const formStatusUpdateSchema = z.object({
   status: z.enum(['NEW', 'UNDER_REVIEW', 'CONTACTED', 'ACCEPTED', 'DECLINED', 'APPROVED', 'ARCHIVED']),
   reviewNotes: z.string().max(1000).optional()
