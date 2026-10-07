@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ConditionalRender } from '../components/auth/ProtectedRoute';
+import { AdminNotificationCenter } from '../components/admin/AdminNotificationCenter';
 
 interface NavItem {
   name: string;
@@ -281,16 +282,19 @@ export const AdminLayout: React.FC = () => {
               Site
             </Link>
           </div>
-          <button
-            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-            className="flex items-center text-gray-500 hover:text-gray-900"
-          >
-            <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
-              <span className="text-sm font-medium text-white">
-                {user?.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
-          </button>
+          <div className="flex items-center gap-2">
+            <AdminNotificationCenter />
+            <button
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className="flex items-center text-gray-500 hover:text-gray-900"
+            >
+              <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
+                <span className="text-sm font-medium text-white">
+                  {user?.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -362,6 +366,7 @@ export const AdminLayout: React.FC = () => {
                   </h1>
                 </div>
                 <div className="ml-4 flex items-center space-x-3">
+                  <AdminNotificationCenter />
                   <span className="text-sm text-gray-600 font-medium">
                     Welcome, {user?.name}
                   </span>

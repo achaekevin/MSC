@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   applicationManagementService,
   ApplicationStats
 } from '../../services/applicationManagementService';
+import { newsletterService, SubscriberItem } from '../../services/newsletterService';
 import { ContactMessage, VolunteerApplication, PartnershipRequest } from '../../types';
 import {
   Inbox,
@@ -22,7 +24,11 @@ import {
   Globe,
   Clock,
   X,
-  FileText
+  FileText,
+  Download,
+  Trash2,
+  ShieldCheck,
+  Send
 } from 'lucide-react';
 
 const STATUS_BADGES: Record<string, { bg: string; text: string; border: string }> = {
@@ -41,13 +47,30 @@ export const ApplicationsManagementPage: React.FC = () => {
   const { hasPermission } = useAuth();
   const canUpdate = hasPermission('FORM_UPDATE') || hasPermission('CONTENT_UPDATE');
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   // Active Tab
-  const [activeTab, setActiveTab] = useState<'volunteers' | 'partnerships' | 'contacts'>('volunteers');
+  const [activeTab, setActiveTab] = useState<'volunteers' | 'partnerships' | 'contacts' | 'subscribers'>(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'contacts' || tabParam === 'partnerships' || tabParam === 'volunteers' || tabParam === 'subscribers') {
+      return tabParam;
+    }
+    return 'volunteers';
+  });
+
+  // Keep tab in sync with URL
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'contacts' || tabParam === 'partnerships' || tabParam === 'volunteers' || tabParam === 'subscribers') {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   // Data state
   const [volunteers, setVolunteers] = useState<VolunteerApplication[]>([]);
   const [partnerships, setPartnerships] = useState<PartnershipRequest[]>([]);
   const [contacts, setContacts] = useState<ContactMessage[]>([]);
+  const [subscribers, setSubscribers] = useState<SubscriberItem[]>([]);
   const [stats, setStats] = useState<ApplicationStats>({
     totalVolunteers: 0,
     newVolunteers: 0,
@@ -95,17 +118,20 @@ export const ApplicationsManagementPage: React.FC = () => {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [volRes, partRes, conRes, statsRes] = await Promise.all([
+      const [volRes, partRes, conRes, statsRes, subRes] = await Promise.all([
         applicationManagementService.getVolunteers({ status: statusFilter }),
         applicationManagementService.getPartnerships({ status: statusFilter }),
         applicationManagementService.getContacts({ status: statusFilter }),
-        applicationManagementService.getStats()
+        applicationManagementService.getStats(),
+        newsletterService.getSubscribers().catch(() => ({ data: { subscribers: [] } }))
       ]);
 
       setVolunteers(volRes.items);
       setPartnerships(partRes.items);
       setContacts(conRes.items);
       setStats(statsRes);
+      const subList = (subRes as any)?.data?.subscribers || (subRes as any)?.subscribers || [];
+      setSubscribers(subList);
     } catch {
       showNotification('error', 'Failed to load submissions.');
     } finally {
@@ -190,6 +216,39 @@ export const ApplicationsManagementPage: React.FC = () => {
       c.message.toLowerCase().includes(q)
     );
   });
+
+  const filteredSubscribers = subscribers.filter((s) => {
+    const q = search.toLowerCase();
+    return s.email.toLowerCase().includes(q) || (s.name && s.name.toLowerCase().includes(q));
+  });
+
+  const handleExportSubscribers = async () => {
+    try {
+      const blob = await newsletterService.exportCsv();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `msc-subscribers-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      showNotification('success', 'Subscribers list exported as CSV.');
+    } catch {
+      showNotification('error', 'Failed to export subscribers.');
+    }
+  };
+
+  const handleDeleteSubscriber = async (id: string) => {
+    if (!window.confirm('Are you sure you want to remove this subscriber from the mailing list?')) return;
+    try {
+      await newsletterService.deleteSubscriber(id);
+      showNotification('success', 'Subscriber removed successfully.');
+      loadData();
+    } catch {
+      showNotification('error', 'Failed to remove subscriber.');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -314,6 +373,21 @@ export const ApplicationsManagementPage: React.FC = () => {
           <Mail className="w-4 h-4" />
           <span>Contact Messages ({contacts.length})</span>
         </button>
+
+        <button
+          onClick={() => {
+            setActiveTab('subscribers');
+            setSearch('');
+          }}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors ${
+            activeTab === 'subscribers'
+              ? 'bg-forest-800 text-warm-50 shadow-sm'
+              : 'bg-white text-charcoal-700 border border-warm-200 hover:bg-warm-100'
+          }`}
+        >
+          <Send className="w-4 h-4" />
+          <span>Newsletter Subscribers ({subscribers.length})</span>
+        </button>
       </div>
 
       {/* Search and Filters Bar */}
@@ -327,7 +401,9 @@ export const ApplicationsManagementPage: React.FC = () => {
                 ? 'Search volunteer name, email, ward...'
                 : activeTab === 'partnerships'
                 ? 'Search organization, contact person...'
-                : 'Search message, name, subject...'
+                : activeTab === 'contacts'
+                ? 'Search message, name, subject...'
+                : 'Search subscriber email or name...'
             }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -336,19 +412,34 @@ export const ApplicationsManagementPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Filter className="w-3.5 h-3.5 text-charcoal-500" />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-1.5 rounded-xl border border-warm-300 bg-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-forest-600"
-          >
-            <option value="all">All Statuses</option>
-            <option value="NEW">New</option>
-            <option value="IN_REVIEW">In Review</option>
-            <option value="REVIEWED">Reviewed</option>
-            <option value="ACCEPTED">Accepted / Resolved</option>
-            <option value="DECLINED">Declined</option>
-          </select>
+          {activeTab === 'subscribers' && (
+            <button
+              onClick={handleExportSubscribers}
+              className="px-3 py-1.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-white text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-sm"
+              title="Download active subscribers as CSV"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export CSV</span>
+            </button>
+          )}
+
+          {activeTab !== 'subscribers' && (
+            <>
+              <Filter className="w-3.5 h-3.5 text-charcoal-500" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-1.5 rounded-xl border border-warm-300 bg-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-forest-600"
+              >
+                <option value="all">All Statuses</option>
+                <option value="NEW">New</option>
+                <option value="IN_REVIEW">In Review</option>
+                <option value="REVIEWED">Reviewed</option>
+                <option value="ACCEPTED">Accepted / Resolved</option>
+                <option value="DECLINED">Declined</option>
+              </select>
+            </>
+          )}
         </div>
       </div>
 
@@ -536,7 +627,7 @@ export const ApplicationsManagementPage: React.FC = () => {
               </tbody>
             </table>
           </div>
-        ) : (
+        ) : activeTab === 'contacts' ? (
           /* Contacts Table */
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-charcoal-700">
@@ -610,6 +701,76 @@ export const ApplicationsManagementPage: React.FC = () => {
                       </tr>
                     );
                   })
+                )}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          /* Newsletter Subscribers Table */
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-charcoal-700">
+              <thead className="bg-warm-100/70 border-b border-warm-200 text-xs text-charcoal-600 font-bold uppercase">
+                <tr>
+                  <th className="py-3 px-4">Subscriber Email</th>
+                  <th className="py-3 px-4">Name / Note</th>
+                  <th className="py-3 px-4">Consent Status</th>
+                  <th className="py-3 px-4">Date Subscribed</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-warm-100">
+                {filteredSubscribers.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 text-center text-charcoal-500">
+                      No newsletter subscribers match your query.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredSubscribers.map((sub) => (
+                    <tr key={sub.id} className="hover:bg-warm-50/60 transition-colors">
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <div className="font-bold text-charcoal-900">{sub.email}</div>
+                      </td>
+                      <td className="py-3 px-4 text-xs text-charcoal-600 whitespace-nowrap">
+                        {sub.name || 'Community Member'}
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                          <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                          <span>Explicit Consent</span>
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-xs text-charcoal-600 whitespace-nowrap">
+                        {new Date(sub.subscribedAt).toLocaleDateString('en-KE', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <span
+                          className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
+                            sub.status === 'ACTIVE'
+                              ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                              : 'bg-stone-100 text-stone-700 border-stone-300'
+                          }`}
+                        >
+                          {sub.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => handleDeleteSubscriber(sub.id)}
+                          className="px-2.5 py-1 rounded-lg text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 inline-flex items-center gap-1 transition-colors"
+                          title="Remove from subscriber list"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Remove</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>

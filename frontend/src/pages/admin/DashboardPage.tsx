@@ -394,42 +394,122 @@ export const DashboardPage: React.FC = () => {
 
       {/* Recent Audit Activity */}
       <div className="bg-white p-6 rounded-3xl border border-warm-200 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
           <div>
-            <h2 className="text-base font-bold text-charcoal-900 font-display">Recent System Activity</h2>
-            <p className="text-xs text-charcoal-500">Live immutable audit trail of content and operational events.</p>
+            <h2 className="text-base font-bold text-charcoal-900 font-display flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-forest-700" />
+              <span>Recent Operational & Content Activity</span>
+            </h2>
+            <p className="text-xs text-charcoal-500 mt-0.5">
+              Live audit trail of editorial publications, application submissions, and institutional operations.
+            </p>
           </div>
-          <ShieldCheck className="w-5 h-5 text-forest-700" />
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-charcoal-400">Audit Status:</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Active Logger
+            </span>
+          </div>
         </div>
 
         {data?.recentActivity && data.recentActivity.length > 0 ? (
           <div className="divide-y divide-warm-100">
-            {data.recentActivity.map((log) => (
-              <div key={log.id} className="py-3 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-3">
-                  <span className="w-2 h-2 rounded-full bg-forest-600" />
-                  <div>
-                    <span className="font-bold text-charcoal-900">
-                      {log.action} {log.entity}
+            {data.recentActivity.map((log) => {
+              const normAction = (log.action || '').toUpperCase();
+              const normEntity = (log.entity || '').toUpperCase();
+
+              let friendlyDescription = `${log.action} ${log.entity}`;
+              let badgeColor = 'bg-gray-100 text-gray-800 border-gray-200';
+              let jumpLink = '/admin';
+              let jumpText = 'View Console';
+
+              if (normEntity.includes('NEWS') || normEntity.includes('ARTICLE')) {
+                jumpLink = '/admin/news';
+                jumpText = 'Open News CMS';
+                if (normAction.includes('PUBLISH')) {
+                  friendlyDescription = 'Published news article live on web portal';
+                  badgeColor = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+                } else if (normAction.includes('CREATE')) {
+                  friendlyDescription = 'Created news story draft';
+                  badgeColor = 'bg-sky-50 text-sky-800 border-sky-200';
+                } else {
+                  friendlyDescription = 'Updated news article';
+                  badgeColor = 'bg-blue-50 text-blue-800 border-blue-200';
+                }
+              } else if (normEntity.includes('PROGRAM')) {
+                jumpLink = '/admin/programs';
+                jumpText = 'Manage Programs';
+                friendlyDescription = 'Updated thematic program record';
+                badgeColor = 'bg-forest-50 text-forest-800 border-forest-200';
+              } else if (normEntity.includes('EVENT')) {
+                jumpLink = '/admin/events';
+                jumpText = 'Manage Events';
+                friendlyDescription = 'Scheduled community event or assembly';
+                badgeColor = 'bg-purple-50 text-purple-800 border-purple-200';
+              } else if (normEntity.includes('VOLUNTEER')) {
+                jumpLink = '/admin/applications';
+                jumpText = 'Review Application';
+                friendlyDescription = 'Received new volunteer application';
+                badgeColor = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+              } else if (normEntity.includes('PARTNERSHIP')) {
+                jumpLink = '/admin/applications';
+                jumpText = 'Review Proposal';
+                friendlyDescription = 'Received new institutional partnership proposal';
+                badgeColor = 'bg-indigo-50 text-indigo-800 border-indigo-200';
+              } else if (normEntity.includes('CONTACT') || normEntity.includes('NEWSLETTER')) {
+                jumpLink = '/admin/applications';
+                jumpText = 'Open Desk';
+                friendlyDescription = normEntity.includes('NEWSLETTER')
+                  ? 'New subscriber joined newsletter'
+                  : 'New public contact inquiry received';
+                badgeColor = 'bg-amber-50 text-amber-800 border-amber-200';
+              } else if (normEntity.includes('MEDIA') || normEntity.includes('GALLERY')) {
+                jumpLink = '/admin/gallery';
+                jumpText = 'View Media';
+                friendlyDescription = 'Archived verified field media asset';
+                badgeColor = 'bg-rose-50 text-rose-800 border-rose-200';
+              }
+
+              return (
+                <div key={log.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:bg-warm-50/50 px-2 rounded-xl transition-colors">
+                  <div className="flex items-start sm:items-center gap-3 min-w-0">
+                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border flex-shrink-0 ${badgeColor}`}>
+                      {log.action}
                     </span>
-                    <span className="text-charcoal-500 ml-2">
-                      by {log.user?.name || 'Authorized Staff'} ({log.user?.role || 'Admin'})
+                    <div className="min-w-0">
+                      <span className="font-bold text-charcoal-900 block sm:inline">
+                        {friendlyDescription}
+                      </span>
+                      <span className="text-charcoal-500 sm:ml-2 block sm:inline text-[11px]">
+                        by {log.user?.name || 'Staff User'} ({log.user?.role || 'Admin'})
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0">
+                    <span className="text-charcoal-400 text-[11px]">
+                      {new Date(log.createdAt).toLocaleString('en-KE', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
                     </span>
+                    <Link
+                      to={jumpLink}
+                      className="inline-flex items-center gap-1 font-semibold text-forest-800 hover:text-forest-950 hover:underline"
+                    >
+                      <span>{jumpText}</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
                   </div>
                 </div>
-                <span className="text-charcoal-400">
-                  {new Date(log.createdAt).toLocaleString('en-KE', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
-          <p className="text-xs text-charcoal-500 py-4 text-center">No recent audit log entries.</p>
+          <p className="text-xs text-charcoal-500 py-6 text-center">No recent audit log entries recorded.</p>
         )}
       </div>
     </div>

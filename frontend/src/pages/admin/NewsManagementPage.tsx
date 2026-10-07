@@ -6,6 +6,7 @@ import {
   NewsCategory
 } from '../../services/newsService';
 import { NewsArticle } from '../../types';
+import { DraftPreviewModal } from '../../components/admin/DraftPreviewModal';
 import {
   Plus,
   Search,
@@ -23,7 +24,11 @@ import {
   Sparkles,
   ExternalLink,
   User,
-  Calendar
+  Calendar,
+  Clock,
+  Monitor,
+  Smartphone,
+  ShieldCheck
 } from 'lucide-react';
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
@@ -80,6 +85,13 @@ export const NewsManagementPage: React.FC = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [tagInput, setTagInput] = useState('');
+
+  // Scheduling & Live Draft Preview State
+  const [scheduleMode, setScheduleMode] = useState<'NOW' | 'SCHEDULE'>('NOW');
+  const [scheduledDateTime, setScheduledDateTime] = useState<string>('');
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewArticle, setPreviewArticle] = useState<NewsArticleInput | null>(null);
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
 
   // Workflow Dialog
   const [workflowDialog, setWorkflowDialog] = useState<{
@@ -139,12 +151,19 @@ export const NewsManagementPage: React.FC = () => {
   const handleOpenCreate = () => {
     setEditingArticle(null);
     setFormInput(DEFAULT_NEWS_INPUT);
+    setScheduleMode('NOW');
+    setScheduledDateTime('');
     setFormErrors({});
     setIsEditorOpen(true);
   };
 
   const handleOpenEdit = (article: NewsArticle) => {
     setEditingArticle(article);
+    const isScheduledFuture = article.publishedAt && new Date(article.publishedAt) > new Date();
+    setScheduleMode(isScheduledFuture ? 'SCHEDULE' : 'NOW');
+    setScheduledDateTime(
+      isScheduledFuture ? new Date(article.publishedAt).toISOString().slice(0, 16) : ''
+    );
     setFormInput({
       title: article.title,
       slug: article.slug,
@@ -161,7 +180,8 @@ export const NewsManagementPage: React.FC = () => {
       seoTitle: article.seoTitle || '',
       seoDescription: article.seoDescription || '',
       changeNote: '',
-      status: (article.status as any) || 'PUBLISHED'
+      status: (article.status as any) || 'PUBLISHED',
+      publishedAt: article.publishedAt
     });
     setFormErrors({});
     setIsEditorOpen(true);
@@ -180,6 +200,10 @@ export const NewsManagementPage: React.FC = () => {
     const cleanParagraphs = contentArray.filter(p => p.trim() !== '');
     if (!cleanParagraphs.length) errors.content = 'At least one content paragraph is required';
 
+    if (scheduleMode === 'SCHEDULE' && !scheduledDateTime) {
+      errors.scheduledDateTime = 'Please select a future date and time for scheduled publication';
+    }
+
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
@@ -192,6 +216,13 @@ export const NewsManagementPage: React.FC = () => {
         content: cleanParagraphs
       };
 
+      if (scheduleMode === 'SCHEDULE' && scheduledDateTime) {
+        payload.publishedAt = new Date(scheduledDateTime).toISOString();
+        payload.status = 'PUBLISHED';
+      } else if (scheduleMode === 'NOW' && formInput.status === 'PUBLISHED') {
+        payload.publishedAt = new Date().toISOString();
+      }
+
       if (editingArticle) {
         await newsService.update(editingArticle.id, payload);
         setNotification({ type: 'success', message: `Article "${payload.title}" updated successfully.` });
@@ -199,7 +230,9 @@ export const NewsManagementPage: React.FC = () => {
         await newsService.create(payload);
         setNotification({ 
           type: 'success', 
-          message: payload.status === 'PUBLISHED' 
+          message: scheduleMode === 'SCHEDULE'
+            ? `Article "${payload.title}" scheduled for publication on ${new Date(scheduledDateTime).toLocaleString()}!`
+            : payload.status === 'PUBLISHED' 
             ? `Article "${payload.title}" created and published live!` 
             : `Article "${payload.title}" created as Draft.` 
         });
@@ -485,12 +518,41 @@ export const NewsManagementPage: React.FC = () => {
 
                       <td className="py-4 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPreviewArticle({
+                                title: art.title,
+                                slug: art.slug,
+                                categoryId: art.categoryId || '',
+                                category: art.category,
+                                summary: art.summary,
+                                content: Array.isArray(art.content) ? art.content : [art.content],
+                                featuredImage: art.featuredImage,
+                                imageAlt: art.imageAlt || art.title,
+                                authorName: art.author?.name || 'MSC Communications',
+                                authorRole: art.author?.role || 'Communications & Outreach',
+                                tags: art.tags || [],
+                                isFeatured: art.isFeatured,
+                                seoTitle: art.seoTitle,
+                                seoDescription: art.seoDescription,
+                                changeNote: '',
+                                status: art.status
+                              });
+                              setIsPreviewOpen(true);
+                            }}
+                            className="p-1.5 text-forest-700 hover:text-forest-900 hover:bg-forest-50 rounded-lg transition-colors"
+                            title="Live Draft / Article Preview"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+
                           <a
                             href={`/news/${art.slug}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                            title="Preview Public Page"
+                            title="Open Public Link"
                           >
                             <ExternalLink className="w-4 h-4" />
                           </a>
@@ -827,42 +889,141 @@ export const NewsManagementPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Publication Status Selection */}
-              <div className="p-4 rounded-xl border border-gray-200 bg-emerald-50/40">
-                <label className="block text-xs font-bold text-forest-900 uppercase tracking-wider mb-1.5">
-                  Publication Status *
-                </label>
-                <select
-                  value={formInput.status || 'PUBLISHED'}
-                  onChange={(e) => setFormInput({ ...formInput, status: e.target.value as any })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-forest-300 text-sm focus:outline-none focus:ring-2 focus:ring-forest-600 bg-white font-medium text-charcoal-900"
-                >
-                  <option value="PUBLISHED">Published (Visible immediately on public website)</option>
-                  <option value="DRAFT">Draft (Save privately for editorial review)</option>
-                  <option value="IN_REVIEW">In Review (Queued for administrative sign-off)</option>
-                  <option value="APPROVED">Approved (Approved for publication)</option>
-                </select>
-                <p className="text-xs text-charcoal-500 mt-1.5">
-                  Setting to "Published" makes this article live immediately in the public news & stories archive.
-                </p>
+              {/* Publication Status & Scheduling Selection */}
+              <div className="p-4 rounded-xl border border-gray-200 bg-emerald-50/40 space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-forest-900 uppercase tracking-wider mb-1.5">
+                    Publication Status *
+                  </label>
+                  <select
+                    value={formInput.status || 'PUBLISHED'}
+                    onChange={(e) => setFormInput({ ...formInput, status: e.target.value as any })}
+                    className="w-full px-4 py-2.5 rounded-xl border border-forest-300 text-sm focus:outline-none focus:ring-2 focus:ring-forest-600 bg-white font-medium text-charcoal-900"
+                  >
+                    <option value="PUBLISHED">Published (Ready for public visibility)</option>
+                    <option value="DRAFT">Draft (Save privately for editorial review)</option>
+                    <option value="IN_REVIEW">In Review (Queued for administrative sign-off)</option>
+                    <option value="APPROVED">Approved (Approved by editorial committee)</option>
+                  </select>
+                </div>
+
+                {/* Scheduling Option */}
+                <div className="pt-2 border-t border-emerald-200/60">
+                  <label className="block text-xs font-bold text-forest-900 uppercase tracking-wider mb-2">
+                    Publication Timing
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <label
+                      className={`p-3 rounded-xl border cursor-pointer flex items-center gap-2.5 text-xs font-bold transition-all ${
+                        scheduleMode === 'NOW'
+                          ? 'bg-forest-900 text-white border-forest-900 shadow-xs'
+                          : 'bg-white text-charcoal-700 border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="scheduleTiming"
+                        checked={scheduleMode === 'NOW'}
+                        onChange={() => setScheduleMode('NOW')}
+                        className="sr-only"
+                      />
+                      <Globe className="w-4 h-4 flex-shrink-0" />
+                      <div>
+                        <span>Publish Immediately</span>
+                        <span className="block font-normal text-[10px] opacity-80">
+                          Live as soon as approved
+                        </span>
+                      </div>
+                    </label>
+
+                    <label
+                      className={`p-3 rounded-xl border cursor-pointer flex items-center gap-2.5 text-xs font-bold transition-all ${
+                        scheduleMode === 'SCHEDULE'
+                          ? 'bg-forest-900 text-white border-forest-900 shadow-xs'
+                          : 'bg-white text-charcoal-700 border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="scheduleTiming"
+                        checked={scheduleMode === 'SCHEDULE'}
+                        onChange={() => setScheduleMode('SCHEDULE')}
+                        className="sr-only"
+                      />
+                      <Clock className="w-4 h-4 flex-shrink-0" />
+                      <div>
+                        <span>Schedule Publication</span>
+                        <span className="block font-normal text-[10px] opacity-80">
+                          Automated date & time release
+                        </span>
+                      </div>
+                    </label>
+                  </div>
+
+                  {scheduleMode === 'SCHEDULE' && (
+                    <div className="mt-3 p-3 bg-white rounded-xl border border-amber-300">
+                      <label className="block text-xs font-bold text-charcoal-800 mb-1">
+                        Scheduled Release Date & Time *
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={scheduledDateTime}
+                        onChange={(e) => setScheduledDateTime(e.target.value)}
+                        className="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-forest-600 font-mono"
+                      />
+                      {formErrors.scheduledDateTime && (
+                        <p className="text-xs text-rose-500 mt-1">{formErrors.scheduledDateTime}</p>
+                      )}
+                      <p className="text-[11px] text-charcoal-500 mt-1">
+                        Backend will automatically release and display this article on the website once the scheduled timestamp arrives.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+              <div className="flex items-center justify-between gap-3 pt-4 border-t border-gray-200">
                 <button
                   type="button"
-                  onClick={() => setIsEditorOpen(false)}
-                  className="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded-xl"
+                  onClick={() => {
+                    const contentArray = Array.isArray(formInput.content) ? formInput.content : [formInput.content];
+                    setPreviewArticle({
+                      ...formInput,
+                      content: contentArray.filter(p => p.trim() !== '')
+                    });
+                    setIsPreviewOpen(true);
+                  }}
+                  className="px-4 py-2 text-xs sm:text-sm font-bold text-forest-800 bg-forest-50 hover:bg-forest-100 border border-forest-200 rounded-xl inline-flex items-center gap-1.5 transition-colors"
                 >
-                  Cancel
+                  <Eye className="w-4 h-4" />
+                  <span>Preview Live Layout</span>
                 </button>
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="px-6 py-2 bg-forest-800 hover:bg-forest-900 text-white text-sm font-semibold rounded-xl shadow-sm disabled:opacity-50"
-                >
-                  {actionLoading ? 'Saving...' : editingArticle ? 'Update Article' : formInput.status === 'PUBLISHED' ? 'Publish Article Now' : 'Save as Draft'}
-                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditorOpen(false)}
+                    className="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded-xl"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={actionLoading}
+                    className="px-6 py-2 bg-forest-800 hover:bg-forest-900 text-white text-sm font-semibold rounded-xl shadow-sm disabled:opacity-50"
+                  >
+                    {actionLoading
+                      ? 'Saving...'
+                      : editingArticle
+                      ? 'Update Article'
+                      : scheduleMode === 'SCHEDULE'
+                      ? 'Schedule Publication'
+                      : formInput.status === 'PUBLISHED'
+                      ? 'Publish Article Now'
+                      : 'Save as Draft'}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -936,6 +1097,14 @@ export const NewsManagementPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Live Draft Preview Modal */}
+      <DraftPreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        article={previewArticle}
+        scheduledDateTime={scheduleMode === 'SCHEDULE' ? scheduledDateTime : undefined}
+      />
     </div>
   );
 };

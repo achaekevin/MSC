@@ -5,6 +5,7 @@ import { Logo } from '../common/Logo';
 import { Button } from '../ui/Button';
 import { MSC_ORGANIZATION } from '../../constants';
 import { useAuth } from '../../contexts/AuthContext';
+import { NewsletterSubscription } from '../common/NewsletterSubscription';
 
 export const Footer: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
@@ -45,6 +46,11 @@ export const Footer: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-16">
+        {/* Stay Connected With MSC Newsletter Card */}
+        <div className="mb-14 pb-12 border-b border-forest-850">
+          <NewsletterSubscription variant="card" />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Organization Bio & Logo */}
           <div className="lg:col-span-2 space-y-4">

@@ -3,6 +3,8 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/navigation/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { WhatsAppButton } from '../components/common/WhatsAppButton';
+import { AccessibilityToolbar } from '../components/common/AccessibilityToolbar';
+import { PrivacyConsentBanner } from '../components/common/PrivacyConsentBanner';
 
 export const RootLayout: React.FC = () => {
   const location = useLocation();
@@ -31,8 +33,14 @@ export const RootLayout: React.FC = () => {
         <Outlet />
       </main>
 
+      {/* Senior Accessibility Floating Controls */}
+      <AccessibilityToolbar />
+
       {/* Direct WhatsApp Contact Floating Action */}
       <WhatsAppButton phoneNumber="+254 790 629439" />
+
+      {/* Privacy and Cookie Consent Banner */}
+      <PrivacyConsentBanner />
 
       {/* Site Footer */}
       <Footer />

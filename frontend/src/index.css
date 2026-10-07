@@ -304,3 +304,50 @@
   }
 }
 
+/* ====================================================
+   SENIOR-FRIENDLY ACCESSIBILITY ENHANCEMENTS
+   ==================================================== */
+html.text-size-lg {
+  font-size: 112%;
+}
+
+html.text-size-xl {
+  font-size: 125%;
+}
+
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+html.high-contrast {
+  filter: contrast(120%);
+}
+
+html.high-contrast body {
+  background-color: #0a0a0a !important;
+  color: #ffffff !important;
+}
+
+html.high-contrast a {
+  text-decoration: underline !important;
+  font-weight: 700 !important;
+}
+
+html.high-contrast button {
+  border-width: 2px !important;
+}
+
+html.high-contrast input,
+html.high-contrast select,
+html.high-contrast textarea {
+  border-width: 2px !important;
+  border-color: #ffffff !important;
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+

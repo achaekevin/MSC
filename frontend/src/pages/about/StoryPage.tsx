@@ -4,6 +4,7 @@ import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { SectionHeading } from '../../components/ui/SectionHeading';
 import { Button } from '../../components/ui/Button';
 import { MSC_ORGANIZATION } from '../../constants';
+import { InteractiveTimeline } from '../../components/common/InteractiveTimeline';
 import { Calendar, History, ArrowRight } from 'lucide-react';
 
 export const StoryPage: React.FC = () => {
@@ -107,39 +108,9 @@ export const StoryPage: React.FC = () => {
             </div>
 
             {/* Official Timeline */}
-            <div className="pt-8">
-              <h3 className="text-2xl font-bold text-charcoal-900 font-display mb-8">
-                Chronological Milestones
-              </h3>
-
-              <div className="space-y-8 relative before:absolute before:inset-0 before:left-5 before:w-0.5 before:bg-forest-200">
-                {timelineMilestones.map((m, idx) => (
-                  <div key={idx} className="relative flex items-start gap-6 group">
-                    {/* Timeline Node */}
-                    <div className="w-10 h-10 rounded-full bg-forest-800 text-warm-50 flex items-center justify-center font-bold text-xs shadow-md border-4 border-white flex-shrink-0 z-10 group-hover:bg-earth-600 transition-colors">
-                      <Calendar className="w-4 h-4" />
-                    </div>
-
-                    {/* Timeline Card */}
-                    <div className="bg-white rounded-2xl p-6 sm:p-7 border border-warm-200 shadow-sm flex-1 text-left">
-                      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                        <span className="text-xs font-bold text-forest-800 uppercase tracking-wider bg-forest-50 px-2.5 py-0.5 rounded border border-forest-200">
-                          {m.badge}
-                        </span>
-                        <span className="text-sm font-extrabold text-earth-700">
-                          {m.year}
-                        </span>
-                      </div>
-                      <h4 className="text-lg sm:text-xl font-bold text-charcoal-900 font-display mb-2">
-                        {m.title}
-                      </h4>
-                      <p className="text-sm sm:text-base text-charcoal-600 leading-relaxed">
-                        {m.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            {/* Interactive Timeline */}
+            <div className="pt-4">
+              <InteractiveTimeline />
             </div>
 
             {/* Source of Truth Disclaimer Box */}

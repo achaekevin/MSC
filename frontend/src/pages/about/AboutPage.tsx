@@ -5,6 +5,7 @@ import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { SectionHeading } from '../../components/ui/SectionHeading';
 import { Button } from '../../components/ui/Button';
 import { MSC_ORGANIZATION } from '../../constants';
+import { InteractiveTimeline } from '../../components/common/InteractiveTimeline';
 import { ShieldCheck, Heart, Sparkles, MapPin, Users, ArrowRight } from 'lucide-react';
 
 export const AboutPage: React.FC = () => {
@@ -149,6 +150,13 @@ export const AboutPage: React.FC = () => {
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
+        </Container>
+      </section>
+
+      {/* Interactive Milestone Timeline */}
+      <section className="py-4">
+        <Container>
+          <InteractiveTimeline />
         </Container>
       </section>
 

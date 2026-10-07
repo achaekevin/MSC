@@ -19,7 +19,8 @@ export interface NewsArticleInput {
   seoTitle?: string;
   seoDescription?: string;
   changeNote?: string;
-  status?: 'DRAFT' | 'IN_REVIEW' | 'APPROVED' | 'PUBLISHED' | 'ARCHIVED';
+  status?: 'DRAFT' | 'IN_REVIEW' | 'CHANGES_REQUESTED' | 'APPROVED' | 'PUBLISHED' | 'ARCHIVED';
+  publishedAt?: string | null;
 }
 
 export interface NewsCategory {
