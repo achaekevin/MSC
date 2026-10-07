@@ -21,14 +21,14 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   return (
     <aside
       aria-label="Direct WhatsApp Communication"
-      className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3 print:hidden"
+      className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-[9999] flex flex-col items-end gap-3 print:hidden max-w-[calc(100vw-1rem)]"
     >
       {/* Interactive Micro-Popup when opened */}
       {isOpen && (
         <div
           role="dialog"
           aria-labelledby="whatsapp-chat-title"
-          className="bg-white rounded-2xl shadow-2xl border border-forest-100 p-4 w-72 sm:w-80 transition-all transform animate-in fade-in slide-in-from-bottom-3 duration-200"
+          className="bg-white rounded-2xl shadow-2xl border border-forest-100 p-4 w-72 sm:w-80 max-w-[calc(100vw-2rem)] transition-all transform animate-in fade-in slide-in-from-bottom-3 duration-200"
         >
           <div className="flex items-center justify-between pb-3 border-b border-warm-100">
             <div className="flex items-center gap-2.5">

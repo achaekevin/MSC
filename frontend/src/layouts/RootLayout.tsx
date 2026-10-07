@@ -15,7 +15,7 @@ export const RootLayout: React.FC = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-warm-50 dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 transition-colors duration-200 selection:bg-forest-100 selection:text-forest-900 relative">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col bg-warm-50 dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 transition-colors duration-200 selection:bg-forest-100 selection:text-forest-900 relative">
 
       {/* Accessible Skip to Content Link */}
       <a

@@ -17,25 +17,21 @@ export const Logo: React.FC<LogoProps> = ({
   const isDark = variant === 'dark';
 
   const sizeClasses = {
-    sm: 'w-16 h-16 sm:w-20 sm:h-20',
-    md: 'w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36',
-    lg: 'w-32 h-32 sm:w-36 sm:h-36 md:w-44 md:h-44'
+    sm: 'w-8 h-8 sm:w-9 sm:h-9',
+    md: 'w-9 h-9 xs:w-10 xs:h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-13 lg:h-13',
+    lg: 'w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20'
   };
 
   return (
     <Link
       to="/"
-      className={`inline-flex items-center gap-4 sm:gap-5 focus:outline-none focus:ring-2 focus:ring-forest-600 focus:ring-offset-2 rounded-2xl py-1.5 transition-all duration-200 hover:opacity-95 group ${className}`}
+      className={`inline-flex items-center gap-2 sm:gap-3 focus:outline-none focus:ring-2 focus:ring-forest-600 focus:ring-offset-2 rounded-xl py-0.5 transition-all duration-200 hover:opacity-95 group min-w-0 ${className}`}
       aria-label="Mwancha Senior Community - Return to Home"
     >
       {/* Official Brand Emblem */}
       <div
         style={{ backgroundColor: '#ffffff' }}
-        className={`preserve-white relative flex-shrink-0 flex items-center justify-center ${sizeClasses[size]} rounded-2xl p-1 sm:p-1.5 shadow-xl border-2 ${
-          isDark
-            ? 'border-forest-200 dark:border-charcoal-700 shadow-forest-950/20 group-hover:border-forest-500'
-            : 'border-forest-600/80 shadow-black/60 group-hover:border-forest-400'
-        } transition-all duration-200 overflow-hidden`}
+        className={`preserve-white relative flex-shrink-0 flex items-center justify-center ${sizeClasses[size]} rounded-lg sm:rounded-xl p-1 shadow-sm sm:shadow-md border border-forest-200 dark:border-charcoal-700 transition-all duration-200 overflow-hidden`}
       >
         <img
           src="/logo.png"
@@ -46,19 +42,19 @@ export const Logo: React.FC<LogoProps> = ({
       </div>
 
       {/* Brand Typography */}
-      <div className="flex flex-col text-left">
-        <div className="flex items-center gap-2.5">
+      <div className="flex flex-col text-left min-w-0">
+        <div className="flex items-center gap-1.5">
           <span
-            className={`font-black tracking-tight text-2xl sm:text-3xl lg:text-4xl font-display leading-none transition-colors ${
+            className={`font-black tracking-tight text-base sm:text-lg md:text-xl lg:text-2xl font-display leading-tight transition-colors ${
               isDark ? 'text-forest-950 dark:text-warm-50' : 'text-warm-50'
             }`}
           >
             MWANCHA
           </span>
           <span
-            className={`px-2.5 py-0.5 text-xs sm:text-sm font-black rounded-lg tracking-wider transition-colors ${
+            className={`px-1.5 py-0.2 text-[9px] sm:text-[10px] font-black rounded tracking-wider transition-colors select-none ${
               isDark
-                ? 'bg-earth-100 dark:bg-earth-900/80 text-earth-900 dark:text-amber-300 border border-earth-300 dark:border-earth-700 shadow-xs'
+                ? 'bg-earth-100 dark:bg-earth-900/80 text-earth-900 dark:text-amber-300 border border-earth-300 dark:border-earth-700'
                 : 'bg-forest-800 text-earth-300 border border-forest-600'
             }`}
           >
@@ -67,8 +63,8 @@ export const Logo: React.FC<LogoProps> = ({
         </div>
         {!compact && (
           <span
-            className={`text-xs sm:text-sm font-extrabold tracking-widest uppercase mt-1 transition-colors ${
-              isDark ? 'text-forest-800 dark:text-emerald-400' : 'text-forest-200'
+            className={`text-[9px] sm:text-[10px] md:text-xs font-bold tracking-wider uppercase leading-none mt-0.5 transition-colors truncate max-w-[125px] xs:max-w-[160px] sm:max-w-none ${
+              isDark ? 'text-forest-700 dark:text-emerald-400' : 'text-forest-200'
             }`}
           >
             Senior Community

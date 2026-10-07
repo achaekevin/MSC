@@ -144,11 +144,16 @@ export const NAVIGATION_LINKS = [
       { name: "Stories of Impact", href: "/stories" },
     ]
   },
-  { name: "Stories of Impact", href: "/stories" },
-  { name: "Publications", href: "/publications" },
-  { name: "News", href: "/news" },
-  { name: "Events", href: "/events" },
-  { name: "Gallery", href: "/gallery" },
+  {
+    name: "Media & News",
+    href: "/news",
+    dropdown: [
+      { name: "Latest News", href: "/news" },
+      { name: "Upcoming Events", href: "/events" },
+      { name: "Publications & Reports", href: "/publications" },
+      { name: "Media Gallery", href: "/gallery" },
+    ]
+  },
   {
     name: "Get Involved",
     href: "/get-involved",

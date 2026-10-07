@@ -79,55 +79,57 @@ export const Navbar: React.FC = () => {
       }`}
     >
       {/* Top Banner Notice for Dignity and Mandate & Direct Contacts */}
-      <div className="bg-forest-950 text-warm-100 text-xs py-1.5 px-4 border-b border-forest-800">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          <span className="font-medium truncate hidden md:inline">
+      <div className="bg-forest-950 text-warm-100 text-xs py-1 px-3 sm:px-4 border-b border-forest-800 w-full overflow-hidden">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          <span className="font-medium truncate hidden xl:inline text-[11px] sm:text-xs">
             {MSC_ORGANIZATION.name} &bull; Advocating for elder rights, healthcare & welfare
           </span>
-          <div className="flex items-center gap-3 sm:gap-5 text-[11px] sm:text-xs ml-auto font-medium">
+          <div className="flex items-center justify-between sm:justify-end w-full xl:w-auto xl:ml-auto gap-2 sm:gap-3 text-[11px] font-medium whitespace-nowrap">
             <a
               href="tel:+254790629439"
-              className="inline-flex items-center gap-1.5 text-warm-200 hover:text-white transition-colors"
+              className="inline-flex items-center gap-1 sm:gap-1.5 text-warm-200 hover:text-white transition-colors flex-shrink-0"
               aria-label="Call MSC Helpline at +254 790 629439"
             >
-              <Phone className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Helpline: <strong className="text-white">+254 790 629439</strong></span>
+              <Phone className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+              <span><span className="hidden sm:inline">Helpline: </span><strong className="text-white">+254 790 629439</strong></span>
             </a>
-            <span className="text-forest-700">|</span>
+            <span className="text-forest-700 select-none">|</span>
             <a
               href="https://wa.me/254790629439?text=Hello%20Mwancha%20Senior%20Community%2C%20I%20would%20like%20to%20inquire%20about%20your%20programs%20and%20support%20services."
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-600/90 hover:bg-emerald-500 text-white font-semibold shadow-xs transition-colors"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-600/90 hover:bg-emerald-500 text-white font-semibold shadow-xs transition-colors flex-shrink-0"
               aria-label="Direct WhatsApp inquiry with MSC at +254 790 629439"
             >
-              <MessageCircle className="w-3 h-3 fill-current" />
-              <span>WhatsApp: +254 790 629439</span>
+              <MessageCircle className="w-3 h-3 fill-current flex-shrink-0" />
+              <span>WhatsApp</span>
             </a>
-            <span className="text-forest-700">|</span>
+            <span className="text-forest-700 select-none">|</span>
             <Link
               to={isAdmin ? "/admin/dashboard" : "/admin/login"}
-              className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-warm-200 hover:text-white hover:bg-forest-900 transition-colors font-medium border border-forest-800"
+              className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-warm-200 hover:text-white hover:bg-forest-900 transition-colors font-medium border border-forest-800 flex-shrink-0"
               title={isAdmin ? "Open Admin Dashboard" : "Administrator & Staff Sign In"}
             >
               {isAdmin ? (
-                <Shield className="w-3.5 h-3.5 text-emerald-400" />
+                <Shield className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
               ) : (
-                <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                <Lock className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
               )}
-              <span>{isAdmin ? 'Admin Dashboard' : 'Admin Sign In'}</span>
+              <span>{isAdmin ? 'Dashboard' : 'Sign In'}</span>
             </Link>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between min-h-[88px] sm:min-h-[105px] md:min-h-[120px] py-2 sm:py-3">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full">
+        <div className="flex items-center justify-between min-h-[56px] sm:min-h-[70px] py-1 sm:py-2 gap-2">
           {/* Organization Logo */}
-          <Logo size="md" />
+          <div className="min-w-0 flex-shrink-0">
+            <Logo size="md" />
+          </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2" aria-label="Main Navigation">
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 flex-shrink" aria-label="Main Navigation">
             {NAVIGATION_LINKS.map((link) => {
               if (link.dropdown) {
                 const isCurrentActive =
@@ -135,12 +137,12 @@ export const Navbar: React.FC = () => {
                   link.dropdown.some((sub) => location.pathname === sub.href);
 
                 return (
-                  <div key={link.name} className="relative">
+                  <div key={link.name} className="relative group">
                     <button
                       type="button"
                       onClick={() => toggleDropdown(link.name)}
                       onMouseEnter={() => setActiveDropdown(link.name)}
-                      className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-forest-700 ${
+                      className={`inline-flex items-center gap-1 px-2.5 xl:px-3 py-2 text-xs xl:text-sm font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:ring-2 focus-visible:ring-forest-700 ${
                         isCurrentActive
                           ? 'text-forest-900 dark:text-emerald-400 bg-forest-50/80 dark:bg-forest-950/80 font-bold'
                           : 'text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-warm-100 dark:hover:bg-charcoal-800'
@@ -150,7 +152,7 @@ export const Navbar: React.FC = () => {
                     >
                       <span>{link.name}</span>
                       <ChevronDown
-                        className={`w-4 h-4 transition-transform duration-200 ${
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
                           activeDropdown === link.name ? 'rotate-180' : ''
                         }`}
                         aria-hidden="true"
@@ -161,7 +163,7 @@ export const Navbar: React.FC = () => {
                     {activeDropdown === link.name && (
                       <div
                         onMouseLeave={() => setActiveDropdown(null)}
-                        className="absolute left-0 mt-1.5 w-64 rounded-xl bg-white dark:bg-charcoal-900 shadow-xl border border-warm-200 dark:border-charcoal-700 py-2.5 z-50 animate-fadeIn"
+                        className="absolute top-full left-0 mt-1 w-64 rounded-xl bg-white dark:bg-charcoal-900 shadow-xl border border-warm-200 dark:border-charcoal-700 py-2 z-50 animate-fadeIn"
                         role="menu"
                       >
                         {link.dropdown.map((subItem) => (
@@ -169,7 +171,7 @@ export const Navbar: React.FC = () => {
                             key={subItem.name}
                             to={subItem.href}
                             role="menuitem"
-                            className="block px-4 py-2.5 text-sm text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-forest-50 dark:hover:bg-charcoal-800 font-medium transition-colors"
+                            className="block px-4 py-2 text-xs xl:text-sm text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-forest-50 dark:hover:bg-charcoal-800 font-medium transition-colors"
                           >
                             {subItem.name}
                           </Link>
@@ -185,7 +187,7 @@ export const Navbar: React.FC = () => {
                   key={link.name}
                   to={link.href}
                   className={({ isActive }) =>
-                    `px-3 py-2 text-sm font-semibold rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-forest-700 ${
+                    `px-2.5 xl:px-3 py-2 text-xs xl:text-sm font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:ring-2 focus-visible:ring-forest-700 ${
                       isActive
                         ? 'text-forest-900 dark:text-emerald-400 bg-forest-50/80 dark:bg-forest-950/80 font-bold'
                         : 'text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-warm-100 dark:hover:bg-charcoal-800'
@@ -199,12 +201,12 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Desktop Primary Action CTA, Search & Theme Toggle */}
-          <div className="hidden lg:flex items-center gap-2 xl:gap-2.5">
+          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2 flex-shrink-0">
             {/* Global Search Button */}
             <button
               type="button"
               onClick={() => setIsSearchOpen(true)}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-charcoal-700 dark:text-warm-200 bg-warm-100 dark:bg-charcoal-800 hover:bg-forest-50 dark:hover:bg-charcoal-700 hover:text-forest-900 dark:hover:text-emerald-400 border border-warm-200 dark:border-charcoal-700 transition-all cursor-pointer group shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-charcoal-700 dark:text-warm-200 bg-warm-100 dark:bg-charcoal-800 hover:bg-forest-50 dark:hover:bg-charcoal-700 hover:text-forest-900 dark:hover:text-emerald-400 border border-warm-200 dark:border-charcoal-700 transition-all cursor-pointer group shadow-2xs whitespace-nowrap"
               title="Global Search (Ctrl + K)"
               aria-label="Global Search across MSC"
             >
@@ -218,40 +220,27 @@ export const Navbar: React.FC = () => {
 
             <ThemeToggle />
 
-            <Link
-              to={isAdmin ? "/admin/dashboard" : "/admin/login"}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-warm-100 dark:hover:bg-charcoal-800 border border-warm-200 dark:border-charcoal-700 transition-colors"
-              title={isAdmin ? "Open Admin Dashboard" : "Staff & Administrator Sign In"}
-            >
-              {isAdmin ? (
-                <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              ) : (
-                <Lock className="w-3.5 h-3.5 text-forest-700 dark:text-emerald-400" />
-              )}
-              <span>{isAdmin ? 'Dashboard' : 'Admin Sign In'}</span>
-            </Link>
-
             <Button
               to="/donate"
               variant="secondary"
               size="sm"
-              icon={<Heart className="w-4 h-4 fill-white" />}
-              className="font-bold shadow-sm"
+              icon={<Heart className="w-3.5 h-3.5 fill-white" />}
+              className="font-bold shadow-sm whitespace-nowrap px-3 text-xs xl:text-sm"
             >
               Support Our Work
             </Button>
           </div>
 
           {/* Mobile Right Controls: Search, Theme Toggle & Mobile Menu Hamburger */}
-          <div className="flex items-center gap-1.5 sm:gap-2 lg:hidden">
+          <div className="flex items-center gap-1 sm:gap-1.5 lg:hidden flex-shrink-0">
             <button
               type="button"
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 rounded-xl text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-warm-100 dark:hover:bg-charcoal-800 transition-colors"
+              className="p-1.5 sm:p-2 rounded-xl text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-warm-100 dark:hover:bg-charcoal-800 transition-colors"
               aria-label="Open search dialog"
               title="Search MSC"
             >
-              <Search className="w-5 h-5 text-forest-800 dark:text-emerald-400" />
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-forest-800 dark:text-emerald-400" />
             </button>
 
             <ThemeToggle />
@@ -259,11 +248,11 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2.5 rounded-xl text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-warm-100 dark:hover:bg-charcoal-800 focus:outline-none focus:ring-2 focus:ring-forest-700"
+              className="p-2 sm:p-2.5 rounded-xl text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 hover:bg-warm-100 dark:hover:bg-charcoal-800 focus:outline-none focus:ring-2 focus:ring-forest-700"
               aria-expanded={isOpen}
               aria-label={isOpen ? 'Close primary navigation' : 'Open primary navigation'}
             >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
             </button>
           </div>
         </div>

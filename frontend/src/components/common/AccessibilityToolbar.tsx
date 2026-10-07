@@ -151,7 +151,7 @@ export const AccessibilityToolbar: React.FC = () => {
           role="dialog"
           aria-modal="true"
           aria-label="Senior Citizen Accessibility Adjustments"
-          className="fixed bottom-20 left-5 z-50 w-80 sm:w-96 rounded-3xl bg-white dark:bg-charcoal-900 border-2 border-forest-700 dark:border-emerald-500 shadow-2xl p-5 text-left text-charcoal-900 dark:text-warm-50 animate-fadeIn"
+          className="fixed bottom-20 left-3 right-3 sm:right-auto sm:left-5 z-50 max-w-[calc(100vw-1.5rem)] sm:w-96 rounded-3xl bg-white dark:bg-charcoal-900 border-2 border-forest-700 dark:border-emerald-500 shadow-2xl p-5 text-left text-charcoal-900 dark:text-warm-50 animate-fadeIn"
         >
           {/* Header */}
           <div className="flex items-center justify-between pb-3 border-b border-warm-200 dark:border-charcoal-700">
