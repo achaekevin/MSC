@@ -37,9 +37,11 @@ export const PartnerPage: React.FC = () => {
   ];
 
   const interestOptions = [
+    { value: 'Free Medical Outreach Camps & Healthcare Partnerships', label: 'Free Medical Outreach Camps & Healthcare Partnerships' },
+    { value: 'Food & In-Kind Material Distributions', label: 'Food & In-Kind Material Distributions (Grains, Clothing, Aids)' },
+    { value: 'Health Training Forums for Caregivers & CHPs', label: 'Health Training Forums for Caregivers & CHPs' },
     { value: 'Systems Strengthening & Policy Advocacy', label: 'Systems Strengthening & Policy Advocacy' },
     { value: 'Healthcare Screenings & Clinical Referrals', label: 'Healthcare Screenings & Clinical Referrals' },
-    { value: 'Emergency Nutrition & Relief Distribution', label: 'Emergency Nutrition & Relief Distribution' },
     { value: 'Geriatric Research & Longitudinal MEAL Data', label: 'Geriatric Research & Longitudinal MEAL Data' },
     { value: 'Capacity Building & Volunteer Training', label: 'Capacity Building & Volunteer Training' },
     { value: 'Grant Funding & Institutional Co-sponsorship', label: 'Grant Funding & Institutional Co-sponsorship' }
@@ -193,6 +195,27 @@ export const PartnerPage: React.FC = () => {
                     mwanchacommunity.seniors.com
                   </a>
                 </p>
+              </div>
+
+              {/* In-Kind Giving Callout */}
+              <div className="bg-amber-50 rounded-3xl p-6 border border-amber-200 text-left space-y-2.5">
+                <span className="text-xs uppercase font-bold tracking-wider text-amber-800">
+                  In-Kind Giving Opportunity
+                </span>
+                <h4 className="text-base font-bold text-amber-950">
+                  Donating Food Staples or Supplies?
+                </h4>
+                <p className="text-xs sm:text-sm text-amber-900/80 leading-relaxed">
+                  We accept grains, warm fleece blankets, clothing, wheelchairs, and shelter repair materials. Drop-offs are received at Mwancha House – Ekerenyo.
+                </p>
+                <div className="pt-1">
+                  <a
+                    href="/donate"
+                    className="inline-flex items-center text-xs font-bold text-amber-900 underline underline-offset-4 hover:text-amber-700"
+                  >
+                    Go to Food & Material Donation Form &rarr;
+                  </a>
+                </div>
               </div>
             </div>
 

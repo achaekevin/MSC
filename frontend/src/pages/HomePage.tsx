@@ -16,7 +16,12 @@ import {
   ChevronRight,
   MessageCircle,
   Pause,
-  Play
+  Play,
+  Stethoscope,
+  Wheat,
+  Building2,
+  Handshake,
+  Activity
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Container } from '../components/ui/Container';
@@ -718,21 +723,60 @@ export const HomePage: React.FC = () => {
           ========================================================================= */}
       <section className="py-12 transition-colors">
         <Container>
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 text-left">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6 text-left">
             <div>
               <span className="text-xs font-black text-forest-900 dark:text-emerald-300 uppercase tracking-wider bg-forest-100 dark:bg-forest-900/80 px-3.5 py-1.5 rounded-full border border-forest-300 dark:border-forest-700/80 inline-block mb-3">
-                Core Interventions
+                Core Interventions & Services
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-charcoal-950 dark:text-white font-display transition-colors">
-                Our Five Core Program Areas
+                Responsive Elder Programs & Free Medical Services
               </h2>
               <p className="mt-2 text-base sm:text-lg text-charcoal-800 dark:text-warm-200 max-w-2xl font-medium transition-colors">
-                Structured to address both immediate vulnerability and long-term systemic protection for older citizens across Kenya.
+                Structured to address immediate vulnerability, geriatric healthcare needs, and long-term systemic protection for older citizens across Kenya.
               </p>
             </div>
             <Button to="/programs" variant="outline" size="sm" icon={<ArrowRight className="w-4 h-4" />}>
-              View All 5 Programs
+              View All Programs
             </Button>
+          </div>
+
+          {/* Free Medical Outreach Camps & Health Training Spotlight */}
+          <div className="mb-10 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-emerald-950 via-forest-900 to-forest-950 text-white border-2 border-emerald-800/60 shadow-lg text-left flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-3xl">
+              <div className="flex items-center gap-2">
+                <span className="p-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  <Stethoscope className="w-5 h-5" />
+                </span>
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-300">
+                  Flagship Community Health Service
+                </span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black font-display text-white">
+                Free Medical Camps & Caregiver Health Forums
+              </h3>
+              <p className="text-sm sm:text-base text-forest-100 leading-relaxed font-medium">
+                We organize decentralized Free Medical Outreach Camps bringing licensed clinicians directly to rural elders. Services include 100% free geriatric checkups, hypertension and diabetes screening, free prescription medications, eye tests with reading glasses, and health training forums for family caregivers and Community Health Promoters (CHPs).
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto flex-shrink-0">
+              <Button
+                to="/programs/health-training-medical-camps"
+                variant="secondary"
+                size="md"
+                icon={<ArrowRight className="w-4 h-4" />}
+                className="font-bold shadow"
+              >
+                Explore Medical Camps
+              </Button>
+              <Button
+                to="/partner"
+                variant="outline"
+                size="md"
+                className="border-emerald-400 text-white hover:bg-forest-850"
+              >
+                Partner on Medical Camps
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -799,6 +843,142 @@ export const HomePage: React.FC = () => {
               <p className="text-sm sm:text-base text-charcoal-700 dark:text-warm-200 leading-relaxed font-medium">
                 Mobilizing county administration, faith leaders, health centers, and development partners for durable public safety nets.
               </p>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* =========================================================================
+          PARTNERSHIPS SECTION (For Anyone Ready to Partner with MSC)
+          ========================================================================= */}
+      <section id="partnerships" className="py-16 sm:py-20 bg-gradient-to-b from-white via-warm-50 to-warm-100/60 dark:from-charcoal-950 dark:via-charcoal-900 dark:to-charcoal-950 border-t-2 border-warm-200 dark:border-charcoal-800 transition-colors">
+        <Container>
+          <div className="max-w-4xl mx-auto text-left mb-12">
+            <span className="text-xs font-black text-forest-900 dark:text-emerald-300 uppercase tracking-widest bg-forest-100 dark:bg-forest-900/80 px-3.5 py-1.5 rounded-full border border-forest-300 dark:border-forest-700/80 inline-block mb-3">
+              Strategic Alliances & Coalitions
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-charcoal-950 dark:text-white font-display">
+              Partner With Mwancha Senior Community
+            </h2>
+            <p className="mt-4 text-base sm:text-lg text-charcoal-700 dark:text-warm-200 leading-relaxed font-medium">
+              Transforming the landscape of rural aging requires multi-sectoral synergy. We warmly invite healthcare providers, corporate CSR foundations, government agencies, universities, and civil society organizations ready to co-create lasting impact and restore dignity to older persons.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left mb-12">
+            {/* Pillar 1: Healthcare & Medical Outreach */}
+            <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-charcoal-900 border-2 border-warm-200 dark:border-charcoal-700 shadow-card hover:shadow-card-hover transition-all duration-200 flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 flex items-center justify-center mb-4 border border-emerald-200 dark:border-emerald-700">
+                  <Stethoscope className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-black text-charcoal-950 dark:text-white font-display mb-2">
+                  Free Medical Camps & Clinical Outreach
+                </h3>
+                <p className="text-xs sm:text-sm text-charcoal-700 dark:text-warm-200 leading-relaxed font-medium">
+                  Partner with our medical team to co-host rural Free Medical Outreach Camps, provide diagnostic equipment, supply prescription medicines, or conduct eye screening and cataract surgeries for vulnerable seniors.
+                </p>
+              </div>
+              <div className="pt-4 mt-4 border-t border-warm-200 dark:border-charcoal-700">
+                <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">
+                  Healthcare Providers & Labs
+                </span>
+              </div>
+            </div>
+
+            {/* Pillar 2: Corporate CSR & Supply Chains */}
+            <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-charcoal-900 border-2 border-warm-200 dark:border-charcoal-700 shadow-card hover:shadow-card-hover transition-all duration-200 flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 flex items-center justify-center mb-4 border border-amber-200 dark:border-amber-700">
+                  <HeartHandshake className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-black text-charcoal-950 dark:text-white font-display mb-2">
+                  Corporate CSR & Food Relief
+                </h3>
+                <p className="text-xs sm:text-sm text-charcoal-700 dark:text-warm-200 leading-relaxed font-medium">
+                  Channel corporate philanthropy toward our verified emergency food supply chains (maize flour, beans, rice), warm fleece bedding, or iron sheet weatherization materials for dilapidated elder homes.
+                </p>
+              </div>
+              <div className="pt-4 mt-4 border-t border-warm-200 dark:border-charcoal-700">
+                <span className="text-[11px] font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider">
+                  CSR & Business Foundations
+                </span>
+              </div>
+            </div>
+
+            {/* Pillar 3: Government & Social Protection */}
+            <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-charcoal-900 border-2 border-warm-200 dark:border-charcoal-700 shadow-card hover:shadow-card-hover transition-all duration-200 flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-forest-100 dark:bg-forest-900/60 text-forest-800 dark:text-emerald-400 flex items-center justify-center mb-4 border border-forest-200 dark:border-forest-700">
+                  <Building2 className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-black text-charcoal-950 dark:text-white font-display mb-2">
+                  Government & Social Protection
+                </h3>
+                <p className="text-xs sm:text-sm text-charcoal-700 dark:text-warm-200 leading-relaxed font-medium">
+                  Collaborating with National and County Departments of Health, the Social Health Authority (SHA), and grassroots administration to enroll elders in welfare cash transfers and enforce protections against abuse.
+                </p>
+              </div>
+              <div className="pt-4 mt-4 border-t border-warm-200 dark:border-charcoal-700">
+                <span className="text-[11px] font-bold text-forest-800 dark:text-emerald-400 uppercase tracking-wider">
+                  Public Ministries & Agencies
+                </span>
+              </div>
+            </div>
+
+            {/* Pillar 4: Academic Research & Civil Society */}
+            <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-charcoal-900 border-2 border-warm-200 dark:border-charcoal-700 shadow-card hover:shadow-card-hover transition-all duration-200 flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 flex items-center justify-center mb-4 border border-blue-200 dark:border-blue-700">
+                  <Globe className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-black text-charcoal-950 dark:text-white font-display mb-2">
+                  Academic Research & Legal Aid
+                </h3>
+                <p className="text-xs sm:text-sm text-charcoal-700 dark:text-warm-200 leading-relaxed font-medium">
+                  Co-developing evidence-based geriatric research, conducting policy advocacy, and providing pro-bono legal defense for senior citizens facing land dispossession or false cultural allegations.
+                </p>
+              </div>
+              <div className="pt-4 mt-4 border-t border-warm-200 dark:border-charcoal-700">
+                <span className="text-[11px] font-bold text-blue-800 dark:text-blue-400 uppercase tracking-wider">
+                  Universities & Legal Societies
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Callout Box */}
+          <div className="p-8 sm:p-10 rounded-3xl bg-forest-950 text-white text-left shadow-xl border border-forest-800 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-2xl">
+              <span className="text-xs font-black uppercase tracking-widest text-amber-300">
+                Ready to Join Forces?
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-black font-display text-white">
+                Let's Build Sustainable Solutions Together
+              </h3>
+              <p className="text-sm sm:text-base text-forest-100 leading-relaxed font-medium">
+                Whether you want to sponsor a Free Medical Camp, supply bulk food staples, or initiate institutional joint programming, our Systems Strengthening & Partnerships office is ready to engage.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3.5 w-full lg:w-auto flex-shrink-0">
+              <Button
+                to="/partner"
+                variant="secondary"
+                size="lg"
+                icon={<ArrowRight className="w-4 h-4" />}
+                className="font-black shadow-lg"
+              >
+                Submit Partnership Proposal
+              </Button>
+              <Button
+                to="/donate"
+                variant="outline"
+                size="lg"
+                icon={<Wheat className="w-4 h-4 text-amber-400" />}
+                className="border-forest-600 text-white hover:bg-forest-900"
+              >
+                Pledge Food & In-Kind Supplies
+              </Button>
             </div>
           </div>
         </Container>
