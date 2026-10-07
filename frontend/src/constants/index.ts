@@ -12,10 +12,10 @@ export const MSC_ORGANIZATION = {
   subCounty: "Nyamira North",
   county: "Nyamira County",
   country: "Kenya",
-  road: "Ekerenyo-Owari-Magwagwa Road",
+  road: "Ekerenyo-Obwari-Magwagwa Road",
   postalAddress: "P.O. Box 162-40506 Ekerenyo-Nyamira",
-  physicalAddress: "Mwancha House - Ekerenyo, Ekerenyo-Owari-Magwagwa Road, Nyamira North, Nyamira County",
-  fullLocation: "Mwancha House - Ekerenyo, Ekerenyo-Owari-Magwagwa Road, Nyamira North, P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya",
+  physicalAddress: "Mwancha House - Ekerenyo, Ekerenyo-Obwari-Magwagwa Road, Nyamira North, Nyamira County",
+  fullLocation: "Mwancha House - Ekerenyo, Ekerenyo-Obwari-Magwagwa Road, Nyamira North, P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya",
   
   // Official Contact
   email: "mwachahomeforelderly@gmail.com",
