@@ -13,6 +13,7 @@ export const LoginPage: React.FC = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const from = (location.state as any)?.from?.pathname || '/admin/dashboard';
 
@@ -36,6 +37,9 @@ export const LoginPage: React.FC = () => {
     if (error) {
       clearError();
     }
+    if (localError) {
+      setLocalError(null);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,6 +51,13 @@ export const LoginPage: React.FC = () => {
 
     setIsSubmitting(true);
     
+    // Bot trap detection
+    if ((e.currentTarget as any)?.website_hp?.value) {
+      setLocalError('Automated submission detected.');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       await login({
         email: formData.email.trim(),
@@ -99,6 +110,18 @@ export const LoginPage: React.FC = () => {
 
         {/* Login Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {/* Honeypot field for bot deterrence */}
+          <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
+            <label htmlFor="website_hp">Leave this blank</label>
+            <input
+              id="website_hp"
+              type="text"
+              name="website_hp"
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </div>
+
           <div className="rounded-md shadow-sm space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -150,7 +173,7 @@ export const LoginPage: React.FC = () => {
           </div>
 
           {/* Error Display */}
-          {error && (
+          {(error || localError) && (
             <div className="rounded-md bg-red-50 border border-red-200 p-4">
               <div className="flex">
                 <div className="flex-shrink-0">
@@ -160,7 +183,7 @@ export const LoginPage: React.FC = () => {
                 </div>
                 <div className="ml-3">
                   <p className="text-sm text-red-800">
-                    {error}
+                    {localError || error}
                   </p>
                 </div>
               </div>
@@ -185,13 +208,19 @@ export const LoginPage: React.FC = () => {
             </button>
           </div>
 
-          {/* Forgot Password Link */}
-          <div className="text-center">
+          {/* Forgot Password & Verify Email Links */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-center text-sm">
             <Link
               to="/admin/forgot-password"
-              className="text-sm text-forest-700 hover:text-forest-900 font-medium"
+              className="text-forest-700 hover:text-forest-900 font-medium"
             >
               Forgot your password?
+            </Link>
+            <Link
+              to="/admin/verify-email"
+              className="text-forest-700 hover:text-forest-900 font-medium"
+            >
+              Verify account email &rarr;
             </Link>
           </div>
 

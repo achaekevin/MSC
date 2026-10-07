@@ -69,16 +69,23 @@ export const RegisterPage: React.FC = () => {
       return;
     }
 
+    // Bot trap detection
+    if ((e.currentTarget as any)?.website_hp?.value) {
+      setValidationError('Automated submission detected.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      const emailToVerify = formData.email.trim().toLowerCase();
       await register({
         name: formData.name.trim(),
-        email: formData.email.trim().toLowerCase(),
+        email: emailToVerify,
         password: formData.password,
         role: formData.role as any,
         adminInviteCode: formData.adminInviteCode.trim()
       });
-      navigate('/admin/dashboard', { replace: true });
+      navigate(`/admin/verify-email?email=${encodeURIComponent(emailToVerify)}`, { replace: true });
     } catch (err: any) {
       console.error('Registration failed:', err);
     } finally {
@@ -126,6 +133,18 @@ export const RegisterPage: React.FC = () => {
 
         {/* Form */}
         <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
+          {/* Honeypot field for bot deterrence */}
+          <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
+            <label htmlFor="website_hp">Leave this blank</label>
+            <input
+              id="website_hp"
+              type="text"
+              name="website_hp"
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </div>
+
           <div>
             <label htmlFor="name" className="block text-xs font-bold uppercase tracking-wider text-charcoal-700 dark:text-warm-300 mb-1.5">
               Full Legal Name *

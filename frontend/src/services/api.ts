@@ -318,3 +318,5 @@ export const apiClient = {
     }
   }
 };
+
+export const api = apiClient;

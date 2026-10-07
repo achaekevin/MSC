@@ -9,6 +9,7 @@ import { Alert } from '../components/ui/Alert';
 import { partnershipService } from '../services/partnershipService';
 import { PartnershipRequest } from '../types';
 import { Building2, Globe2, Handshake, CheckCircle2 } from 'lucide-react';
+import { SpamProtection, SpamProtectionData } from '../components/common/SpamProtection';
 
 export const PartnerPage: React.FC = () => {
   const [formData, setFormData] = useState<PartnershipRequest>({
@@ -21,6 +22,7 @@ export const PartnerPage: React.FC = () => {
     message: ''
   });
 
+  const [spamData, setSpamData] = useState<SpamProtectionData | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -82,6 +84,10 @@ export const PartnerPage: React.FC = () => {
       errs.message = 'Please write at least 20 characters describing the partnership opportunity.';
     }
 
+    if (!spamData?.challengeAnswer?.trim()) {
+      errs.challengeAnswer = 'Please solve the anti-spam question to confirm you are human.';
+    }
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -95,7 +101,11 @@ export const PartnerPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await partnershipService.submitPartnershipRequest(formData);
+      const payload: any = {
+        ...formData,
+        ...(spamData || {})
+      };
+      const response = await partnershipService.submitPartnershipRequest(payload);
       if (response.success) {
         setSuccessMessage(response.message);
         setFormData({
@@ -111,8 +121,9 @@ export const PartnerPage: React.FC = () => {
       } else {
         setErrorMessage(response.message || 'Submission failed. Please try again.');
       }
-    } catch {
-      setErrorMessage('Unable to connect to the partnership service. Please try again later or reach out directly to mwachahomeforelderly@gmail.com.');
+    } catch (err: any) {
+      const msg = err.response?.data?.error?.message || err.message || 'Unable to connect to the partnership service. Please try again later or reach out directly to mwachahomeforelderly@gmail.com.';
+      setErrorMessage(msg);
     } finally {
       setLoading(false);
     }
@@ -327,6 +338,12 @@ export const PartnerPage: React.FC = () => {
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     error={errors.message}
+                  />
+
+                  {/* Anti-Spam Security Challenge & Honeypot */}
+                  <SpamProtection
+                    onChange={setSpamData}
+                    error={errors.challengeAnswer}
                   />
 
                   <div className="pt-2">

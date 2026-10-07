@@ -24,6 +24,7 @@ import {
   MapPin,
   CalendarCheck
 } from 'lucide-react';
+import { SpamProtection, SpamProtectionData } from '../components/common/SpamProtection';
 
 interface ExtendedVolunteerData extends VolunteerApplication {
   subCounty?: string;
@@ -48,6 +49,7 @@ export const VolunteerPage: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [spamData, setSpamData] = useState<SpamProtectionData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [submissionRef, setSubmissionRef] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -129,6 +131,10 @@ export const VolunteerPage: React.FC = () => {
       errs.consentSafeguarding = 'You must confirm agreement to the MSC Elder Safeguarding and Dignity pledge.';
     }
 
+    if (!spamData?.challengeAnswer?.trim()) {
+      errs.challengeAnswer = 'Please solve the anti-spam question to confirm you are human.';
+    }
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -162,14 +168,15 @@ export const VolunteerPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const cleanSubmission: VolunteerApplication = {
+      const cleanSubmission: any = {
         fullName: formData.fullName.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim(),
         county: formData.subCounty ? `${formData.county} (${formData.subCounty})` : formData.county,
         areaOfInterest: formData.areaOfInterest,
         availability: formData.availability,
-        message: formData.message.trim()
+        message: formData.message.trim(),
+        ...(spamData || {})
       };
 
       const response = await volunteerService.submitApplication(cleanSubmission);
@@ -181,10 +188,9 @@ export const VolunteerPage: React.FC = () => {
       } else {
         setErrorMessage(response.message || 'Submission failed. Please check your details and try again.');
       }
-    } catch {
-      setErrorMessage(
-        'Unable to connect to the volunteer application service. Please verify your connection or email info@mwancha.org directly.'
-      );
+    } catch (err: any) {
+      const msg = err.response?.data?.error?.message || err.message || 'Unable to connect to the volunteer application service. Please verify your connection or email info@mwancha.org directly.';
+      setErrorMessage(msg);
     } finally {
       setLoading(false);
     }
@@ -553,6 +559,14 @@ export const VolunteerPage: React.FC = () => {
                       {errors.consentSafeguarding && (
                         <p className="text-xs text-rose-600 font-medium pl-1">{errors.consentSafeguarding}</p>
                       )}
+                    </div>
+
+                    {/* Anti-Spam Security Challenge */}
+                    <div className="pt-2">
+                      <SpamProtection
+                        onChange={setSpamData}
+                        error={errors.challengeAnswer}
+                      />
                     </div>
 
                     <div className="pt-4 flex items-center justify-between gap-3">

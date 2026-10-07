@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { MSC_ORGANIZATION } from '../constants';
 import { ContentStatusBadge } from '../components/common/ContentStatusBadge';
+import { SpamProtection, SpamProtectionData } from '../components/common/SpamProtection';
 
 export const DonatePage: React.FC = () => {
   const [methods, setMethods] = useState<DonationMethod[]>([]);
@@ -52,6 +53,7 @@ export const DonatePage: React.FC = () => {
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [spamData, setSpamData] = useState<SpamProtectionData | null>(null);
   const [submittingInKind, setSubmittingInKind] = useState<boolean>(false);
   const [inKindSuccess, setInKindSuccess] = useState<{ message: string; ref?: string } | null>(null);
   const [inKindError, setInKindError] = useState<string | null>(null);
@@ -102,6 +104,9 @@ export const DonatePage: React.FC = () => {
     if (inKindForm.deliveryMethod === 'FIELD_PICKUP_REQUEST' && !inKindForm.pickupAddress?.trim()) {
       errors.pickupAddress = 'Please provide the physical address/location for volunteer pickup.';
     }
+    if (!spamData?.challengeAnswer?.trim()) {
+      errors.challengeAnswer = 'Please solve the anti-spam question to confirm you are human.';
+    }
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -111,7 +116,11 @@ export const DonatePage: React.FC = () => {
 
     setSubmittingInKind(true);
     try {
-      const res = await donationService.submitInKindDonation(inKindForm);
+      const payload: any = {
+        ...inKindForm,
+        ...(spamData || {})
+      };
+      const res = await donationService.submitInKindDonation(payload);
       if (res.success) {
         setInKindSuccess({ message: res.message, ref: res.referenceNumber });
         setInKindForm({
@@ -515,6 +524,12 @@ export const DonatePage: React.FC = () => {
                         I confirm that these items are safe, hygienic, and non-expired. I consent to Mwancha Senior Community contacting me to finalize delivery and acknowledge receipt.
                       </label>
                     </div>
+
+                    {/* Anti-Spam Security Challenge & Honeypot */}
+                    <SpamProtection
+                      onChange={setSpamData}
+                      error={formErrors.challengeAnswer}
+                    />
 
                     <div className="pt-4">
                       <Button

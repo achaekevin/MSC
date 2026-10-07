@@ -49,6 +49,7 @@ const LoginPage = lazy(() => import('../pages/admin/LoginPage').then(m => ({ def
 const RegisterPage = lazy(() => import('../pages/admin/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const ForgotPasswordPage = lazy(() => import('../pages/admin/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
 const ResetPasswordPage = lazy(() => import('../pages/admin/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
+const VerifyEmailPage = lazy(() => import('../pages/auth/VerifyEmailPage').then(m => ({ default: m.VerifyEmailPage })));
 const SettingsPage = lazy(() => import('../pages/admin/SettingsPage').then(m => ({ default: m.SettingsPage })));
 const UnauthorizedPage = lazy(() => import('../pages/admin/UnauthorizedPage').then(m => ({ default: m.default })));
 const DashboardPage = lazy(() => import('../pages/admin/DashboardPage').then(m => ({ default: m.default })));
@@ -145,6 +146,7 @@ export const AppRoutes: React.FC = () => {
             <ResetPasswordPage />
           </PublicOnlyRoute>
         } />
+        <Route path="/admin/verify-email" element={<VerifyEmailPage />} />
         <Route path="/admin/unauthorized" element={<UnauthorizedPage />} />
 
         {/* Protected Admin Routes */}

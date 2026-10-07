@@ -13,11 +13,12 @@ export const newsletterService = {
   /**
    * Public: Subscribe to newsletter
    */
-  async subscribe(email: string, consent: boolean, name?: string) {
+  async subscribe(email: string, consent: boolean, name?: string, spamMetadata?: Record<string, any>) {
     return apiClient.post<{ message: string; isNew: boolean }>('/newsletter/subscribe', {
       email,
       consent,
-      name
+      name,
+      ...(spamMetadata || {})
     });
   },
 

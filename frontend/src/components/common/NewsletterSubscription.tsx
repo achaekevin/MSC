@@ -10,6 +10,8 @@ export const NewsletterSubscription: React.FC<Props> = ({ variant = 'card' }) =>
   const [email, setEmail] = useState('');
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [honeypot, setHoneypot] = useState('');
+  const [startTime] = useState(() => Date.now());
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +33,10 @@ export const NewsletterSubscription: React.FC<Props> = ({ variant = 'card' }) =>
 
     setLoading(true);
     try {
-      const res = await newsletterService.subscribe(email, consent);
+      const res = await newsletterService.subscribe(email, consent, undefined, {
+        website_hp: honeypot,
+        _formStartTime: startTime
+      });
       setStatus({
         type: 'success',
         message: res.message || 'Thank you for subscribing to Mwancha Senior Community updates!'
@@ -41,7 +46,7 @@ export const NewsletterSubscription: React.FC<Props> = ({ variant = 'card' }) =>
     } catch (err: any) {
       setStatus({
         type: 'error',
-        message: err?.response?.data?.message || err?.message || 'Failed to subscribe. Please try again.'
+        message: err?.response?.data?.error?.message || err?.response?.data?.message || err?.message || 'Failed to subscribe. Please try again.'
       });
     } finally {
       setLoading(false);

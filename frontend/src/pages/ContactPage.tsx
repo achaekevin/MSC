@@ -10,6 +10,7 @@ import { ContactMessage } from '../types';
 import { MSC_ORGANIZATION } from '../constants';
 import { Mail, MapPin, Clock, ShieldCheck, Phone, MessageCircle } from 'lucide-react';
 import { SEO } from '../components/common/SEO';
+import { SpamProtection, SpamProtectionData } from '../components/common/SpamProtection';
 
 export const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState<ContactMessage>({
@@ -20,6 +21,7 @@ export const ContactPage: React.FC = () => {
     message: ''
   });
 
+  const [spamData, setSpamData] = useState<SpamProtectionData | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -50,6 +52,10 @@ export const ContactPage: React.FC = () => {
       errs.message = 'Message must be at least 10 characters.';
     }
 
+    if (!spamData?.challengeAnswer?.trim()) {
+      errs.challengeAnswer = 'Please solve the anti-spam question to confirm you are human.';
+    }
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -63,7 +69,11 @@ export const ContactPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await contactService.submitContactMessage(formData);
+      const payload = {
+        ...formData,
+        ...(spamData || {})
+      };
+      const response = await contactService.submitContactMessage(payload as any);
       if (response.success) {
         setSuccessMessage(response.message);
         setFormData({
@@ -77,8 +87,9 @@ export const ContactPage: React.FC = () => {
       } else {
         setErrorMessage(response.message || 'Unable to send message. Please try again.');
       }
-    } catch {
-      setErrorMessage('Could not deliver your message. Please write directly to mwachahomeforelderly@gmail.com.');
+    } catch (err: any) {
+      const msg = err.response?.data?.error?.message || err.message || 'Could not deliver your message. Please write directly to mwachahomeforelderly@gmail.com.';
+      setErrorMessage(msg);
     } finally {
       setLoading(false);
     }
@@ -323,6 +334,12 @@ export const ContactPage: React.FC = () => {
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     error={errors.message}
+                  />
+
+                  {/* Anti-Spam Challenge & Honeypot Protection */}
+                  <SpamProtection
+                    onChange={setSpamData}
+                    error={errors.challengeAnswer}
                   />
 
                   <div className="pt-2">
