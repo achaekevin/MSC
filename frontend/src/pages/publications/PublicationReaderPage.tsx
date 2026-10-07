@@ -25,7 +25,8 @@ import {
   Moon,
   Coffee,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  ExternalLink
 } from 'lucide-react';
 import { MSC_ORGANIZATION } from '../../constants';
 import { downloadPublicationPdf } from '../../utils/pdfGenerator';
@@ -48,6 +49,8 @@ export const PublicationReaderPage: React.FC = () => {
   const [activeChapterIndex, setActiveChapterIndex] = useState(0);
   const [copied, setCopied] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -88,12 +91,20 @@ export const PublicationReaderPage: React.FC = () => {
   const handleExportPDF = () => {
     if (!publication) return;
 
+    setDownloading(true);
     try {
       downloadPublicationPdf(publication);
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 3000);
     } catch (err) {
       console.error('Client-side PDF generation fallback:', err);
-      // Fallback to print
-      window.print();
+      if (publication.pdfUrl) {
+        window.open(publication.pdfUrl, '_blank');
+      } else {
+        window.print();
+      }
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -264,14 +275,43 @@ export const PublicationReaderPage: React.FC = () => {
               <span className="hidden md:inline">{copied ? 'Copied' : 'Share'}</span>
             </button>
 
+            {/* Open Original PDF Tab */}
+            {publication?.pdfUrl && (
+              <a
+                href={publication.pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-800 hover:bg-warm-100 dark:hover:bg-charcoal-700 text-charcoal-800 dark:text-warm-100 font-bold text-xs transition-colors"
+                title="View PDF directly in browser"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-forest-800 dark:text-emerald-400" />
+                <span>View PDF</span>
+              </a>
+            )}
+
             {/* Export / Download as PDF Action Button */}
             <button
               onClick={handleExportPDF}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-forest-900 dark:bg-emerald-600 hover:bg-forest-800 dark:hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all active:scale-95"
-              title="Export as formatted PDF or print"
+              disabled={downloading}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-forest-900 dark:bg-emerald-600 hover:bg-forest-800 dark:hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 disabled:opacity-50"
+              title="Export as formatted PDF document"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Export as PDF</span>
+              {downloadSuccess ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-300" />
+                  <span>Downloaded!</span>
+                </>
+              ) : downloading ? (
+                <>
+                  <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Generating...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export as PDF</span>
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -480,14 +520,26 @@ export const PublicationReaderPage: React.FC = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                {publication?.pdfUrl && (
+                  <a
+                    href={publication.pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/30 text-white hover:bg-white/10 font-bold text-sm transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>Open in Browser</span>
+                  </a>
+                )}
                 <Button
                   onClick={handleExportPDF}
                   variant="primary"
                   size="md"
-                  icon={<Download className="w-4 h-4" />}
+                  disabled={downloading}
+                  icon={downloadSuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
                 >
-                  Download / Save as PDF
+                  {downloadSuccess ? 'Downloaded!' : downloading ? 'Generating PDF...' : 'Download / Save as PDF'}
                 </Button>
                 <Button
                   to="/publications"

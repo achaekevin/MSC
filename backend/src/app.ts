@@ -31,6 +31,10 @@ export const createApp = (): Express => {
   if (fs.existsSync(frontendPublicPath)) {
     app.use('/images', express.static(path.join(frontendPublicPath, 'images')));
   }
+  app.use('/documents', express.static(path.join(backendPublicPath, 'documents')));
+  if (fs.existsSync(frontendPublicPath)) {
+    app.use('/documents', express.static(path.join(frontendPublicPath, 'documents')));
+  }
   app.use('/logo.png', express.static(path.join(backendPublicPath, 'logo.png')));
   app.use('/logo.jpg', express.static(path.join(backendPublicPath, 'logo.jpg')));
 
