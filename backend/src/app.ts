@@ -11,6 +11,7 @@ import { generalLimiter } from './middleware/rateLimiter.js';
 import { networkAccessSecurity, checkNetworkAccess } from './middleware/networkAccess.js';
 import { NotFoundError } from './errors/AppError.js';
 import { env } from './config/env.js';
+import { sanitizeInput } from './middleware/sanitize.js';
 import apiV1Router from './routes/index.js';
 import healthRoutes from './routes/health.routes.js';
 
@@ -45,7 +46,18 @@ export const createApp = (): Express => {
   app.use(checkNetworkAccess);
   app.use(networkAccessSecurity);
 
-  // Security Headers (Section 66)
+  // Force HTTPS in production environments (Section 66 & Pre-launch hardening)
+  if (env.NODE_ENV === 'production') {
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      const proto = req.headers['x-forwarded-proto'];
+      if (proto && proto !== 'https') {
+        return res.redirect(301, `https://${req.headers.host}${req.originalUrl}`);
+      }
+      next();
+    });
+  }
+
+  // Security Headers (Section 66: HSTS, CSP, Frameguard, Referrer-Policy)
   app.use(
     helmet({
       contentSecurityPolicy: {
@@ -67,12 +79,30 @@ export const createApp = (): Express => {
         }
       },
       crossOriginResourcePolicy: { policy: 'cross-origin' },
-      // Allow network access in development
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+      },
+      frameguard: { action: 'deny' },
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+      xContentTypeOptions: true,
+      dnsPrefetchControl: { allow: false },
+      // Allow relaxed CSP in development
       ...(env.NODE_ENV === 'development' && {
         contentSecurityPolicy: false
       })
     })
   );
+
+  // Permissions-Policy header to restrict unauthorized browser hardware APIs
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.setHeader(
+      'Permissions-Policy',
+      'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
+    );
+    next();
+  });
 
   // CORS (Section 39)
   app.use(cors(corsOptions));
@@ -83,6 +113,9 @@ export const createApp = (): Express => {
   // Body Parsing with size limits (Section 37)
   app.use(express.json({ limit: '2mb' }));
   app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+
+  // Global Input Sanitization against XSS
+  app.use(sanitizeInput);
 
   // Swagger/OpenAPI Documentation (Section 51)
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

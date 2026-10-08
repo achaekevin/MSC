@@ -48,3 +48,17 @@ if (!parsedEnv.success) {
 }
 
 export const env = parsedEnv.data;
+
+// Security audit warning for production deployments
+if (env.NODE_ENV === 'production') {
+  if (env.JWT_ACCESS_SECRET.includes('development') || env.JWT_ACCESS_SECRET.length < 32) {
+    console.warn(
+      '⚠️ SECURITY WARNING: Insecure or default JWT_ACCESS_SECRET detected in production environment! Set a strong, unique 32+ character secret in .env.'
+    );
+  }
+  if (env.ADMIN_INVITE_CODE === 'MSC-ADMIN-2024-SECURE') {
+    console.warn(
+      '⚠️ SECURITY WARNING: Default ADMIN_INVITE_CODE detected in production! Please override with a private administrative key.'
+    );
+  }
+}

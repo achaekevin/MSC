@@ -13,7 +13,7 @@ export const registerSchema = z.object({
     .min(8, 'Password must be at least 8 characters long')
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
     .regex(/[0-9]/, 'Password must contain at least one number'),
-  role: z.enum(['SUPER_ADMIN', 'CONTENT_ADMIN', 'EDITOR', 'REVIEWER', 'FORM_MANAGER']).optional(),
+  role: z.enum(['CONTENT_ADMIN', 'EDITOR', 'REVIEWER', 'FORM_MANAGER']).optional(),
   adminInviteCode: z.string().min(1, 'A valid administrative authorization key is required to register an admin account')
 });
 

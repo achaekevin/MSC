@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate } from '../middleware/authenticate.js';
 import { requireRoles, requirePermissions } from '../middleware/authorize.js';
-import { uploadMedia } from '../middleware/upload.js';
+import { uploadMedia, validateFileMagicBytes } from '../middleware/upload.js';
 import { validate } from '../middleware/validate.js';
 
 import { dashboardController } from '../controllers/dashboard.controller.js';
@@ -267,6 +267,7 @@ router.post(
   '/media/upload',
   requirePermissions('MEDIA_MANAGE'),
   uploadMedia.single('file'),
+  validateFileMagicBytes,
   (req, res, next) => galleryController.uploadMedia(req, res, next)
 );
 router.put(
