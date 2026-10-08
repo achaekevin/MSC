@@ -44,7 +44,7 @@ export class StoryService {
   async getPublicStories(page = 1, limit = 12) {
     const skip = (page - 1) * limit;
     const where: any = {
-      status: ContentStatus.PUBLISHED,
+      status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
       deletedAt: null
     };
 
@@ -73,7 +73,7 @@ export class StoryService {
     const story = await prisma.successStory.findFirst({
       where: {
         slug,
-        status: ContentStatus.PUBLISHED,
+        status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
         deletedAt: null
       }
     });
@@ -151,9 +151,9 @@ export class StoryService {
         privacyStatus: data.privacyStatus || 'anonymized',
         location: data.location || 'Nyamira County',
         date: data.date ? new Date(data.date) : new Date(),
-        status: ContentStatus.DRAFT,
+        status: (data.status as ContentStatus) || ContentStatus.APPROVED,
         source: (data.source as ContentSource) || ContentSource.OFFICIAL_PROFILE,
-        approvalRequired: true
+        approvalRequired: false
       }
     });
 

@@ -27,7 +27,7 @@ export class EventService {
   async getPublicEvents(page = 1, limit = 10, category?: string, search?: string) {
     const skip = (page - 1) * limit;
     const where: any = {
-      status: ContentStatus.PUBLISHED,
+      status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
       deletedAt: null
     };
 
@@ -72,7 +72,7 @@ export class EventService {
     const event = await prisma.event.findFirst({
       where: {
         slug,
-        status: ContentStatus.PUBLISHED,
+        status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
         deletedAt: null
       }
     });
@@ -181,8 +181,8 @@ export class EventService {
         registrationUrl: data.registrationUrl,
         image: data.image,
         organizer: data.organizer || 'Mwancha Senior Community',
-        status: (data.status as ContentStatus) || ContentStatus.DRAFT,
-        publishedAt: data.status === 'PUBLISHED' ? new Date() : null,
+        status: (data.status as ContentStatus) || ContentStatus.APPROVED,
+        publishedAt: data.publishedAt ? new Date(data.publishedAt) : new Date(),
         source: (data.source as ContentSource) || ContentSource.OFFICIAL_PROFILE,
         createdById: userId
       }

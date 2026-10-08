@@ -54,13 +54,25 @@ export const CMSProvider: React.FC<CMSProviderProps> = ({ children }) => {
   const isLoading = organizationData.isLoading || impactData.isLoading || programsData.isLoading;
   const hasError = organizationData.hasError || !!impactData.error || !!programsData.error;
 
-  const refreshAll = async () => {
+  const refreshAll = React.useCallback(async () => {
     await Promise.all([
       organizationData.refetch(),
       impactData.refetch(),
       programsData.refetch()
     ]);
-  };
+  }, [organizationData.refetch, impactData.refetch, programsData.refetch]);
+
+  React.useEffect(() => {
+    const handleContentUpdated = () => {
+      refreshAll();
+    };
+    window.addEventListener('msc_content_updated', handleContentUpdated);
+    window.addEventListener('focus', handleContentUpdated);
+    return () => {
+      window.removeEventListener('msc_content_updated', handleContentUpdated);
+      window.removeEventListener('focus', handleContentUpdated);
+    };
+  }, [refreshAll]);
 
   const value: CMSContextType = {
     // Organization data

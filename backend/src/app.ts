@@ -131,6 +131,15 @@ export const createApp = (): Express => {
   // Health and Readiness Checks (Section 50)
   app.use('/', healthRoutes);
 
+  // Ensure all API responses bypass browser/proxy caching so admin changes reflect immediately
+  app.use('/api', (req: Request, res: Response, next: NextFunction) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+    next();
+  });
+
   // Mount API v1 (Section 4 & 67)
   app.use('/api/v1', apiV1Router);
 

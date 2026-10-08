@@ -4,11 +4,15 @@ import { ContentStatus } from '@prisma/client';
 
 export class OrganizationService {
   async getPublicOrganization() {
-    const org = await prisma.organization.findFirst({
+    let org = await prisma.organization.findFirst({
       where: {
         status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] }
       }
     });
+
+    if (!org) {
+      org = await prisma.organization.findFirst();
+    }
 
     if (!org) {
       throw new NotFoundError('Organization profile data is currently pending client approval');

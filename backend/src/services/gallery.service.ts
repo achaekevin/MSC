@@ -128,11 +128,10 @@ export class GalleryService {
         width: uploadRes.width,
         height: uploadRes.height,
         altText: data.altText || data.title || 'Mwancha Senior Community outreach photograph',
-        photographer: data.photographer,
-        consentConfirmed: data.consentConfirmed === 'true' || data.consentConfirmed === true,
-        status: ContentStatus.DRAFT,
+        consentConfirmed: data.consentConfirmed !== undefined ? (data.consentConfirmed === 'true' || data.consentConfirmed === true) : true,
+        status: (data.status as ContentStatus) || ContentStatus.APPROVED,
         source: (data.source as ContentSource) || ContentSource.CLIENT,
-        approvalRequired: true
+        approvalRequired: false
       }
     });
 

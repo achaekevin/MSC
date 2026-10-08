@@ -74,10 +74,8 @@ export class NewsService {
 
   async getPublicNews(page = 1, limit = 10, category?: string) {
     const skip = (page - 1) * limit;
-    const now = new Date();
     const where: any = {
-      status: ContentStatus.PUBLISHED,
-      publishedAt: { lte: now },
+      status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
       deletedAt: null
     };
 
@@ -114,12 +112,10 @@ export class NewsService {
   }
 
   async getPublicNewsBySlug(slug: string) {
-    const now = new Date();
     const article = await prisma.newsArticle.findFirst({
       where: {
         slug,
-        status: ContentStatus.PUBLISHED,
-        publishedAt: { lte: now },
+        status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
         deletedAt: null
       },
       include: {
@@ -212,14 +208,12 @@ export class NewsService {
         category: data.category || 'Community Story',
         tags: JSON.stringify(data.tags || []),
         isFeatured: data.isFeatured ?? false,
-        status: (data.status as ContentStatus) || ContentStatus.DRAFT,
+        status: (data.status as ContentStatus) || ContentStatus.APPROVED,
         publishedAt: data.publishedAt
           ? new Date(data.publishedAt)
-          : data.status === 'PUBLISHED'
-          ? new Date()
-          : null,
+          : new Date(),
         source: (data.source as ContentSource) || ContentSource.OFFICIAL_PROFILE,
-        approvalRequired: data.status === 'PUBLISHED' ? false : true,
+        approvalRequired: false,
         seoTitle: data.seoTitle,
         seoDescription: data.seoDescription,
         authorId: userId
