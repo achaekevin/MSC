@@ -102,7 +102,7 @@ export const ImpactDashboardSection: React.FC<ImpactDashboardSectionProps> = ({
       description: 'Documented senior citizens and orphaned households supported with home-based respite care and essential supplies.',
       source: 'MSC Field Case Management Registries',
       sourceDocument: 'MSC Organizational Profile 2024',
-      reportingPeriod: '2024–2026'
+      reportingPeriod: '2024 to 2026'
     } as ImpactMetric;
 
     // 2. Founded (2016)
@@ -121,7 +121,7 @@ export const ImpactDashboardSection: React.FC<ImpactDashboardSectionProps> = ({
       description: 'Founded in Ekerenyo, Nyamira County as Mwancha Home for the Elderly, scaling to national advocacy in 2024.',
       source: 'MSC Founding Charter & Registration',
       sourceDocument: 'Registrar of Societies Kenya',
-      reportingPeriod: '2016–Present'
+      reportingPeriod: '2016 to Present'
     } as ImpactMetric;
 
     // 3. Current Scope (Kenya)
@@ -358,7 +358,7 @@ export const ImpactDashboardSection: React.FC<ImpactDashboardSectionProps> = ({
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-forest-800/60 text-[11px] text-forest-400 flex items-center justify-between">
-                  <span>{metric.reportingPeriod || '2024–2026'}</span>
+                  <span>{metric.reportingPeriod || '2024 to 2026'}</span>
                   <span className="text-emerald-400 font-bold hover:underline">View Source &rarr;</span>
                 </div>
               </motion.div>
@@ -452,7 +452,7 @@ export const ImpactDashboardSection: React.FC<ImpactDashboardSectionProps> = ({
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-forest-400 font-semibold">Reporting Period:</span>
-                  <span className="font-bold text-emerald-300">{selectedMetric.reportingPeriod || '2024–2026'}</span>
+                  <span className="font-bold text-emerald-300">{selectedMetric.reportingPeriod || '2024 to 2026'}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-forest-400 font-semibold">Verification Level:</span>

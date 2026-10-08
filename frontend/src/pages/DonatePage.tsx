@@ -298,13 +298,13 @@ export const DonatePage: React.FC = () => {
                     <span>Physical Drop-off & Reception Center</span>
                   </div>
                   <h3 className="text-xl sm:text-2xl font-black font-display text-white">
-                    Mwancha House – Ekerenyo
+                    Mwancha House in Ekerenyo
                   </h3>
                   <p className="text-sm text-forest-100 leading-relaxed">
                     <strong>Road:</strong> Ekerenyo-Obwari-Magwagwa Road<br />
                     <strong>Location:</strong> Nyamira North, Nyamira County, Kenya<br />
                     <strong>Postal Address:</strong> P.O. Box 162-40506 Ekerenyo-Nyamira<br />
-                    <strong>Operating Hours:</strong> Monday – Saturday, 8:00 AM – 5:00 PM
+                    <strong>Operating Hours:</strong> Monday to Saturday, 8:00 AM to 5:00 PM
                   </p>
                   <p className="text-xs text-forest-300 italic pt-1">
                     * Need assistance with bulky items or field collection? Fill out the pledge form below and our 40 ward volunteers will coordinate pickup.
@@ -471,7 +471,7 @@ export const DonatePage: React.FC = () => {
                         options={[
                           {
                             value: 'DROP_OFF_EKERENYO',
-                            label: 'Drop-off at Mwancha House – Ekerenyo'
+                            label: 'Drop-off at Mwancha House in Ekerenyo'
                           },
                           {
                             value: 'FIELD_PICKUP_REQUEST',

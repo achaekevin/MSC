@@ -69,7 +69,7 @@ const DEFAULT_FORM_DATA: MetricFormData = {
   icon: 'Users',
   description: '',
   sourceDocument: 'MSC Organizational Profile 2024',
-  reportingPeriod: '2024–2026',
+  reportingPeriod: '2024 to 2026',
   displayOrder: 0,
   status: 'APPROVED',
   clientApprovedConfirmation: true
@@ -148,7 +148,7 @@ export const ImpactManagementPage: React.FC = () => {
       icon: metric.icon || 'Users',
       description: metric.description || '',
       sourceDocument: metric.sourceDocument || 'MSC Organizational Profile 2024',
-      reportingPeriod: metric.reportingPeriod || '2024–2026',
+      reportingPeriod: metric.reportingPeriod || '2024 to 2026',
       displayOrder: metric.displayOrder ?? 0,
       status: metric.status || 'APPROVED',
       clientApprovedConfirmation: true
@@ -469,7 +469,7 @@ export const ImpactManagementPage: React.FC = () => {
                         {metric.sourceDocument || 'MSC Organizational Profile 2024'}
                       </div>
                       <div className="text-[11px] text-charcoal-500">
-                        Period: {metric.reportingPeriod || '2024–2026'}
+                        Period: {metric.reportingPeriod || '2024 to 2026'}
                       </div>
                     </td>
                     <td className="py-4 px-6">

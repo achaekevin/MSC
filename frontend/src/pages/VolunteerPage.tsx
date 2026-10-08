@@ -622,7 +622,7 @@ export const VolunteerPage: React.FC = () => {
                       </h4>
                       <ol className="text-xs text-charcoal-700 space-y-2.5 list-decimal pl-4 leading-relaxed">
                         <li>
-                          <strong>Desk Review:</strong> Our volunteer coordination team will review your application within 3–5 working days.
+                          <strong>Desk Review:</strong> Our volunteer coordination team will review your application within 3 to 5 working days.
                         </li>
                         <li>
                           <strong>Telephone Orientation:</strong> We will contact you at <code>{formData.phone}</code> for a brief discussion about available ward initiatives.

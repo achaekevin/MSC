@@ -275,22 +275,19 @@ export const HomePage: React.FC = () => {
               className="max-w-4xl text-left space-y-6"
             >
               {/* Active Facility Tag Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400 text-charcoal-950 text-xs font-black uppercase tracking-wider shadow-lg animate-shimmer">
-                <span className="w-2.5 h-2.5 rounded-full bg-charcoal-950 animate-pulse" />
-                <span>Verified Site: {activeFacility.title}</span>
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider shadow-lg">
+                <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
+                <span>Community Facility: {activeFacility.title}</span>
               </div>
 
-              {/* Main Headline */}
-              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-[1.12] font-display tracking-tight drop-shadow-md">
-                Dignity, Care & a Flourishing Life for{' '}
-                <span className="text-amber-400 underline decoration-amber-400/80 decoration-4 underline-offset-4">
-                  Older Persons
-                </span>
+              {/* Main Headline (Unified One Font Color, Simple Vocabulary, No Dashes) */}
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-[1.15] font-display tracking-tight drop-shadow-md">
+                Dignity and Care for Older Persons
               </h1>
 
-              {/* Mission Statement */}
-              <p className="text-base sm:text-xl text-warm-100/95 leading-relaxed font-semibold max-w-3xl drop-shadow-xs">
-                {MSC_ORGANIZATION.mission}
+              {/* Clear, Simple Support Message */}
+              <p className="text-base sm:text-xl text-white leading-relaxed font-medium max-w-3xl drop-shadow-xs">
+                We support older persons with healthcare, daily care, and community support so they can live in peace and dignity.
               </p>
 
               {/* High-Contrast Action Buttons (Unified Fast-Action Green Palette) */}

@@ -217,7 +217,7 @@ export const PartnerPage: React.FC = () => {
                   Donating Food Staples or Supplies?
                 </h4>
                 <p className="text-xs sm:text-sm text-amber-900/80 leading-relaxed">
-                  We accept grains, warm fleece blankets, clothing, wheelchairs, and shelter repair materials. Drop-offs are received at Mwancha House – Ekerenyo.
+                  We accept grains, warm fleece blankets, clothing, wheelchairs, and shelter repair materials. Drop-offs are received at Mwancha House in Ekerenyo.
                 </p>
                 <div className="pt-1">
                   <a

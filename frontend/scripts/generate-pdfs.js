@@ -25,7 +25,7 @@ const publications = [
     chapters: [
       {
         title: 'Chapter 1: The Landscape of Ageing in Kenya',
-        content: `Kenya's demographic landscape is undergoing a critical demographic transition. With improvements in life expectancy and medical care, the population of persons aged 60 and above is expanding rapidly. Yet, customary communal safety nets—historically anchored within extended family structures—are under severe strain due to rapid urbanization, economic hardship, and generational poverty.\n\nOlder persons in rural and peri-urban settlements frequently encounter extreme isolation, multidimensional poverty, and total exclusion from formal social security systems. According to grassroots assessments conducted across Nyamira County and neighboring regions, over 70% of senior-headed households lack predictable income or comprehensive medical insurance coverage.`
+        content: `Kenya's demographic landscape is undergoing a critical demographic transition. With improvements in life expectancy and medical care, the population of persons aged 60 and above is expanding rapidly. Yet, customary communal safety nets, historically anchored within extended family structures, are under severe strain due to rapid urbanization, economic hardship, and generational poverty.\n\nOlder persons in rural and peri-urban settlements frequently encounter extreme isolation, multidimensional poverty, and total exclusion from formal social security systems. According to grassroots assessments conducted across Nyamira County and neighboring regions, over 70% of senior-headed households lack predictable income or comprehensive medical insurance coverage.`
       },
       {
         title: 'Chapter 2: The Core Vulnerabilities: Health, Nutrition & Shelter',
@@ -196,7 +196,7 @@ function buildPdf(pub) {
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.text('MWANCHA SENIOR COMMUNITY (MSC) — OFFICIAL RESOURCE', margin, 18);
+    doc.text('MWANCHA SENIOR COMMUNITY (MSC) : OFFICIAL RESOURCE', margin, 18);
 
     let curY = 65;
 
@@ -234,7 +234,7 @@ function buildPdf(pub) {
         doc.setTextColor(255, 255, 255);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(9);
-        doc.text('MWANCHA SENIOR COMMUNITY (MSC) — OFFICIAL RESOURCE', margin, 18);
+        doc.text('MWANCHA SENIOR COMMUNITY (MSC) : OFFICIAL RESOURCE', margin, 18);
 
         curY = 55;
         doc.setTextColor(...charcoal);
@@ -259,7 +259,7 @@ function buildPdf(pub) {
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
-  doc.text('MWANCHA SENIOR COMMUNITY (MSC) — INSTITUTIONAL COLOPHON', margin, 18);
+  doc.text('MWANCHA SENIOR COMMUNITY (MSC) : INSTITUTIONAL COLOPHON', margin, 18);
 
   let colY = 100;
   doc.setTextColor(...forestGreen);
