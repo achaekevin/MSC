@@ -3,7 +3,80 @@ import { NotFoundError } from '../errors/AppError.js';
 import { ContentStatus, ContentSource } from '@prisma/client';
 
 export class ImpactService {
+  private async ensureDefaultMetrics() {
+    const count = await prisma.impactMetric.count({ where: { deletedAt: null } });
+    if (count > 0) return;
+
+    const defaults = [
+      {
+        name: 'Beneficiary Households',
+        value: '1,203+',
+        description: 'Elderly individuals and Orphaned & Vulnerable Children (OVC) households directly documented and supported through case management.',
+        category: 'beneficiaries',
+        icon: 'Users',
+        sourceDocument: 'MSC Organizational Profile 2024',
+        reportingPeriod: '2024-2026',
+        displayOrder: 1,
+        status: ContentStatus.PUBLISHED
+      },
+      {
+        name: 'Ward-Based Volunteers',
+        value: '40',
+        description: 'Trained grassroots volunteers actively conducting home visits, needs mapping, and community monitoring.',
+        category: 'volunteers',
+        icon: 'HeartHandshake',
+        sourceDocument: 'MSC Organizational Profile 2024',
+        reportingPeriod: '2024-2026',
+        displayOrder: 2,
+        status: ContentStatus.PUBLISHED
+      },
+      {
+        name: 'National Scope',
+        value: 'Mandate Extends Across Kenya',
+        description: 'Officially mandated to advocate for senior citizen welfare nationwide, expanding from its grassroots foundation in Nyamira County.',
+        category: 'coverage',
+        icon: 'Globe',
+        sourceDocument: 'MSC Organizational Profile 2024',
+        reportingPeriod: '2024-2026',
+        displayOrder: 3,
+        status: ContentStatus.PUBLISHED
+      },
+      {
+        name: 'Community Service',
+        value: 'Since 2016',
+        description: 'Established in 2016 as Mwancha Home for the Elderly, progressing to Mwancha Senior Community in 2024 to advance systemic impact.',
+        category: 'operations',
+        icon: 'Calendar',
+        sourceDocument: 'MSC Organizational Profile 2024',
+        reportingPeriod: '2024-2026',
+        displayOrder: 4,
+        status: ContentStatus.PUBLISHED
+      }
+    ];
+
+    for (const d of defaults) {
+      await prisma.impactMetric.create({
+        data: {
+          name: d.name,
+          value: d.value,
+          description: d.description,
+          category: d.category,
+          icon: d.icon,
+          source: ContentSource.OFFICIAL_PROFILE,
+          sourceDocument: d.sourceDocument,
+          reportingPeriod: d.reportingPeriod,
+          displayOrder: d.displayOrder,
+          status: d.status,
+          approvalRequired: false,
+          publishedAt: new Date()
+        }
+      });
+    }
+  }
+
   async getPublicMetrics() {
+    await this.ensureDefaultMetrics();
+
     const metrics = await prisma.impactMetric.findMany({
       where: {
         status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
@@ -15,16 +88,27 @@ export class ImpactService {
     return metrics.map(m => ({
       id: m.id,
       label: m.name,
+      name: m.name,
       value: m.value,
       unit: m.unit,
       description: m.description,
       category: m.category,
       icon: m.icon,
-      source: m.sourceDocument
+      source: m.sourceDocument,
+      sourceDocument: m.sourceDocument,
+      reportingPeriod: m.reportingPeriod,
+      status: m.status,
+      displayOrder: m.displayOrder,
+      metadata: {
+        status: m.status.toLowerCase(),
+        source: m.source.toLowerCase()
+      }
     }));
   }
 
   async getAdminMetrics() {
+    await this.ensureDefaultMetrics();
+
     const metrics = await prisma.impactMetric.findMany({
       where: { deletedAt: null },
       orderBy: { displayOrder: 'asc' }

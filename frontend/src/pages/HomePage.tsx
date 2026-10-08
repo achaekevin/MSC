@@ -37,6 +37,7 @@ import { fadeIn, fadeInUp, staggerContainer } from '../animations';
 import { SEO } from '../components/common/SEO';
 import { AnimatedCounter } from '../components/common/AnimatedCounter';
 import { ImpactDashboardSection } from '../components/impact/ImpactDashboardSection';
+import { useImpactMetrics } from '../contexts/CMSContext';
 
 
 // Authentic Facilities for Full-Screen Cinematic Showcase
@@ -101,6 +102,48 @@ const TICKER_ITEMS = [
 ];
 
 export const HomePage: React.FC = () => {
+  const { metrics: liveImpactMetrics } = useImpactMetrics();
+
+  const heroBeneficiaries = React.useMemo(() => {
+    const found = liveImpactMetrics.find(
+      (m) =>
+        m.label?.toLowerCase().includes('household') ||
+        m.label?.toLowerCase().includes('beneficiar') ||
+        m.category === 'beneficiaries'
+    );
+    return found?.value || '1,203+';
+  }, [liveImpactMetrics]);
+
+  const heroVolunteers = React.useMemo(() => {
+    const found = liveImpactMetrics.find(
+      (m) =>
+        m.label?.toLowerCase().includes('volunteer') ||
+        m.category === 'volunteers'
+    );
+    return found?.value || '40';
+  }, [liveImpactMetrics]);
+
+  const heroFounded = React.useMemo(() => {
+    const found = liveImpactMetrics.find(
+      (m) =>
+        m.label?.toLowerCase().includes('found') ||
+        m.label?.toLowerCase().includes('service') ||
+        m.category === 'operations'
+    );
+    return found?.value || '2016';
+  }, [liveImpactMetrics]);
+
+  const tickerItems = React.useMemo(() => [
+    `${heroBeneficiaries} Vulnerable Households Supported`,
+    'Advancing Elder Rights Across Kenya',
+    `${heroVolunteers} Ward-Based Active Volunteers`,
+    'Defending Against False Accusations & Elder Abuse',
+    'Holistic Geriatric Healthcare & Psychosocial Support',
+    'Established 2016 in Ekerenyo, Nyamira County',
+    'Palliative Care & Safe Elder Shelter',
+    'Intergenerational Cohesion & Community Barazas'
+  ], [heroBeneficiaries, heroVolunteers]);
+
   const featuredPrograms = PROGRAMS_DATA.slice(0, 3);
   const latestArticles = NEWS_ARTICLES_DATA.slice(0, 3);
 
@@ -328,7 +371,7 @@ export const HomePage: React.FC = () => {
                     <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-300 truncate">Beneficiaries</span>
                   </div>
                   <p className="text-xl sm:text-2xl md:text-3xl font-black text-white font-display">
-                    <AnimatedCounter value="1,203+" durationMs={1200} />
+                    <AnimatedCounter value={heroBeneficiaries} durationMs={1200} />
                   </p>
                   <p className="text-xs text-warm-200 font-bold truncate">Households</p>
                 </div>
@@ -339,7 +382,7 @@ export const HomePage: React.FC = () => {
                     <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-300 truncate">Volunteers</span>
                   </div>
                   <p className="text-xl sm:text-2xl md:text-3xl font-black text-white font-display">
-                    <AnimatedCounter value="40" durationMs={900} />
+                    <AnimatedCounter value={heroVolunteers} durationMs={900} />
                   </p>
                   <p className="text-xs text-warm-200 font-bold truncate">Coordinators</p>
                 </div>
@@ -350,7 +393,7 @@ export const HomePage: React.FC = () => {
                     <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-300 truncate">Founded</span>
                   </div>
                   <p className="text-xl sm:text-2xl md:text-3xl font-black text-white font-display">
-                    <AnimatedCounter value="2016" durationMs={1100} />
+                    <AnimatedCounter value={heroFounded} durationMs={1100} />
                   </p>
                   <p className="text-xs text-warm-200 font-bold truncate">Rooted</p>
                 </div>
@@ -453,7 +496,7 @@ export const HomePage: React.FC = () => {
           ========================================================================= */}
       <div className="border-y-2 border-forest-800 bg-forest-950 text-white py-3.5 sm:py-4 overflow-hidden select-none shadow-md">
         <div className="animate-marquee flex items-center gap-8 whitespace-nowrap">
-          {TICKER_ITEMS.concat(TICKER_ITEMS).map((item, idx) => (
+          {tickerItems.concat(tickerItems).map((item, idx) => (
             <div key={idx} className="flex items-center gap-3 text-xs sm:text-sm font-extrabold tracking-wide">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]" />
               <span className="text-white drop-shadow-xs">{item}</span>
@@ -675,6 +718,11 @@ export const HomePage: React.FC = () => {
           </div>
         </Container>
       </section>
+
+      {/* =========================================================================
+          INTERACTIVE IMPACT DASHBOARD (Directly Synchronized with Admin Statistics)
+          ========================================================================= */}
+      <ImpactDashboardSection className="py-14 bg-warm-50/80 dark:bg-charcoal-900/60 border-y-2 border-warm-200 dark:border-charcoal-800 transition-colors" />
 
       {/* =========================================================================
           WHY OUR WORK MATTERS: DOCUMENTED CHALLENGES FACED BY OLDER PERSONS

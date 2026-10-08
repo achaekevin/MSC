@@ -222,6 +222,7 @@ export const ImpactManagementPage: React.FC = () => {
 
       handleCloseModal();
       await fetchMetrics();
+      window.dispatchEvent(new CustomEvent('msc_content_updated'));
     } catch (err: any) {
       showNotification('error', err?.message || 'Failed to save impact metric.');
     } finally {
@@ -244,6 +245,7 @@ export const ImpactManagementPage: React.FC = () => {
         showNotification('success', 'Metric deleted.');
       }
       await fetchMetrics();
+      window.dispatchEvent(new CustomEvent('msc_content_updated'));
     } catch (err: any) {
       showNotification('error', err?.message || `Failed to ${action} metric.`);
     }

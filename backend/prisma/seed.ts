@@ -1094,6 +1094,74 @@ async function main() {
   }
   console.log('✅ Donation channels seeded with placeholder integrity safeguards.');
 
+  // ====================================================
+  // 11. Verified Institutional Impact Metrics
+  // ====================================================
+  const defaultImpactMetrics = [
+    {
+      name: 'Beneficiary Households',
+      value: '1,203+',
+      description: 'Elderly individuals and Orphaned & Vulnerable Children (OVC) households directly documented and supported through case management.',
+      category: 'beneficiaries',
+      icon: 'Users',
+      sourceDocument: 'MSC Organizational Profile 2024',
+      reportingPeriod: '2024-2026',
+      displayOrder: 1,
+      status: ContentStatus.PUBLISHED
+    },
+    {
+      name: 'Ward-Based Volunteers',
+      value: '40',
+      description: 'Trained grassroots volunteers actively conducting home visits, needs mapping, and community monitoring.',
+      category: 'volunteers',
+      icon: 'HeartHandshake',
+      sourceDocument: 'MSC Organizational Profile 2024',
+      reportingPeriod: '2024-2026',
+      displayOrder: 2,
+      status: ContentStatus.PUBLISHED
+    },
+    {
+      name: 'National Scope',
+      value: 'Mandate Extends Across Kenya',
+      description: 'Officially mandated to advocate for senior citizen welfare nationwide, expanding from its grassroots foundation in Nyamira County.',
+      category: 'coverage',
+      icon: 'Globe',
+      sourceDocument: 'MSC Organizational Profile 2024',
+      reportingPeriod: '2024-2026',
+      displayOrder: 3,
+      status: ContentStatus.PUBLISHED
+    },
+    {
+      name: 'Community Service',
+      value: 'Since 2016',
+      description: 'Established in 2016 as Mwancha Home for the Elderly, progressing to Mwancha Senior Community in 2024 to advance systemic impact.',
+      category: 'operations',
+      icon: 'Calendar',
+      sourceDocument: 'MSC Organizational Profile 2024',
+      reportingPeriod: '2024-2026',
+      displayOrder: 4,
+      status: ContentStatus.PUBLISHED
+    }
+  ];
+
+  for (const im of defaultImpactMetrics) {
+    const existingMetric = await prisma.impactMetric.findFirst({
+      where: { name: im.name }
+    });
+    if (!existingMetric) {
+      await prisma.impactMetric.create({
+        data: {
+          ...im,
+          source: ContentSource.OFFICIAL_PROFILE,
+          approvalRequired: false,
+          createdById: superAdminId,
+          publishedAt: new Date()
+        }
+      });
+    }
+  }
+  console.log('✅ 4 Verified Impact Metrics seeded into database.');
+
   console.log('🎉 Production database seeding completed successfully! Total tables populated with zero fictional claims.');
 }
 
