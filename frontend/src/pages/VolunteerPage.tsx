@@ -395,7 +395,7 @@ export const VolunteerPage: React.FC = () => {
                         variant="primary"
                         size="lg"
                         onClick={handleNext}
-                        className="inline-flex items-center gap-2 font-bold px-8"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 font-bold px-8"
                       >
                         <span>Continue to Role &amp; Availability</span>
                         <ArrowRight className="w-4 h-4" />
@@ -444,13 +444,13 @@ export const VolunteerPage: React.FC = () => {
                       error={errors.message}
                     />
 
-                    <div className="pt-4 flex items-center justify-between gap-3">
+                    <div className="pt-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
                       <Button
                         type="button"
                         variant="outline"
                         size="lg"
                         onClick={handleBack}
-                        className="inline-flex items-center gap-2"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
                       >
                         <ArrowLeft className="w-4 h-4" />
                         <span>Back</span>
@@ -461,7 +461,7 @@ export const VolunteerPage: React.FC = () => {
                         variant="primary"
                         size="lg"
                         onClick={handleNext}
-                        className="inline-flex items-center gap-2 font-bold px-8"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 font-bold px-8 shadow-md"
                       >
                         <span>Review Application</span>
                         <ArrowRight className="w-4 h-4" />
@@ -569,14 +569,14 @@ export const VolunteerPage: React.FC = () => {
                       />
                     </div>
 
-                    <div className="pt-4 flex items-center justify-between gap-3">
+                    <div className="pt-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
                       <Button
                         type="button"
                         variant="outline"
                         size="lg"
                         onClick={handleBack}
                         disabled={loading}
-                        className="inline-flex items-center gap-2"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
                       >
                         <ArrowLeft className="w-4 h-4" />
                         <span>Back</span>
@@ -587,7 +587,7 @@ export const VolunteerPage: React.FC = () => {
                         variant="primary"
                         size="lg"
                         isLoading={loading}
-                        className="inline-flex items-center gap-2 font-bold px-8 shadow-md"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 font-bold px-8 shadow-md"
                       >
                         <FileCheck className="w-4 h-4" />
                         <span>{loading ? 'Submitting Application...' : 'Confirm & Submit Application'}</span>

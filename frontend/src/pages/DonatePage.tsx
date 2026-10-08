@@ -655,8 +655,9 @@ export const DonatePage: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => handleCopy(details.paybillNumber, `paybill-${method.id}`)}
-                                className="p-1.5 rounded-lg hover:bg-warm-100 dark:hover:bg-charcoal-800 text-charcoal-600 dark:text-warm-300"
+                                className="min-w-[36px] min-h-[36px] flex items-center justify-center p-2 rounded-xl hover:bg-warm-100 dark:hover:bg-charcoal-800 text-charcoal-700 dark:text-warm-200 active:scale-95 transition-all"
                                 title="Copy Paybill Number"
+                                aria-label="Copy Paybill Number"
                               >
                                 {copiedKey === `paybill-${method.id}` ? (
                                   <Check className="w-4 h-4 text-emerald-600" />
@@ -680,8 +681,9 @@ export const DonatePage: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => handleCopy(details.tillNumber, `till-${method.id}`)}
-                                className="p-1.5 rounded-lg hover:bg-warm-100 dark:hover:bg-charcoal-800 text-charcoal-600 dark:text-warm-300"
+                                className="min-w-[36px] min-h-[36px] flex items-center justify-center p-2 rounded-xl hover:bg-warm-100 dark:hover:bg-charcoal-800 text-charcoal-700 dark:text-warm-200 active:scale-95 transition-all"
                                 title="Copy Till Number"
+                                aria-label="Copy Till Number"
                               >
                                 {copiedKey === `till-${method.id}` ? (
                                   <Check className="w-4 h-4 text-emerald-600" />
@@ -705,8 +707,9 @@ export const DonatePage: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => handleCopy(details.mpesaPhoneNumber, `phone-${method.id}`)}
-                                className="p-1.5 rounded-lg hover:bg-warm-100 dark:hover:bg-charcoal-800 text-charcoal-600 dark:text-warm-300"
+                                className="min-w-[36px] min-h-[36px] flex items-center justify-center p-2 rounded-xl hover:bg-warm-100 dark:hover:bg-charcoal-800 text-charcoal-700 dark:text-warm-200 active:scale-95 transition-all"
                                 title="Copy Phone Number"
+                                aria-label="Copy Phone Number"
                               >
                                 {copiedKey === `phone-${method.id}` ? (
                                   <Check className="w-4 h-4 text-emerald-600" />
@@ -748,8 +751,9 @@ export const DonatePage: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => handleCopy(details.accountNumber, `acct-${method.id}`)}
-                                  className="p-1 text-charcoal-600 dark:text-warm-300 hover:text-charcoal-900"
+                                  className="min-w-[32px] min-h-[32px] flex items-center justify-center p-1.5 rounded-lg text-charcoal-600 dark:text-warm-300 hover:text-charcoal-900 hover:bg-warm-100 dark:hover:bg-charcoal-700 active:scale-95 transition-all"
                                   title="Copy Account Number"
+                                  aria-label="Copy Account Number"
                                 >
                                   {copiedKey === `acct-${method.id}` ? (
                                     <Check className="w-3.5 h-3.5 text-emerald-600" />
