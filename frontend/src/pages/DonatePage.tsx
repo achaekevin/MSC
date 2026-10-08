@@ -25,7 +25,10 @@ import {
   Clock,
   PhoneCall,
   Sparkles,
-  PackageCheck
+  PackageCheck,
+  Copy,
+  Check,
+  HelpCircle
 } from 'lucide-react';
 import { MSC_ORGANIZATION } from '../constants';
 import { ContentStatusBadge } from '../components/common/ContentStatusBadge';
@@ -71,6 +74,15 @@ export const DonatePage: React.FC = () => {
     };
   }, []);
 
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const handleCopy = (text: string, key: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
+
   const getMethodIcon = (type: DonationMethod['type']) => {
     switch (type) {
       case 'mpesa':
@@ -79,6 +91,8 @@ export const DonatePage: React.FC = () => {
         return <Landmark className="w-6 h-6 text-forest-800" />;
       case 'online':
         return <CreditCard className="w-6 h-6 text-earth-700" />;
+      case 'other':
+        return <HelpCircle className="w-6 h-6 text-purple-700" />;
       default:
         return <Heart className="w-6 h-6 text-forest-800" />;
     }
@@ -556,53 +570,250 @@ export const DonatePage: React.FC = () => {
       {activeTab === 'financial' && (
         <section>
           <Container>
-            {/* Transparency Callout Banner */}
-            <div className="mb-10 p-6 rounded-3xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-700 text-left max-w-4xl mx-auto flex items-start gap-4">
-              <AlertTriangle className="w-6 h-6 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-              <div className="space-y-1.5 text-xs sm:text-sm text-amber-950 dark:text-amber-200 leading-relaxed">
-                <h4 className="font-bold text-sm sm:text-base">
-                  Official Account Accreditation Notice
-                </h4>
-                <p>
-                  In strict compliance with Kenyan non-profit financial regulations and our organizational principle of <strong>Integrity</strong>, Mwancha Senior Community does not display placeholder or unverified personal banking numbers.
-                </p>
-                <p>
-                  Official MSC corporate M-Pesa Paybill numbers and institutional bank coordinates are undergoing client verification and will be published directly upon board sign-off.
-                </p>
+            {/* Conditional Transparency Banner */}
+            {methods.some((m) => m.isActive) ? (
+              <div className="mb-10 p-6 rounded-3xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-700 text-left max-w-4xl mx-auto flex items-start gap-4">
+                <CheckCircle2 className="w-6 h-6 text-emerald-700 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+                <div className="space-y-1 text-xs sm:text-sm text-emerald-950 dark:text-emerald-100 leading-relaxed">
+                  <h4 className="font-bold text-sm sm:text-base">
+                    Official Verified Giving Channels
+                  </h4>
+                  <p>
+                    Please find our active contribution coordinates below. Every gift directly supports food parcels, warm blankets, medical attention, and shelter restoration for seniors across Kenya.
+                  </p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="mb-10 p-6 rounded-3xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-700 text-left max-w-4xl mx-auto flex items-start gap-4">
+                <AlertTriangle className="w-6 h-6 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                <div className="space-y-1.5 text-xs sm:text-sm text-amber-950 dark:text-amber-200 leading-relaxed">
+                  <h4 className="font-bold text-sm sm:text-base">
+                    Official Account Accreditation Notice
+                  </h4>
+                  <p>
+                    In strict compliance with Kenyan non-profit financial regulations and our organizational principle of <strong>Integrity</strong>, Mwancha Senior Community does not display placeholder or unverified personal banking numbers.
+                  </p>
+                  <p>
+                    Official MSC corporate M-Pesa Paybill numbers and institutional bank coordinates are undergoing client verification and will be published directly upon board sign-off.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Donation Methods Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left max-w-5xl mx-auto">
-              {methods.map((method) => (
-                <div
-                  key={method.id}
-                  className="bg-white dark:bg-charcoal-900 rounded-3xl p-8 border border-warm-200 dark:border-charcoal-700 shadow-card flex flex-col justify-between relative"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-5">
-                      <div className="w-12 h-12 rounded-xl bg-warm-100 dark:bg-charcoal-800 flex items-center justify-center">
-                        {getMethodIcon(method.type)}
+              {methods.map((method) => {
+                const provider = method.paymentProvider || method.type;
+                const details = method.details || {};
+                const isActive = method.isActive;
+
+                return (
+                  <div
+                    key={method.id}
+                    className={`bg-white dark:bg-charcoal-900 rounded-3xl p-8 border transition-all flex flex-col justify-between relative shadow-card ${
+                      isActive
+                        ? 'border-emerald-200 dark:border-emerald-800 ring-1 ring-emerald-500/20'
+                        : 'border-warm-200 dark:border-charcoal-700'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-5">
+                        <div className="w-12 h-12 rounded-xl bg-warm-100 dark:bg-charcoal-800 flex items-center justify-center">
+                          {getMethodIcon(method.type)}
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            isActive
+                              ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
+                              : 'bg-warm-100 dark:bg-charcoal-800 text-charcoal-500 dark:text-warm-400'
+                          }`}
+                        >
+                          {isActive ? 'ACTIVE' : 'OFFLINE'}
+                        </span>
                       </div>
-                      {method.metadata && (
-                        <ContentStatusBadge metadata={method.metadata} />
+
+                      <h3 className="text-xl font-bold font-display text-charcoal-900 dark:text-white mb-2">
+                        {method.name}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-charcoal-600 dark:text-warm-300 leading-relaxed mb-5">
+                        {method.instructions}
+                      </p>
+
+                      {/* Dynamic Details when Active */}
+                      {isActive && provider === 'mpesa' && (
+                        <div className="space-y-2.5 my-4 p-3.5 rounded-2xl bg-warm-50 dark:bg-charcoal-800 border border-warm-200 dark:border-charcoal-700 text-xs">
+                          {details.paybillNumber && (
+                            <div className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-charcoal-900 border border-warm-200 dark:border-charcoal-700">
+                              <div>
+                                <span className="text-[10px] uppercase font-bold text-charcoal-500 dark:text-warm-400 block">
+                                  Paybill Number
+                                </span>
+                                <span className="font-mono font-bold text-sm text-charcoal-900 dark:text-white">
+                                  {details.paybillNumber}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(details.paybillNumber, `paybill-${method.id}`)}
+                                className="p-1.5 rounded-lg hover:bg-warm-100 dark:hover:bg-charcoal-800 text-charcoal-600 dark:text-warm-300"
+                                title="Copy Paybill Number"
+                              >
+                                {copiedKey === `paybill-${method.id}` ? (
+                                  <Check className="w-4 h-4 text-emerald-600" />
+                                ) : (
+                                  <Copy className="w-4 h-4" />
+                                )}
+                              </button>
+                            </div>
+                          )}
+
+                          {details.tillNumber && (
+                            <div className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-charcoal-900 border border-warm-200 dark:border-charcoal-700">
+                              <div>
+                                <span className="text-[10px] uppercase font-bold text-charcoal-500 dark:text-warm-400 block">
+                                  Till Number
+                                </span>
+                                <span className="font-mono font-bold text-sm text-charcoal-900 dark:text-white">
+                                  {details.tillNumber}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(details.tillNumber, `till-${method.id}`)}
+                                className="p-1.5 rounded-lg hover:bg-warm-100 dark:hover:bg-charcoal-800 text-charcoal-600 dark:text-warm-300"
+                                title="Copy Till Number"
+                              >
+                                {copiedKey === `till-${method.id}` ? (
+                                  <Check className="w-4 h-4 text-emerald-600" />
+                                ) : (
+                                  <Copy className="w-4 h-4" />
+                                )}
+                              </button>
+                            </div>
+                          )}
+
+                          {details.mpesaPhoneNumber && (
+                            <div className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-charcoal-900 border border-warm-200 dark:border-charcoal-700">
+                              <div>
+                                <span className="text-[10px] uppercase font-bold text-charcoal-500 dark:text-warm-400 block">
+                                  M-Pesa Phone
+                                </span>
+                                <span className="font-mono font-bold text-sm text-charcoal-900 dark:text-white">
+                                  {details.mpesaPhoneNumber}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(details.mpesaPhoneNumber, `phone-${method.id}`)}
+                                className="p-1.5 rounded-lg hover:bg-warm-100 dark:hover:bg-charcoal-800 text-charcoal-600 dark:text-warm-300"
+                                title="Copy Phone Number"
+                              >
+                                {copiedKey === `phone-${method.id}` ? (
+                                  <Check className="w-4 h-4 text-emerald-600" />
+                                ) : (
+                                  <Copy className="w-4 h-4" />
+                                )}
+                              </button>
+                            </div>
+                          )}
+
+                          {details.accountReference && (
+                            <div className="text-[11px] text-charcoal-600 dark:text-warm-400 pt-1">
+                              Account Reference: <strong className="text-charcoal-900 dark:text-white">{details.accountReference}</strong>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Bank Details when Active */}
+                      {isActive && provider === 'bank' && (
+                        <div className="space-y-2 my-4 p-3.5 rounded-2xl bg-warm-50 dark:bg-charcoal-800 border border-warm-200 dark:border-charcoal-700 text-xs">
+                          {details.bankName && (
+                            <div className="flex justify-between">
+                              <span className="text-charcoal-500 dark:text-warm-400">Bank:</span>
+                              <strong className="text-charcoal-900 dark:text-white">{details.bankName}</strong>
+                            </div>
+                          )}
+                          {details.accountName && (
+                            <div className="flex justify-between">
+                              <span className="text-charcoal-500 dark:text-warm-400">Account Name:</span>
+                              <strong className="text-charcoal-900 dark:text-white">{details.accountName}</strong>
+                            </div>
+                          )}
+                          {details.accountNumber && (
+                            <div className="flex justify-between items-center pt-1 border-t border-warm-200 dark:border-charcoal-700">
+                              <span className="text-charcoal-500 dark:text-warm-400">Account No:</span>
+                              <div className="flex items-center gap-1.5">
+                                <strong className="font-mono font-bold text-charcoal-900 dark:text-white">{details.accountNumber}</strong>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopy(details.accountNumber, `acct-${method.id}`)}
+                                  className="p-1 text-charcoal-600 dark:text-warm-300 hover:text-charcoal-900"
+                                  title="Copy Account Number"
+                                >
+                                  {copiedKey === `acct-${method.id}` ? (
+                                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                  ) : (
+                                    <Copy className="w-3.5 h-3.5" />
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                          {details.branch && (
+                            <div className="flex justify-between">
+                              <span className="text-charcoal-500 dark:text-warm-400">Branch:</span>
+                              <span className="text-charcoal-800 dark:text-warm-200">{details.branch}</span>
+                            </div>
+                          )}
+                          {details.swiftCode && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-charcoal-500 dark:text-warm-400">SWIFT Code:</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-mono font-bold text-charcoal-900 dark:text-white">{details.swiftCode}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopy(details.swiftCode, `swift-${method.id}`)}
+                                  className="p-1 text-charcoal-600 dark:text-warm-300 hover:text-charcoal-900"
+                                  title="Copy SWIFT Code"
+                                >
+                                  {copiedKey === `swift-${method.id}` ? (
+                                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                  ) : (
+                                    <Copy className="w-3.5 h-3.5" />
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Other Details when Active */}
+                      {isActive && provider === 'other' && (
+                        <div className="my-4 p-3.5 rounded-2xl bg-warm-50 dark:bg-charcoal-800 border border-warm-200 dark:border-charcoal-700 text-xs space-y-2">
+                          <p className="text-charcoal-700 dark:text-warm-200 leading-relaxed font-medium">
+                            {details.clientApprovedInstructions || details.instructions || 'Client-approved payment instructions.'}
+                          </p>
+                          {details.notes && (
+                            <p className="text-[11px] text-charcoal-500 dark:text-warm-400 italic">
+                              {details.notes}
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
-                    <h3 className="text-xl font-bold font-display text-charcoal-900 dark:text-white mb-2">
-                      {method.name}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-charcoal-600 dark:text-warm-300 leading-relaxed mb-6">
-                      {method.instructions}
-                    </p>
-                  </div>
 
-                  <div className="pt-4 border-t border-warm-100 dark:border-charcoal-800">
-                    <div className="p-3 rounded-xl bg-warm-50 dark:bg-charcoal-800 border border-warm-200 dark:border-charcoal-700 text-xs text-charcoal-600 dark:text-warm-300 text-center font-medium">
-                      {method.statusMessage || 'Pending official credential attachment'}
+                    <div className="pt-4 border-t border-warm-100 dark:border-charcoal-800">
+                      <div className="p-3 rounded-xl bg-warm-50 dark:bg-charcoal-800 border border-warm-200 dark:border-charcoal-700 text-xs text-charcoal-600 dark:text-warm-300 text-center font-medium">
+                        {isActive
+                          ? 'Official verified channel ready for contributions'
+                          : method.statusMessage || 'Channel currently offline / under administrative review'}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Direct Secretariat Coordination Option */}

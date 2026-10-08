@@ -65,6 +65,7 @@ const ApplicationsManagementPage = lazy(() => import('../pages/admin/Application
 const TeamManagementPage = lazy(() => import('../pages/admin/TeamManagementPage').then(m => ({ default: m.TeamManagementPage })));
 const UsersManagementPage = lazy(() => import('../pages/admin/UsersManagementPage').then(m => ({ default: m.UsersManagementPage })));
 const BackupManagementPage = lazy(() => import('../pages/admin/BackupManagementPage').then(m => ({ default: m.BackupManagementPage })));
+const PaymentSettingsPage = lazy(() => import('../pages/admin/PaymentSettingsPage').then(m => ({ default: m.PaymentSettingsPage })));
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -180,6 +181,12 @@ export const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           } />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="payments" element={
+            <ProtectedRoute requiredPermission="SETTINGS_MANAGE">
+              <PaymentSettingsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="payment-settings" element={<Navigate to="/admin/payments" replace />} />
           <Route path="audit" element={
             <ProtectedRoute requiredPermission="AUDIT_READ">
               <div>Audit Logs - Coming Soon</div>

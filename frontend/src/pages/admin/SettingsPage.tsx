@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { authService, AuthError } from '../../services/authService';
+import { Link } from 'react-router-dom';
 import {
   Lock,
   Mail,
@@ -12,7 +13,9 @@ import {
   User,
   KeyRound,
   Send,
-  Sparkles
+  Sparkles,
+  CreditCard,
+  ArrowRight
 } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
@@ -146,6 +149,30 @@ export const SettingsPage: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Payment Settings Card */}
+      <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 flex items-center justify-center text-emerald-700 dark:text-emerald-300 flex-shrink-0">
+            <CreditCard className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-charcoal-900 dark:text-white">
+              Payment & Donation Methods Management
+            </h3>
+            <p className="text-xs text-charcoal-600 dark:text-warm-300 mt-0.5">
+              Configure Safaricom M-Pesa (Paybill/Till), Bank Wire coordinates, or other client-approved payment methods without changing code.
+            </p>
+          </div>
+        </div>
+        <Link
+          to="/admin/payments"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-white text-xs font-bold transition shadow-sm whitespace-nowrap self-start sm:self-auto"
+        >
+          <span>Manage Payment Settings</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

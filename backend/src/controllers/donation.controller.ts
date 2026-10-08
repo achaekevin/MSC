@@ -32,6 +32,36 @@ export class DonationController {
     }
   }
 
+  async toggleStatus(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { isActive } = req.body || {};
+      const data = await donationService.toggleStatus(id, isActive, req.user?.id);
+      return sendSuccess(res, data, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createConfig(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const data = await donationService.createConfig(req.body, req.user?.id);
+      return sendSuccess(res, data, 201);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteConfig(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const result = await donationService.deleteConfig(id, req.user?.id);
+      return sendSuccess(res, result, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async submitInKindDonation(req: Request, res: Response, next: NextFunction) {
     try {
       const result = await donationService.submitInKindDonation(req.body);

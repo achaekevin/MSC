@@ -238,14 +238,47 @@ export interface PartnershipRequest {
   createdAt?: string;
 }
 
+export interface MpesaPaymentDetails {
+  paybillNumber?: string;
+  tillNumber?: string;
+  mpesaPhoneNumber?: string;
+  accountReference?: string;
+  instructions?: string;
+}
+
+export interface BankPaymentDetails {
+  bankName?: string;
+  accountName?: string;
+  accountNumber?: string;
+  branch?: string;
+  swiftCode?: string;
+  instructions?: string;
+}
+
+export interface OtherPaymentDetails {
+  methodTitle?: string;
+  clientApprovedInstructions?: string;
+  instructions?: string;
+  notes?: string;
+}
+
+export type PaymentMethodDetails = MpesaPaymentDetails & BankPaymentDetails & OtherPaymentDetails & Record<string, any>;
+
 export interface DonationMethod {
   id: string;
   name: string;
-  type: 'mpesa' | 'bank' | 'online' | 'cheque';
-  details: string[];
+  type: string;
+  paymentProvider?: string;
+  details: PaymentMethodDetails | any;
   instructions: string;
-  isConfigured: boolean; // Set to false until official client accounts are attached
+  currency?: string;
+  minimumAmount?: number | null;
+  isConfigured: boolean;
+  isActive?: boolean;
   statusMessage?: string;
+  status?: string;
+  updatedAt?: string;
+  createdAt?: string;
   metadata?: ContentMetadata;
 }
 

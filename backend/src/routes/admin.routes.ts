@@ -334,11 +334,30 @@ router.patch(
 // ----------------------------------------------------
 // DONATION CONFIGURATION (Section 25)
 // ----------------------------------------------------
-router.get('/donations/config', (req, res, next) => donationController.getAdminConfigs(req, res, next));
+router.get(
+  '/donations/config',
+  requirePermissions('SETTINGS_MANAGE'),
+  (req, res, next) => donationController.getAdminConfigs(req, res, next)
+);
+router.post(
+  '/donations/config',
+  requirePermissions('SETTINGS_MANAGE'),
+  (req, res, next) => donationController.createConfig(req, res, next)
+);
 router.put(
   '/donations/config/:id',
   requirePermissions('SETTINGS_MANAGE'),
   (req, res, next) => donationController.updateConfig(req, res, next)
+);
+router.patch(
+  '/donations/config/:id/toggle',
+  requirePermissions('SETTINGS_MANAGE'),
+  (req, res, next) => donationController.toggleStatus(req, res, next)
+);
+router.delete(
+  '/donations/config/:id',
+  requirePermissions('SETTINGS_MANAGE'),
+  (req, res, next) => donationController.deleteConfig(req, res, next)
 );
 
 // ----------------------------------------------------

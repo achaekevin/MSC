@@ -12,6 +12,32 @@ export const donationService = {
     }
   },
 
+  async getAdminPaymentSettings(): Promise<DonationMethod[]> {
+    const res = await apiClient.get<{ success: boolean; data: DonationMethod[] }>('/admin/donations/config');
+    return res.data || [];
+  },
+
+  async updatePaymentSetting(id: string, data: any): Promise<DonationMethod> {
+    const res = await apiClient.put<{ success: boolean; data: DonationMethod }>(`/admin/donations/config/${id}`, data);
+    return res.data;
+  },
+
+  async togglePaymentMethodStatus(id: string, isActive?: boolean): Promise<DonationMethod> {
+    const res = await apiClient.patch<{ success: boolean; data: DonationMethod }>(`/admin/donations/config/${id}/toggle`, {
+      isActive
+    });
+    return res.data;
+  },
+
+  async createPaymentSetting(data: any): Promise<DonationMethod> {
+    const res = await apiClient.post<{ success: boolean; data: DonationMethod }>('/admin/donations/config', data);
+    return res.data;
+  },
+
+  async deletePaymentSetting(id: string): Promise<void> {
+    await apiClient.delete(`/admin/donations/config/${id}`);
+  },
+
   async submitInKindDonation(data: InKindDonationRequest): Promise<{ success: boolean; message: string; referenceNumber?: string }> {
     try {
       const payload = {

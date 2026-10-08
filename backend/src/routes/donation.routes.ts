@@ -8,6 +8,7 @@ import { inKindDonationSchema } from '../schemas/form.schema.js';
 const router = Router();
 
 router.get('/config', (req, res, next) => donationController.getPublicMethods(req, res, next));
+router.get('/methods', (req, res, next) => donationController.getPublicMethods(req, res, next));
 
 router.post(
   '/in-kind',

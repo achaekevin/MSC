@@ -49,7 +49,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'MEDIA_MANAGE',
     'FORM_READ',
     'FORM_UPDATE',
-    'AUDIT_READ'
+    'AUDIT_READ',
+    'SETTINGS_MANAGE'
   ],
   EDITOR: [
     'CONTENT_CREATE',
