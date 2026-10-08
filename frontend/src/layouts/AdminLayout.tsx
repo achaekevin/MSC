@@ -281,36 +281,38 @@ export const AdminLayout: React.FC = () => {
 
       {/* Mobile menu button */}
       <div className="md:hidden">
-        <div className="flex items-center justify-between h-16 px-4 bg-white border-b border-gray-200">
+        <div className="flex items-center justify-between h-16 px-3 sm:px-4 bg-white border-b border-gray-200">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="text-gray-500 hover:text-gray-900"
+            className="p-2 -ml-1 text-gray-600 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-colors"
+            aria-label="Open navigation menu"
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <Link to="/" className="flex items-center">
-              <img className="h-8 w-auto" src="/images/logo.png" alt="MSC" />
-              <span className="ml-2 text-lg font-semibold text-gray-900">Admin</span>
+              <img className="h-7 sm:h-8 w-auto" src="/images/logo.png" alt="MSC" />
+              <span className="ml-1.5 sm:ml-2 text-base sm:text-lg font-semibold text-gray-900">Admin</span>
             </Link>
             <Link
               to="/"
-              className="text-xs text-forest-700 font-semibold px-2 py-0.5 rounded bg-forest-50"
+              className="text-[11px] sm:text-xs text-forest-700 font-semibold px-2 py-0.5 rounded bg-forest-50 hover:bg-forest-100 transition-colors"
             >
               Site
             </Link>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <AdminNotificationCenter />
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg border border-red-200 transition-colors"
+              className="flex items-center gap-1 px-2 sm:px-2.5 py-1 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg border border-red-200 transition-colors"
               title="Sign out and return to website"
+              aria-label="Sign out"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Sign Out</span>
+              <span className="hidden sm:inline">Sign Out</span>
             </button>
           </div>
         </div>
@@ -318,12 +320,24 @@ export const AdminLayout: React.FC = () => {
 
       {/* Mobile menu overlay */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-40 bg-gray-600 bg-opacity-75" onClick={() => setIsMobileMenuOpen(false)}>
-          <div className="fixed inset-y-0 left-0 max-w-xs w-full bg-white">
+        <div className="md:hidden fixed inset-0 z-40 bg-gray-900/60 backdrop-blur-xs" onClick={() => setIsMobileMenuOpen(false)}>
+          <div className="fixed inset-y-0 left-0 max-w-xs w-full bg-white shadow-2xl animate-in slide-in-from-left duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-col h-full">
-              <div className="flex items-center h-16 px-4 border-b border-gray-200">
-                <img className="h-8 w-auto" src="/images/logo.png" alt="MSC" />
-                <span className="ml-2 text-lg font-semibold text-gray-900">Admin</span>
+              <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
+                <div className="flex items-center">
+                  <img className="h-8 w-auto" src="/images/logo.png" alt="MSC" />
+                  <span className="ml-2 text-lg font-semibold text-gray-900">Admin</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                  aria-label="Close navigation menu"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
               <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
                 {navigation.map((item) => (
@@ -407,8 +421,8 @@ export const AdminLayout: React.FC = () => {
 
           {/* Page content */}
           <main className="flex-1 w-full max-w-full overflow-x-hidden">
-            <div className="py-6 w-full max-w-full">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-full">
+            <div className="py-4 sm:py-6 w-full max-w-full">
+              <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full max-w-full">
                 <Outlet />
               </div>
             </div>
