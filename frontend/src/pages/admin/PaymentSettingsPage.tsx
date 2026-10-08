@@ -664,7 +664,7 @@ export const PaymentSettingsPage: React.FC = () => {
                 </span>
               </div>
 
-              <div className="pt-4 flex items-center justify-between border-t border-warm-100 dark:border-charcoal-800">
+              <div className="pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-warm-100 dark:border-charcoal-800">
                 <div className="text-xs text-charcoal-500 dark:text-warm-400">
                   Last updated: {currentMpesa?.updatedAt ? new Date(currentMpesa.updatedAt).toLocaleDateString() : 'Never'}
                 </div>
@@ -672,7 +672,7 @@ export const PaymentSettingsPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={!canManage || savingId === currentMpesa?.id}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   <span>{savingId === currentMpesa?.id ? 'Saving...' : 'Save M-Pesa Settings'}</span>
@@ -819,7 +819,7 @@ export const PaymentSettingsPage: React.FC = () => {
                 </span>
               </div>
 
-              <div className="pt-4 flex items-center justify-between border-t border-warm-100 dark:border-charcoal-800">
+              <div className="pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-warm-100 dark:border-charcoal-800">
                 <div className="text-xs text-charcoal-500 dark:text-warm-400">
                   Last updated: {currentBank?.updatedAt ? new Date(currentBank.updatedAt).toLocaleDateString() : 'Never'}
                 </div>
@@ -827,7 +827,7 @@ export const PaymentSettingsPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={!canManage || savingId === currentBank?.id}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   <span>{savingId === currentBank?.id ? 'Saving...' : 'Save Bank Settings'}</span>
@@ -916,7 +916,7 @@ export const PaymentSettingsPage: React.FC = () => {
                 />
               </div>
 
-              <div className="pt-4 flex items-center justify-between border-t border-warm-100 dark:border-charcoal-800">
+              <div className="pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-warm-100 dark:border-charcoal-800">
                 <div className="text-xs text-charcoal-500 dark:text-warm-400">
                   Last updated: {currentOther?.updatedAt ? new Date(currentOther.updatedAt).toLocaleDateString() : 'Never'}
                 </div>
@@ -924,7 +924,7 @@ export const PaymentSettingsPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={!canManage || savingId === currentOther?.id}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   <span>{savingId === currentOther?.id ? 'Saving...' : 'Save Other Methods Settings'}</span>

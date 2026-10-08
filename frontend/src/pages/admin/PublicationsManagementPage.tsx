@@ -449,7 +449,7 @@ export const PublicationsManagementPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full min-w-[720px] text-left text-sm">
               <thead className="bg-warm-50 dark:bg-charcoal-800/60 border-b border-warm-200 dark:border-charcoal-700 text-xs font-black uppercase text-charcoal-500 tracking-wider">
                 <tr>
                   <th className="py-4 px-6">Document / Book</th>

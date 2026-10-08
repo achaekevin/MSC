@@ -445,7 +445,7 @@ export const UsersManagementPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-charcoal-700 dark:text-warm-200">
+            <table className="w-full min-w-[700px] text-left text-sm text-charcoal-700 dark:text-warm-200">
               <thead className="bg-warm-50 dark:bg-charcoal-950/70 text-xs font-bold uppercase tracking-wider text-charcoal-600 dark:text-warm-400 border-b border-warm-200 dark:border-charcoal-800">
                 <tr>
                   <th scope="col" className="px-6 py-3.5">Administrator</th>
@@ -595,7 +595,7 @@ export const UsersManagementPage: React.FC = () => {
       {/* MODAL 1: ADD ADMINISTRATOR */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-charcoal-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="relative w-full max-w-lg bg-white dark:bg-charcoal-900 rounded-2xl shadow-elevated border border-warm-200 dark:border-charcoal-800 p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-lg bg-white dark:bg-charcoal-900 rounded-2xl shadow-elevated border border-warm-200 dark:border-charcoal-800 p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-warm-100 dark:border-charcoal-800">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-forest-100 dark:bg-forest-900/60 text-forest-800 dark:text-emerald-400 flex items-center justify-center">

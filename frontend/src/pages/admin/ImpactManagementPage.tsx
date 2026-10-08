@@ -431,7 +431,7 @@ export const ImpactManagementPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full min-w-[680px] text-left text-sm">
               <thead className="bg-warm-50 dark:bg-charcoal-800/60 border-b border-warm-200 dark:border-charcoal-700 text-xs font-black uppercase text-charcoal-500 tracking-wider">
                 <tr>
                   <th className="py-4 px-6">Metric / Title</th>
@@ -534,7 +534,7 @@ export const ImpactManagementPage: React.FC = () => {
           ========================================================================= */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal-950/70 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white dark:bg-charcoal-900 rounded-3xl p-6 sm:p-8 max-w-xl w-full border border-warm-300 dark:border-charcoal-700 shadow-2xl text-left my-8">
+          <div className="bg-white dark:bg-charcoal-900 rounded-3xl p-6 sm:p-8 max-w-xl w-full border border-warm-300 dark:border-charcoal-700 shadow-2xl text-left my-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-warm-200 dark:border-charcoal-800 mb-6">
               <div className="flex items-center gap-2">
                 <span className="p-2 rounded-xl bg-forest-100 dark:bg-forest-900/80 text-forest-800 dark:text-emerald-400">

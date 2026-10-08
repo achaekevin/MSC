@@ -453,7 +453,7 @@ export const ApplicationsManagementPage: React.FC = () => {
         ) : activeTab === 'volunteers' ? (
           /* Volunteers Table */
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-charcoal-700">
+            <table className="w-full min-w-[700px] text-left text-sm text-charcoal-700">
               <thead className="bg-warm-100/70 border-b border-warm-200 text-xs text-charcoal-600 font-bold uppercase">
                 <tr>
                   <th className="py-3 px-4">Applicant</th>
@@ -538,7 +538,7 @@ export const ApplicationsManagementPage: React.FC = () => {
         ) : activeTab === 'partnerships' ? (
           /* Partnerships Table */
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-charcoal-700">
+            <table className="w-full min-w-[700px] text-left text-sm text-charcoal-700">
               <thead className="bg-warm-100/70 border-b border-warm-200 text-xs text-charcoal-600 font-bold uppercase">
                 <tr>
                   <th className="py-3 px-4">Organization</th>
@@ -630,7 +630,7 @@ export const ApplicationsManagementPage: React.FC = () => {
         ) : activeTab === 'contacts' ? (
           /* Contacts Table */
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-charcoal-700">
+            <table className="w-full min-w-[650px] text-left text-sm text-charcoal-700">
               <thead className="bg-warm-100/70 border-b border-warm-200 text-xs text-charcoal-600 font-bold uppercase">
                 <tr>
                   <th className="py-3 px-4">Sender</th>
@@ -708,7 +708,7 @@ export const ApplicationsManagementPage: React.FC = () => {
         ) : (
           /* Newsletter Subscribers Table */
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-charcoal-700">
+            <table className="w-full min-w-[600px] text-left text-sm text-charcoal-700">
               <thead className="bg-warm-100/70 border-b border-warm-200 text-xs text-charcoal-600 font-bold uppercase">
                 <tr>
                   <th className="py-3 px-4">Subscriber Email</th>
@@ -949,9 +949,9 @@ export const ApplicationsManagementPage: React.FC = () => {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
         >
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-warm-200">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-warm-200 max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-extrabold text-charcoal-900 font-display mb-1">
               Update Submission Status
             </h3>

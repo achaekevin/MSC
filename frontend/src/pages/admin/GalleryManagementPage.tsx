@@ -528,7 +528,8 @@ export const GalleryManagementPage: React.FC = () => {
       ) : (
         /* Table View */
         <div className="bg-white rounded-2xl border border-warm-200 overflow-hidden shadow-sm">
-          <table className="w-full text-left text-sm text-charcoal-700">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[700px] text-left text-sm text-charcoal-700">
             <thead className="bg-warm-100/70 border-b border-warm-200 text-xs text-charcoal-600 font-bold uppercase">
               <tr>
                 <th className="py-3 px-4">Preview</th>
@@ -601,6 +602,7 @@ export const GalleryManagementPage: React.FC = () => {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 

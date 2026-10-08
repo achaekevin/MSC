@@ -423,7 +423,7 @@ export const StoriesManagementPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-charcoal-700 dark:text-warm-200">
+            <table className="w-full min-w-[720px] text-left text-sm text-charcoal-700 dark:text-warm-200">
               <thead className="bg-warm-50 dark:bg-charcoal-950/70 text-xs font-bold uppercase tracking-wider text-charcoal-600 dark:text-warm-400 border-b border-warm-200 dark:border-charcoal-800">
                 <tr>
                   <th scope="col" className="px-6 py-3.5">Story Narrative</th>

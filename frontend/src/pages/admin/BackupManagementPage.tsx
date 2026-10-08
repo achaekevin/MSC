@@ -506,7 +506,7 @@ export const BackupManagementPage: React.FC = () => {
           {/* Backups Table */}
           <div className="bg-white dark:bg-charcoal-900 rounded-3xl border border-warm-200 dark:border-charcoal-700 overflow-hidden shadow-card">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full min-w-[650px] text-left text-xs">
                 <thead className="bg-warm-100/70 dark:bg-charcoal-800/70 border-b border-warm-200 dark:border-charcoal-700 uppercase font-black text-charcoal-600 dark:text-warm-300 tracking-wider">
                   <tr>
                     <th className="py-4 px-5">Snapshot Details</th>
@@ -851,7 +851,7 @@ export const BackupManagementPage: React.FC = () => {
           {/* Media Assets Catalog Table */}
           <div className="bg-white dark:bg-charcoal-900 rounded-3xl border border-warm-200 dark:border-charcoal-700 overflow-hidden shadow-card">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full min-w-[650px] text-left text-xs">
                 <thead className="bg-warm-100/70 dark:bg-charcoal-800/70 border-b border-warm-200 dark:border-charcoal-700 uppercase font-black text-charcoal-600 dark:text-warm-300 tracking-wider">
                   <tr>
                     <th className="py-3 px-5">Preview</th>

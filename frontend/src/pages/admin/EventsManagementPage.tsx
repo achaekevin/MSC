@@ -540,7 +540,7 @@ export const EventsManagementPage: React.FC = () => {
       {/* Events Table */}
       <div className="bg-white rounded-2xl border border-warm-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-charcoal-700">
+          <table className="w-full min-w-[760px] text-left text-sm text-charcoal-700">
             <thead className="bg-warm-100/70 border-b border-warm-200 text-xs text-charcoal-600 font-bold uppercase tracking-wider">
               <tr>
                 <th className="py-3 px-4 w-10">

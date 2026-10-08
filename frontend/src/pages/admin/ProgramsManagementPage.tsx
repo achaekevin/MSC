@@ -423,7 +423,7 @@ export const ProgramsManagementPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 text-left">
+            <table className="w-full min-w-[720px] divide-y divide-gray-200 text-left">
               <thead className="bg-gray-50/80 text-gray-600 uppercase font-bold text-[11px] tracking-wider">
                 <tr>
                   <th className="py-3.5 px-4">Program Pillar</th>

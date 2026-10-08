@@ -397,7 +397,7 @@ export const NewsManagementPage: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-1.5">
             <Filter className="w-4 h-4 text-gray-500" />
             <select
@@ -446,7 +446,7 @@ export const NewsManagementPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 text-left">
+            <table className="w-full min-w-[720px] divide-y divide-gray-200 text-left">
               <thead className="bg-gray-50/80 text-gray-600 uppercase font-bold text-[11px] tracking-wider">
                 <tr>
                   <th className="py-3.5 px-4">Article</th>

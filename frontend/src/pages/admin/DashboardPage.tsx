@@ -865,7 +865,7 @@ export const DashboardPage: React.FC = () => {
                 /* Tab 2: Failed Logins */
                 failedLogins.length > 0 ? (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
+                    <table className="w-full min-w-[550px] text-left text-xs">
                       <thead>
                         <tr className="border-b border-warm-200 text-charcoal-500 text-[10px] uppercase tracking-wider font-bold">
                           <th className="pb-2">Timestamp</th>
@@ -901,7 +901,7 @@ export const DashboardPage: React.FC = () => {
                 /* Tab 3: API Errors */
                 apiErrors.length > 0 ? (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
+                    <table className="w-full min-w-[550px] text-left text-xs">
                       <thead>
                         <tr className="border-b border-warm-200 text-charcoal-500 text-[10px] uppercase tracking-wider font-bold">
                           <th className="pb-2">Timestamp</th>
