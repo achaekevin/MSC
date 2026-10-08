@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, Heart, Phone, MessageCircle, Lock, Shield, Search } from 'lucide-react';
+import { Menu, X, ChevronDown, Heart, Phone, MessageCircle, Lock, Shield, Search, LogOut } from 'lucide-react';
 import { Logo } from '../common/Logo';
 import { Button } from '../ui/Button';
 import { ThemeToggle } from '../common/ThemeToggle';
@@ -9,7 +9,7 @@ import { NAVIGATION_LINKS, MSC_ORGANIZATION } from '../../constants';
 import { useAuth } from '../../contexts/AuthContext';
 
 export const Navbar: React.FC = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const isAdmin = isAuthenticated && (user?.role === 'SUPER_ADMIN' || user?.role === 'CONTENT_ADMIN');
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -105,18 +105,38 @@ export const Navbar: React.FC = () => {
               <span>WhatsApp</span>
             </a>
             <span className="text-forest-700 select-none">|</span>
-            <Link
-              to={isAdmin ? "/admin/dashboard" : "/admin/login"}
-              className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-warm-200 hover:text-white hover:bg-forest-900 transition-colors font-medium border border-forest-800 flex-shrink-0"
-              title={isAdmin ? "Open Admin Dashboard" : "Administrator & Staff Sign In"}
-            >
-              {isAdmin ? (
-                <Shield className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-              ) : (
+            {isAdmin ? (
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <Link
+                  to="/admin/dashboard"
+                  className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-emerald-300 hover:text-white hover:bg-forest-900 transition-colors font-medium border border-forest-800 flex-shrink-0"
+                  title="Open Admin Dashboard"
+                >
+                  <Shield className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                  <span>Dashboard</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await logout();
+                  }}
+                  className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-warm-300 hover:text-white hover:bg-red-900/60 transition-colors font-medium border border-red-800/50 flex-shrink-0 text-xs cursor-pointer"
+                  title="Sign out of admin session"
+                >
+                  <LogOut className="w-3 h-3 text-red-400" />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/admin/login"
+                className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-warm-200 hover:text-white hover:bg-forest-900 transition-colors font-medium border border-forest-800 flex-shrink-0"
+                title="Administrator & Staff Sign In"
+              >
                 <Lock className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-              )}
-              <span>{isAdmin ? 'Dashboard' : 'Sign In'}</span>
-            </Link>
+                <span>Sign In</span>
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -350,19 +370,37 @@ export const Navbar: React.FC = () => {
                 </a>
               </div>
 
-              {/* Mobile Admin Sign In Link */}
+              {/* Mobile Admin Sign In / Log Out Link */}
               <div className="pt-2 border-t border-warm-100 dark:border-charcoal-800/80">
-                <Link
-                  to={isAdmin ? "/admin/dashboard" : "/admin/login"}
-                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-warm-100 dark:bg-charcoal-800 text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 text-xs font-semibold transition-colors"
-                >
-                  {isAdmin ? (
-                    <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  ) : (
+                {isAdmin ? (
+                  <div className="flex flex-col gap-2">
+                    <Link
+                      to="/admin/dashboard"
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-forest-900 text-white text-xs font-semibold transition-colors"
+                    >
+                      <Shield className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Admin Dashboard</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await logout();
+                      }}
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 text-xs font-semibold border border-red-200 dark:border-red-900 transition-colors"
+                    >
+                      <LogOut className="w-3.5 h-3.5 text-red-500" />
+                      <span>Sign Out Admin</span>
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    to="/admin/login"
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-warm-100 dark:bg-charcoal-800 text-charcoal-700 dark:text-warm-200 hover:text-forest-900 dark:hover:text-emerald-400 text-xs font-semibold transition-colors"
+                  >
                     <Lock className="w-3.5 h-3.5 text-forest-700 dark:text-emerald-400" />
-                  )}
-                  <span>{isAdmin ? 'Admin Dashboard' : 'Staff & Admin Sign In'}</span>
-                </Link>
+                    <span>Staff & Admin Sign In</span>
+                  </Link>
+                )}
               </div>
             </div>
           </div>

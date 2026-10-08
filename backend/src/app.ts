@@ -1,6 +1,7 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import path from 'path';
 import fs from 'fs';
 import swaggerUi from 'swagger-ui-express';
@@ -113,6 +114,7 @@ export const createApp = (): Express => {
   // Body Parsing with size limits (Section 37)
   app.use(express.json({ limit: '2mb' }));
   app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+  app.use(cookieParser());
 
   // Global Input Sanitization against XSS
   app.use(sanitizeInput);

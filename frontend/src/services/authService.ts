@@ -173,6 +173,7 @@ class AuthService {
     localStorage.removeItem('msc_user');
     localStorage.removeItem('msc_access_token');
     localStorage.removeItem('msc_refresh_token');
+    localStorage.removeItem('token');
     try {
       sessionStorage.clear();
     } catch {

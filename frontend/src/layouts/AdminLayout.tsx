@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
+import { LogOut, ExternalLink } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ConditionalRender } from '../components/auth/ProtectedRoute';
 import { AdminNotificationCenter } from '../components/admin/AdminNotificationCenter';
@@ -173,7 +174,7 @@ export const AdminLayout: React.FC = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/admin/login', { replace: true });
+    navigate('/', { replace: true });
   };
 
   const getNavLinkClasses = (isActive: boolean) => {
@@ -257,12 +258,11 @@ export const AdminLayout: React.FC = () => {
               </Link>
               <button
                 onClick={handleLogout}
-                className="ml-1 flex-shrink-0 p-1 text-gray-400 hover:text-red-600"
-                title="Sign out"
+                className="ml-2 flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold text-red-600 hover:text-white hover:bg-red-600 rounded-lg transition-colors border border-red-200"
+                title="Sign out and return to website"
               >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Sign Out</span>
               </button>
             </div>
           </div>
@@ -295,14 +295,12 @@ export const AdminLayout: React.FC = () => {
           <div className="flex items-center gap-2">
             <AdminNotificationCenter />
             <button
-              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="flex items-center text-gray-500 hover:text-gray-900"
+              onClick={handleLogout}
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg border border-red-200 transition-colors"
+              title="Sign out and return to website"
             >
-              <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
-                <span className="text-sm font-medium text-white">
-                  {user?.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
             </button>
           </div>
         </div>
@@ -350,11 +348,10 @@ export const AdminLayout: React.FC = () => {
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="ml-3 flex-shrink-0 p-1 text-gray-400 hover:text-gray-500"
+                    className="ml-3 flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 hover:text-white hover:bg-red-600 rounded-lg transition-colors border border-red-200"
                   >
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1" />
-                    </svg>
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Sign Out</span>
                   </button>
                 </div>
               </div>

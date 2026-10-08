@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, MapPin, Heart, ArrowRight, Phone, Lock, Shield } from 'lucide-react';
+import { Mail, MapPin, Heart, ArrowRight, Phone, Lock, Shield, LogOut } from 'lucide-react';
 import { Logo } from '../common/Logo';
 import { Button } from '../ui/Button';
 import { MSC_ORGANIZATION } from '../../constants';
@@ -8,7 +8,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { NewsletterSubscription } from '../common/NewsletterSubscription';
 
 export const Footer: React.FC = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const isAdmin = isAuthenticated && (user?.role === 'SUPER_ADMIN' || user?.role === 'CONTENT_ADMIN');
   const currentYear = new Date().getFullYear();
 
@@ -274,17 +274,36 @@ export const Footer: React.FC = () => {
             <Link to="/contact" className="hover:text-forest-200 transition-colors">
               Contact Desk
             </Link>
-            <Link
-              to={isAdmin ? "/admin/dashboard" : "/admin/login"}
-              className="hover:text-forest-200 transition-colors flex items-center gap-1 text-forest-300 font-medium"
-            >
-              {isAdmin ? (
-                <Shield className="w-3 h-3 text-emerald-400" />
-              ) : (
+            {isAdmin ? (
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/admin/dashboard"
+                  className="hover:text-forest-200 transition-colors flex items-center gap-1 text-emerald-400 font-medium"
+                >
+                  <Shield className="w-3 h-3 text-emerald-400" />
+                  <span>Admin Dashboard</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await logout();
+                  }}
+                  className="hover:text-red-300 text-red-400 transition-colors flex items-center gap-1 font-medium cursor-pointer"
+                  title="Sign out of admin session"
+                >
+                  <LogOut className="w-3 h-3 text-red-400" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/admin/login"
+                className="hover:text-forest-200 transition-colors flex items-center gap-1 text-forest-300 font-medium"
+              >
                 <Lock className="w-3 h-3 text-emerald-400" />
-              )}
-              <span>{isAdmin ? 'Admin Dashboard' : 'Admin Sign In'}</span>
-            </Link>
+                <span>Admin Sign In</span>
+              </Link>
+            )}
           </div>
         </div>
       </div>
