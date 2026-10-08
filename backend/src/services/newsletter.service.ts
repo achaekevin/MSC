@@ -82,7 +82,7 @@ export class NewsletterService {
       }
     });
 
-    // Send confirmation email
+    // Send confirmation email to subscriber
     await mailService.sendEmail({
       to: cleanEmail,
       subject: 'Welcome to Mwancha Senior Community Updates',
@@ -98,6 +98,14 @@ export class NewsletterService {
           </p>
         </div>
       `
+    });
+
+    // Send notification to MSC admin
+    await mailService.sendEmail({
+      to: env.ADMIN_NOTIFICATION_EMAIL,
+      subject: `[NEW NEWSLETTER SUBSCRIBER]: ${cleanEmail}`,
+      replyTo: cleanEmail,
+      html: emailTemplates.adminSubscriberAlert(cleanEmail)
     });
 
     return {

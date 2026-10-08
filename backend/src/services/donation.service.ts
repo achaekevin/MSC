@@ -307,22 +307,19 @@ export class DonationService {
     await mailService.sendEmail({
       to: env.ADMIN_NOTIFICATION_EMAIL,
       subject: `[IN-KIND DONATION PLEDGE]: ${categoryLabel} from ${data.fullName}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-          <h3 style="color: #1E3A2F;">New Food & Material Donation Pledge Registered</h3>
-          <ul>
-            <li><strong>Donor Name:</strong> ${data.fullName}</li>
-            <li><strong>Email:</strong> ${data.email}</li>
-            <li><strong>Phone:</strong> ${data.phone}</li>
-            <li><strong>Category:</strong> ${categoryLabel}</li>
-            <li><strong>Items:</strong> ${data.itemDescription}</li>
-            <li><strong>Quantity:</strong> ${data.estimatedQuantity || 'N/A'}</li>
-            <li><strong>Delivery Method:</strong> ${deliveryMethodLabel}</li>
-            <li><strong>Pickup Address / Notes:</strong> ${data.pickupAddress || data.notes || 'N/A'}</li>
-            <li><strong>Reference ID:</strong> ${referenceNumber}</li>
-          </ul>
-        </div>
-      `
+      replyTo: data.email,
+      html: emailTemplates.adminInKindAlert({
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        category: categoryLabel,
+        itemDescription: data.itemDescription,
+        estimatedQuantity: data.estimatedQuantity,
+        deliveryMethod: deliveryMethodLabel,
+        pickupAddress: data.pickupAddress,
+        notes: data.notes,
+        referenceNumber
+      })
     });
 
     await prisma.notification.create({

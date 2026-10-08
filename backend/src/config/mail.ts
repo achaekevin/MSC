@@ -1,4 +1,6 @@
 import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 import { env } from './env.js';
 import { logger } from './logger.js';
 
@@ -12,38 +14,103 @@ export interface EmailOptions {
 
 export class MailService {
   private resend: Resend | null = null;
+  private smtpTransporter: Transporter | null = null;
 
   constructor() {
+    // 1. Initialize Resend if API key is provided and valid
     if (env.RESEND_API_KEY && env.RESEND_API_KEY !== 're_sample_api_key_replace_in_production') {
-      this.resend = new Resend(env.RESEND_API_KEY);
+      try {
+        this.resend = new Resend(env.RESEND_API_KEY);
+        logger.info('Transactional email service initialized with Resend provider.');
+      } catch (err) {
+        logger.error({ err }, 'Failed to initialize Resend mail provider.');
+      }
     }
+
+    // 2. Initialize Nodemailer SMTP if SMTP credentials are provided
+    if (env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS) {
+      try {
+        this.smtpTransporter = nodemailer.createTransport({
+          host: env.SMTP_HOST,
+          port: env.SMTP_PORT,
+          secure: env.SMTP_SECURE,
+          auth: {
+            user: env.SMTP_USER,
+            pass: env.SMTP_PASS
+          }
+        });
+        logger.info({ host: env.SMTP_HOST, port: env.SMTP_PORT }, 'Transactional email service initialized with SMTP provider.');
+      } catch (err) {
+        logger.error({ err }, 'Failed to initialize SMTP mail transporter.');
+      }
+    }
+  }
+
+  /**
+   * Helper to normalize recipient list into an array of clean email addresses
+   */
+  private normalizeRecipients(to: string | string[]): string[] {
+    if (Array.isArray(to)) {
+      return to
+        .flatMap((entry) => entry.split(','))
+        .map((email) => email.trim())
+        .filter((email) => email.length > 0 && email.includes('@'));
+    }
+    return to
+      .split(',')
+      .map((email) => email.trim())
+      .filter((email) => email.length > 0 && email.includes('@'));
   }
 
   async sendEmail(options: EmailOptions): Promise<boolean> {
     try {
-      if (!this.resend) {
-        logger.info(
-          {
-            to: options.to,
-            subject: options.subject
-          },
-          '📧 [DEV/MOCK EMAIL NOTIFICATION]: Resend API key not configured or in development mode. Email logged to console.'
-        );
+      const recipientList = this.normalizeRecipients(options.to);
+
+      if (recipientList.length === 0) {
+        logger.warn({ options }, 'Email send skipped: No valid recipients provided.');
+        return false;
+      }
+
+      // 1. Try Resend if configured
+      if (this.resend) {
+        await this.resend.emails.send({
+          from: env.EMAIL_FROM,
+          to: recipientList,
+          subject: options.subject,
+          html: options.html,
+          text: options.text,
+          replyTo: options.replyTo
+        });
+
+        logger.info({ to: recipientList, subject: options.subject, provider: 'Resend' }, 'Email sent successfully via Resend.');
         return true;
       }
 
-      const recipientList = Array.isArray(options.to) ? options.to : [options.to];
+      // 2. Try SMTP if configured
+      if (this.smtpTransporter) {
+        await this.smtpTransporter.sendMail({
+          from: env.EMAIL_FROM,
+          to: recipientList.join(', '),
+          subject: options.subject,
+          html: options.html,
+          text: options.text,
+          replyTo: options.replyTo
+        });
 
-      await this.resend.emails.send({
-        from: env.EMAIL_FROM,
-        to: recipientList,
-        subject: options.subject,
-        html: options.html,
-        text: options.text,
-        replyTo: options.replyTo
-      });
+        logger.info({ to: recipientList, subject: options.subject, provider: 'SMTP' }, 'Email sent successfully via SMTP transporter.');
+        return true;
+      }
 
-      logger.info({ to: options.to, subject: options.subject }, 'Email sent successfully via Resend.');
+      // 3. Fallback dev/mock logger (Safe development mode when external providers are unconfigured)
+      logger.info(
+        {
+          to: recipientList,
+          subject: options.subject,
+          replyTo: options.replyTo,
+          from: env.EMAIL_FROM
+        },
+        '[DEV/MOCK EMAIL NOTIFICATION]: Resend or SMTP not configured in .env. Logged email safely to console.'
+      );
       return true;
     } catch (error) {
       logger.error({ error, options }, 'Failed to send transactional email.');
@@ -54,8 +121,9 @@ export class MailService {
 
 export const mailService = new MailService();
 
-// Reusable Professional Email Templates (Section 31)
+// Reusable Professional Email Templates with Zero Em Dashes
 export const emailTemplates = {
+  // 1. Confirmation to Inquirer
   contactReceived: (name: string, subject: string, message: string) => `
     <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #E5E7EB; border-radius: 8px; overflow: hidden;">
       <div style="background-color: #1E3A2F; color: #FFFFFF; padding: 20px; text-align: center;">
@@ -70,11 +138,39 @@ export const emailTemplates = {
           <p style="margin: 0; font-style: italic;">"${message}"</p>
         </div>
         <p>Our Secretariat and Community Liaison team will review your message and respond promptly.</p>
-        <p style="margin-top: 24px;">Warm regards,<br/><strong>Mwancha Senior Community Secretariat</strong><br/>Nyamira County, Kenya</p>
+        <p style="margin-top: 24px;">Warm regards,<br/><strong>Mwancha Senior Community Secretariat</strong><br/>Mwancha House - Ekerenyo, Nyamira County, Kenya</p>
       </div>
     </div>
   `,
 
+  // 2. Notification to Admin for Contact Inquiry
+  adminContactAlert: (data: { name: string; email: string; phone?: string; subject: string; message: string; referenceId?: string }) => `
+    <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #1E3A2F; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #1E3A2F; color: #FFFFFF; padding: 20px;">
+        <h2 style="margin: 0; font-size: 18px;">[NEW WEBSITE CONTACT MESSAGE]</h2>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: #A7F3D0;">Mwancha Senior Community Official Desk</p>
+      </div>
+      <div style="padding: 24px; line-height: 1.6;">
+        <p style="margin-top: 0;">A new public message was submitted on the MSC website:</p>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr><td style="padding: 6px 0; font-weight: bold; width: 140px; color: #1E3A2F;">Sender Name:</td><td>${data.name}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Email Address:</td><td><a href="mailto:${data.email}">${data.email}</a></td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Phone Number:</td><td>${data.phone || 'Not provided'}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Subject:</td><td>${data.subject}</td></tr>
+          ${data.referenceId ? `<tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Reference ID:</td><td>${data.referenceId}</td></tr>` : ''}
+        </table>
+        <div style="background-color: #F3F4F6; border-left: 4px solid #1E3A2F; padding: 14px 16px; margin: 16px 0; border-radius: 4px;">
+          <p style="margin: 0 0 4px 0; font-weight: bold; font-size: 12px; text-transform: uppercase; color: #4B5563;">Message Body:</p>
+          <p style="margin: 0; white-space: pre-wrap; font-size: 14px;">${data.message}</p>
+        </div>
+        <p style="font-size: 13px; color: #4B5563; margin-top: 20px;">
+          <strong>Tip:</strong> Click "Reply" in your email client to respond directly to ${data.name} (${data.email}).
+        </p>
+      </div>
+    </div>
+  `,
+
+  // 3. Confirmation to Volunteer Applicant
   volunteerReceived: (fullName: string, areaOfInterest: string) => `
     <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #E5E7EB; border-radius: 8px; overflow: hidden;">
       <div style="background-color: #1E3A2F; color: #FFFFFF; padding: 20px; text-align: center;">
@@ -91,6 +187,38 @@ export const emailTemplates = {
     </div>
   `,
 
+  // 4. Notification to Admin for Volunteer Application
+  adminVolunteerAlert: (data: { fullName: string; email: string; phone: string; county: string; subCounty?: string; areaOfInterest: string; availability: string; experience?: string; message?: string; applicationId?: string }) => `
+    <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #1E3A2F; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #1E3A2F; color: #FFFFFF; padding: 20px;">
+        <h2 style="margin: 0; font-size: 18px;">[NEW VOLUNTEER APPLICATION]</h2>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: #A7F3D0;">Mwancha Senior Community Volunteer Desk</p>
+      </div>
+      <div style="padding: 24px; line-height: 1.6;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr><td style="padding: 6px 0; font-weight: bold; width: 150px; color: #1E3A2F;">Applicant:</td><td>${data.fullName}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Email:</td><td><a href="mailto:${data.email}">${data.email}</a></td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Phone:</td><td>${data.phone}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Location:</td><td>${data.county} ${data.subCounty ? `(${data.subCounty})` : ''}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Area of Interest:</td><td>${data.areaOfInterest}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Availability:</td><td>${data.availability}</td></tr>
+          ${data.experience ? `<tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Experience:</td><td>${data.experience}</td></tr>` : ''}
+          ${data.applicationId ? `<tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Application ID:</td><td>${data.applicationId}</td></tr>` : ''}
+        </table>
+        ${data.message ? `
+          <div style="background-color: #F3F4F6; border-left: 4px solid #1E3A2F; padding: 14px 16px; margin: 16px 0; border-radius: 4px;">
+            <p style="margin: 0 0 4px 0; font-weight: bold; font-size: 12px; text-transform: uppercase; color: #4B5563;">Statement / Motivation:</p>
+            <p style="margin: 0; white-space: pre-wrap; font-size: 14px;">${data.message}</p>
+          </div>
+        ` : ''}
+        <p style="font-size: 13px; color: #4B5563; margin-top: 20px;">
+          <strong>Tip:</strong> Click "Reply" to reach ${data.fullName} directly.
+        </p>
+      </div>
+    </div>
+  `,
+
+  // 5. Confirmation to Partner
   partnershipReceived: (organizationName: string, contactPerson: string) => `
     <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #E5E7EB; border-radius: 8px; overflow: hidden;">
       <div style="background-color: #1E3A2F; color: #FFFFFF; padding: 20px; text-align: center;">
@@ -106,6 +234,33 @@ export const emailTemplates = {
     </div>
   `,
 
+  // 6. Notification to Admin for Partnership Proposal
+  adminPartnershipAlert: (data: { organizationName: string; contactPerson: string; email: string; phone: string; organizationType: string; partnershipInterests: string; message: string; website?: string; applicationId?: string }) => `
+    <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #1E3A2F; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #1E3A2F; color: #FFFFFF; padding: 20px;">
+        <h2 style="margin: 0; font-size: 18px;">[NEW INSTITUTIONAL PARTNERSHIP PROPOSAL]</h2>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: #A7F3D0;">Mwancha Senior Community Leadership Desk</p>
+      </div>
+      <div style="padding: 24px; line-height: 1.6;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr><td style="padding: 6px 0; font-weight: bold; width: 160px; color: #1E3A2F;">Organization:</td><td>${data.organizationName}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Contact Person:</td><td>${data.contactPerson}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Email Address:</td><td><a href="mailto:${data.email}">${data.email}</a></td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Phone Number:</td><td>${data.phone}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Organization Type:</td><td>${data.organizationType}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Partnership Focus:</td><td>${data.partnershipInterests}</td></tr>
+          ${data.website ? `<tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Website:</td><td><a href="${data.website}" target="_blank">${data.website}</a></td></tr>` : ''}
+          ${data.applicationId ? `<tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Proposal ID:</td><td>${data.applicationId}</td></tr>` : ''}
+        </table>
+        <div style="background-color: #F3F4F6; border-left: 4px solid #1E3A2F; padding: 14px 16px; margin: 16px 0; border-radius: 4px;">
+          <p style="margin: 0 0 4px 0; font-weight: bold; font-size: 12px; text-transform: uppercase; color: #4B5563;">Collaboration Details:</p>
+          <p style="margin: 0; white-space: pre-wrap; font-size: 14px;">${data.message}</p>
+        </div>
+      </div>
+    </div>
+  `,
+
+  // 7. Confirmation to In-Kind Donor
   inKindDonationReceived: (fullName: string, category: string, deliveryMethod: string, referenceNumber: string) => `
     <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #E5E7EB; border-radius: 8px; overflow: hidden;">
       <div style="background-color: #1E3A2F; color: #FFFFFF; padding: 20px; text-align: center;">
@@ -124,6 +279,38 @@ export const emailTemplates = {
         <p>Our Relief & Distribution Coordinator will review your submission and contact you shortly to coordinate receipt and issue an official acknowledgement receipt.</p>
         <p style="margin-top: 24px;">With profound gratitude,<br/><strong>Donations & Logistics Secretariat</strong><br/>Mwancha Senior Community</p>
       </div>
+    </div>
+  `,
+
+  // 8. Notification to Admin for In-Kind Donation Pledge
+  adminInKindAlert: (data: { fullName: string; email: string; phone: string; category: string; itemDescription: string; estimatedQuantity?: string; deliveryMethod: string; pickupAddress?: string; notes?: string; referenceNumber: string }) => `
+    <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #1E3A2F; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #1E3A2F; color: #FFFFFF; padding: 20px;">
+        <h2 style="margin: 0; font-size: 18px;">[NEW IN-KIND DONATION PLEDGE]</h2>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: #A7F3D0;">Ref: ${data.referenceNumber}</p>
+      </div>
+      <div style="padding: 24px; line-height: 1.6;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr><td style="padding: 6px 0; font-weight: bold; width: 160px; color: #1E3A2F;">Donor Name:</td><td>${data.fullName}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Email:</td><td><a href="mailto:${data.email}">${data.email}</a></td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Phone:</td><td>${data.phone}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Category:</td><td>${data.category}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Items:</td><td>${data.itemDescription}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Quantity:</td><td>${data.estimatedQuantity || 'Not specified'}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Delivery Method:</td><td>${data.deliveryMethod}</td></tr>
+          ${data.pickupAddress ? `<tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Pickup/Drop-off Address:</td><td>${data.pickupAddress}</td></tr>` : ''}
+          ${data.notes ? `<tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Notes:</td><td>${data.notes}</td></tr>` : ''}
+        </table>
+      </div>
+    </div>
+  `,
+
+  // 9. Notification to Admin for New Newsletter Subscriber
+  adminSubscriberAlert: (email: string) => `
+    <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #1E3A2F; border-radius: 8px; padding: 20px;">
+      <h3 style="color: #1E3A2F; margin-top: 0;">New Newsletter Subscriber</h3>
+      <p>A new visitor has subscribed to receive Mwancha Senior Community newsletters and briefings:</p>
+      <p style="font-size: 16px; font-weight: bold; color: #1E3A2F;"><a href="mailto:${email}">${email}</a></p>
     </div>
   `,
 

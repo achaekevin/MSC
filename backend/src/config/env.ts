@@ -30,6 +30,13 @@ const envSchema = z.object({
   EMAIL_FROM: z.string().default('Mwancha Senior Community <notifications@mwanchasenior.org>'),
   ADMIN_NOTIFICATION_EMAIL: z.string().default('mwachahomeforelderly@gmail.com'),
 
+  // Optional SMTP Configuration (for Gmail, custom SMTP, or transactional mail)
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_SECURE: z.coerce.boolean().default(false),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60000),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(100),
 

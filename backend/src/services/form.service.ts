@@ -32,16 +32,15 @@ export class FormService {
     await mailService.sendEmail({
       to: env.ADMIN_NOTIFICATION_EMAIL,
       subject: `[NEW CONTACT INQUIRY]: ${data.subject} from ${data.name}`,
-      html: `
-        <p>A new contact submission has been received on the MSC website:</p>
-        <ul>
-          <li><strong>Name:</strong> ${data.name}</li>
-          <li><strong>Email:</strong> ${data.email}</li>
-          <li><strong>Phone:</strong> ${data.phone || 'N/A'}</li>
-          <li><strong>Subject:</strong> ${data.subject}</li>
-          <li><strong>Message:</strong> ${data.message}</li>
-        </ul>
-      `
+      replyTo: data.email,
+      html: emailTemplates.adminContactAlert({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        subject: data.subject,
+        message: data.message,
+        referenceId: submission.id
+      })
     });
 
     // Record internal notification
@@ -143,17 +142,19 @@ export class FormService {
     await mailService.sendEmail({
       to: env.ADMIN_NOTIFICATION_EMAIL,
       subject: `[NEW VOLUNTEER APPLICATION]: ${data.fullName} (${data.county})`,
-      html: `
-        <p>A new volunteer application was submitted:</p>
-        <ul>
-          <li><strong>Name:</strong> ${data.fullName}</li>
-          <li><strong>Email:</strong> ${data.email}</li>
-          <li><strong>Phone:</strong> ${data.phone}</li>
-          <li><strong>County / Ward:</strong> ${data.county} ${data.subCounty ? `(${data.subCounty})` : ''}</li>
-          <li><strong>Area of Interest:</strong> ${data.areaOfInterest}</li>
-          <li><strong>Availability:</strong> ${data.availability}</li>
-        </ul>
-      `
+      replyTo: data.email,
+      html: emailTemplates.adminVolunteerAlert({
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        county: data.county,
+        subCounty: data.subCounty,
+        areaOfInterest: data.areaOfInterest,
+        availability: data.availability,
+        experience: data.experience,
+        message: data.message,
+        applicationId: application.id
+      })
     });
 
     await prisma.notification.create({
@@ -253,15 +254,18 @@ export class FormService {
     await mailService.sendEmail({
       to: env.ADMIN_NOTIFICATION_EMAIL,
       subject: `[NEW PARTNERSHIP PROPOSAL]: ${data.organizationName}`,
-      html: `
-        <p>A new institutional partnership proposal has been submitted:</p>
-        <ul>
-          <li><strong>Organization:</strong> ${data.organizationName}</li>
-          <li><strong>Contact:</strong> ${data.contactPerson} (${data.email}, ${data.phone})</li>
-          <li><strong>Type:</strong> ${data.organizationType}</li>
-          <li><strong>Interest:</strong> ${data.partnershipInterests}</li>
-        </ul>
-      `
+      replyTo: data.email,
+      html: emailTemplates.adminPartnershipAlert({
+        organizationName: data.organizationName,
+        contactPerson: data.contactPerson,
+        email: data.email,
+        phone: data.phone,
+        organizationType: data.organizationType,
+        partnershipInterests: data.partnershipInterests,
+        message: data.message,
+        website: data.website,
+        applicationId: application.id
+      })
     });
 
     await prisma.notification.create({
