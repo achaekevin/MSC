@@ -21,6 +21,7 @@ import { storyController } from '../controllers/story.controller.js';
 import { userController } from '../controllers/user.controller.js';
 import { notificationController } from '../controllers/notification.controller.js';
 import { backupController } from '../controllers/backup.controller.js';
+import { securityMonitoringController } from '../controllers/securityMonitoring.controller.js';
 
 import {
   createProgramSchema,
@@ -508,6 +509,11 @@ router.get(
   requirePermissions('AUDIT_READ'),
   (req, res, next) => auditController.getAuditLogs(req, res, next)
 );
+router.get(
+  '/audit-logs',
+  requirePermissions('AUDIT_READ'),
+  (req, res, next) => auditController.getAuditLogs(req, res, next)
+);
 
 // ----------------------------------------------------
 // NOTIFICATION CENTER
@@ -577,6 +583,40 @@ router.put(
   '/backups/config',
   requireRoles('SUPER_ADMIN'),
   (req, res, next) => backupController.updateConfig(req, res, next)
+);
+
+// ----------------------------------------------------
+// SECURITY MONITORING (Production Monitoring Suite)
+// ----------------------------------------------------
+router.get(
+  '/monitoring/overview',
+  requireRoles('SUPER_ADMIN'),
+  (req, res, next) => securityMonitoringController.getOverview(req, res, next)
+);
+router.get(
+  '/monitoring/failed-logins',
+  requireRoles('SUPER_ADMIN'),
+  (req, res, next) => securityMonitoringController.getFailedLogins(req, res, next)
+);
+router.get(
+  '/monitoring/api-errors',
+  requireRoles('SUPER_ADMIN'),
+  (req, res, next) => securityMonitoringController.getApiErrors(req, res, next)
+);
+router.get(
+  '/monitoring/alerts',
+  requireRoles('SUPER_ADMIN'),
+  (req, res, next) => securityMonitoringController.getAlerts(req, res, next)
+);
+router.post(
+  '/monitoring/alerts/:id/acknowledge',
+  requireRoles('SUPER_ADMIN'),
+  (req, res, next) => securityMonitoringController.acknowledgeAlert(req, res, next)
+);
+router.get(
+  '/monitoring/dependencies',
+  requireRoles('SUPER_ADMIN'),
+  (req, res, next) => securityMonitoringController.getDependencyStatus(req, res, next)
 );
 
 export default router;

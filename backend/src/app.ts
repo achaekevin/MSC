@@ -13,6 +13,7 @@ import { networkAccessSecurity, checkNetworkAccess } from './middleware/networkA
 import { NotFoundError } from './errors/AppError.js';
 import { env } from './config/env.js';
 import { sanitizeInput } from './middleware/sanitize.js';
+import { requestLogger } from './middleware/requestLogger.js';
 import apiV1Router from './routes/index.js';
 import healthRoutes from './routes/health.routes.js';
 
@@ -67,7 +68,7 @@ export const createApp = (): Express => {
           scriptSrc: ["'self'", "'unsafe-inline'"],
           styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
           fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
-          imgSrc: ["'self'", 'data:', 'blob:', 'https://res.cloudinary.com', 'https://images.unsplash.com'],
+          imgSrc: ["'self'", 'data:', 'blob:', 'https://res.cloudinary.com', 'https://images.unsplash.com', 'https://api.qrserver.com'],
           connectSrc: [
             "'self'",
             'http://localhost:5173',
@@ -76,7 +77,9 @@ export const createApp = (): Express => {
             'https://*.up.railway.app',
             'https://staging.mwanchasenior.org',
             'https://mwanchasenior.org'
-          ]
+          ],
+          frameAncestors: ["'none'"],
+          objectSrc: ["'none'"]
         }
       },
       crossOriginResourcePolicy: { policy: 'cross-origin' },
@@ -95,6 +98,9 @@ export const createApp = (): Express => {
       })
     })
   );
+
+  // Structured Request Tracing & Security Monitoring Logger
+  app.use(requestLogger);
 
   // Permissions-Policy header to restrict unauthorized browser hardware APIs
   app.use((req: Request, res: Response, next: NextFunction) => {

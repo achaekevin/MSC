@@ -27,6 +27,7 @@ import {
 import { UserRole, ROLE_PERMISSIONS, AuthUser } from '../types/index.js';
 import { mailService, emailTemplates } from '../config/mail.js';
 import { env } from '../config/env.js';
+import { securityMonitoringService } from './securityMonitoring.service.js';
 
 export class AuthService {
   /**
@@ -61,16 +62,34 @@ export class AuthService {
     });
 
     if (!user) {
+      securityMonitoringService.recordFailedLogin({
+        email,
+        ip: ipAddress || 'unknown',
+        userAgent,
+        reason: 'Account does not exist'
+      });
       throw new UnauthorizedError('Invalid email or password');
     }
 
     if (!user.isActive) {
+      securityMonitoringService.recordSuspiciousActivity({
+        type: 'DEACTIVATED_ACCOUNT_LOGIN_ATTEMPT',
+        severity: 'MEDIUM',
+        message: `Attempt to access deactivated account: ${user.email}`,
+        ip: ipAddress
+      });
       throw new ForbiddenError('Your account has been deactivated. Please contact the administrator.');
     }
 
     // Protection against repeated failed logins: Check lockout window
     if (user.lockUntil && user.lockUntil > new Date()) {
       const minutesRemaining = Math.ceil((user.lockUntil.getTime() - Date.now()) / (60 * 1000));
+      securityMonitoringService.recordSuspiciousActivity({
+        type: 'LOCKED_ACCOUNT_LOGIN_ATTEMPT',
+        severity: 'MEDIUM',
+        message: `Attempt to log into locked account: ${user.email} with ${minutesRemaining}m remaining`,
+        ip: ipAddress
+      });
       throw new ForbiddenError(`Account is temporarily locked. Try again in ${minutesRemaining} minutes.`);
     }
 
@@ -88,6 +107,13 @@ export class AuthService {
           failedLoginAttempts: newAttempts,
           lockUntil: lockUntil ?? undefined
         }
+      });
+
+      securityMonitoringService.recordFailedLogin({
+        email: user.email,
+        ip: ipAddress || 'unknown',
+        userAgent,
+        reason: 'Incorrect password'
       });
 
       // Audit log failed attempt

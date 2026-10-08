@@ -46,7 +46,10 @@ export const uploadToCloudinary = async (
       {
         folder,
         public_id: filename,
-        resource_type: 'image'
+        resource_type: 'image',
+        image_metadata: false,
+        quality: 'auto',
+        fetch_format: 'auto'
       },
       (error, result) => {
         if (error || !result) {
