@@ -14,6 +14,14 @@ export class AuthController {
 
       const result = await authService.login(email, password, ipAddress, userAgent);
 
+      if ('requires2FA' in result) {
+        return sendSuccess(res, {
+          requires2FA: true,
+          tempToken: result.tempToken,
+          email: result.email
+        }, 200);
+      }
+
       // Set refresh token in secure HTTP-only cookie
       res.cookie('msc_refresh_token', result.refreshToken, {
         httpOnly: true,
@@ -32,6 +40,97 @@ export class AuthController {
     }
   }
 
+  async verifyTwoFactor(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { tempToken, code } = req.body;
+      const ipAddress = req.ip || req.socket.remoteAddress;
+      const userAgent = req.headers['user-agent'];
+
+      const result = await authService.verifyTwoFactorLogin(tempToken, code, ipAddress, userAgent);
+
+      res.cookie('msc_refresh_token', result.refreshToken, {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      });
+
+      return sendSuccess(res, {
+        user: result.user,
+        accessToken: result.accessToken
+      }, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async generateTwoFactorSecret(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Authentication required' }
+        });
+      }
+
+      const result = await authService.generateTwoFactorSecret(req.user.id);
+      return sendSuccess(res, result, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async enableTwoFactor(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Authentication required' }
+        });
+      }
+
+      const { secret, code } = req.body;
+      const result = await authService.enableTwoFactor(req.user.id, secret, code);
+      return sendSuccess(res, result, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async disableTwoFactor(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Authentication required' }
+        });
+      }
+
+      const { password } = req.body;
+      const result = await authService.disableTwoFactor(req.user.id, password);
+      return sendSuccess(res, result, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getTwoFactorStatus(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Authentication required' }
+        });
+      }
+
+      const result = await authService.getTwoFactorStatus(req.user.id);
+      return sendSuccess(res, result, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async register(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password, name, role, adminInviteCode } = req.body;
@@ -40,7 +139,6 @@ export class AuthController {
 
       const result = await authService.register(email, password, name, role, adminInviteCode, ipAddress, userAgent);
 
-      // Set refresh token in secure HTTP-only cookie
       res.cookie('msc_refresh_token', result.refreshToken, {
         httpOnly: true,
         secure: env.NODE_ENV === 'production',
@@ -92,20 +190,18 @@ export class AuthController {
       const token = req.body?.refreshToken || req.cookies?.msc_refresh_token;
       let userId = req.user?.id;
 
-      // Extract user ID from bearer token if not populated by middleware
       if (!userId && req.headers.authorization?.startsWith('Bearer ')) {
         const accessToken = req.headers.authorization.split(' ')[1];
         try {
           const payload = verifyAccessToken(accessToken);
           if (payload) userId = payload.id;
         } catch {
-          // Token may already be expired, continue with token cleanup
+          // Token may already be expired, proceed with token cleanup
         }
       }
 
       await authService.logout(token, userId);
 
-      // Clear cookie with exact matching attributes & path
       res.clearCookie('msc_refresh_token', {
         httpOnly: true,
         secure: env.NODE_ENV === 'production',

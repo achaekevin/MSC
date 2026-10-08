@@ -57,3 +57,24 @@ export const verifyRefreshToken = (token: string): TokenPayload | null => {
     return null;
   }
 };
+
+export const sign2FATempToken = (user: { id: string; email: string }): string => {
+  return jwt.sign(
+    { userId: user.id, email: user.email, purpose: '2fa_login' },
+    env.JWT_ACCESS_SECRET,
+    { expiresIn: '5m' }
+  );
+};
+
+export const verify2FATempToken = (token: string): { userId: string; email: string } | null => {
+  try {
+    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as { userId: string; email: string; purpose: string };
+    if (decoded && decoded.purpose === '2fa_login') {
+      return { userId: decoded.userId, email: decoded.email };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+};
+

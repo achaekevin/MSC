@@ -10,7 +10,10 @@ import {
   refreshTokenSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
-  changePasswordSchema
+  changePasswordSchema,
+  enableTwoFactorSchema,
+  disableTwoFactorSchema,
+  verifyTwoFactorLoginSchema
 } from '../schemas/auth.schema.js';
 
 const router = Router();
@@ -32,6 +35,41 @@ router.post(
   authLimiter,
   validate({ body: loginSchema }),
   (req, res, next) => authController.login(req, res, next)
+);
+
+// 2FA login verification
+router.post(
+  '/2fa/verify',
+  authLimiter,
+  validate({ body: verifyTwoFactorLoginSchema }),
+  (req, res, next) => authController.verifyTwoFactor(req, res, next)
+);
+
+// 2FA administration (authenticated)
+router.get(
+  '/2fa/status',
+  authenticate,
+  (req, res, next) => authController.getTwoFactorStatus(req, res, next)
+);
+
+router.post(
+  '/2fa/generate',
+  authenticate,
+  (req, res, next) => authController.generateTwoFactorSecret(req, res, next)
+);
+
+router.post(
+  '/2fa/enable',
+  authenticate,
+  validate({ body: enableTwoFactorSchema }),
+  (req, res, next) => authController.enableTwoFactor(req, res, next)
+);
+
+router.post(
+  '/2fa/disable',
+  authenticate,
+  validate({ body: disableTwoFactorSchema }),
+  (req, res, next) => authController.disableTwoFactor(req, res, next)
 );
 
 router.post(

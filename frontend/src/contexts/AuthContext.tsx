@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { authService, User, LoginCredentials, RegisterCredentials, ChangePasswordRequest, AuthError } from '../services/authService';
+import { authService, User, LoginCredentials, RegisterCredentials, ChangePasswordRequest, AuthError, LoginResult, LoginResponse } from '../services/authService';
 
 interface AuthContextType {
   // State
@@ -9,7 +9,8 @@ interface AuthContextType {
   error: string | null;
 
   // Actions
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<LoginResult>;
+  verifyTwoFactor: (tempToken: string, code: string) => Promise<LoginResponse>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
@@ -74,17 +75,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const login = async (credentials: LoginCredentials) => {
+  const login = async (credentials: LoginCredentials): Promise<LoginResult> => {
     setError(null);
 
     try {
       const response = await authService.login(credentials);
+      if ('requires2FA' in response) {
+        return response;
+      }
       setUser(response.user);
+      return response;
     } catch (error) {
       if (error instanceof AuthError) {
         setError(error.message);
       } else {
         setError('Login failed. Please try again.');
+      }
+      throw error;
+    }
+  };
+
+  const verifyTwoFactor = async (tempToken: string, code: string): Promise<LoginResponse> => {
+    setError(null);
+
+    try {
+      const response = await authService.verifyTwoFactor(tempToken, code);
+      setUser(response.user);
+      return response;
+    } catch (error) {
+      if (error instanceof AuthError) {
+        setError(error.message);
+      } else {
+        setError('Verification failed. Please check the code and try again.');
       }
       throw error;
     }
@@ -186,6 +208,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Actions
     login,
+    verifyTwoFactor,
     register,
     logout,
     refreshToken,

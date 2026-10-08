@@ -60,6 +60,14 @@ export interface LoginResponse {
   refreshToken?: string;
 }
 
+export interface TwoFactorRequiredResponse {
+  requires2FA: true;
+  tempToken: string;
+  email: string;
+}
+
+export type LoginResult = LoginResponse | TwoFactorRequiredResponse;
+
 export interface ForgotPasswordRequest {
   email: string;
 }
@@ -181,14 +189,53 @@ class AuthService {
     }
   }
 
-  async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const response = await this.makeAuthRequest<LoginResponse>('/login', {
+  async login(credentials: LoginCredentials): Promise<LoginResult> {
+    const response = await this.makeAuthRequest<LoginResult>('/login', {
       method: 'POST',
       body: JSON.stringify(credentials)
     });
 
+    if ('requires2FA' in response && response.requires2FA) {
+      return response;
+    }
+
+    const loginRes = response as LoginResponse;
+    this.setAuthState(loginRes.user, loginRes.accessToken, loginRes.refreshToken);
+    return loginRes;
+  }
+
+  async verifyTwoFactor(tempToken: string, code: string): Promise<LoginResponse> {
+    const response = await this.makeAuthRequest<LoginResponse>('/2fa/verify', {
+      method: 'POST',
+      body: JSON.stringify({ tempToken, code })
+    });
+
     this.setAuthState(response.user, response.accessToken, response.refreshToken);
     return response;
+  }
+
+  async getTwoFactorStatus(): Promise<{ enabled: boolean }> {
+    return this.makeAuthRequest<{ enabled: boolean }>('/2fa/status');
+  }
+
+  async generateTwoFactorSecret(): Promise<{ secret: string; otpAuthUri: string }> {
+    return this.makeAuthRequest<{ secret: string; otpAuthUri: string }>('/2fa/generate', {
+      method: 'POST'
+    });
+  }
+
+  async enableTwoFactor(secret: string, code: string): Promise<{ enabled: boolean; backupCodes: string[]; message: string }> {
+    return this.makeAuthRequest<{ enabled: boolean; backupCodes: string[]; message: string }>('/2fa/enable', {
+      method: 'POST',
+      body: JSON.stringify({ secret, code })
+    });
+  }
+
+  async disableTwoFactor(password: string): Promise<{ enabled: boolean; message: string }> {
+    return this.makeAuthRequest<{ enabled: boolean; message: string }>('/2fa/disable', {
+      method: 'POST',
+      body: JSON.stringify({ password })
+    });
   }
 
   async register(credentials: RegisterCredentials): Promise<LoginResponse> {
