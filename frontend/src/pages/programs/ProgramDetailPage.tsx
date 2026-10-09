@@ -8,35 +8,57 @@ import { programService } from '../../services/programService';
 import { Program } from '../../types';
 import { PageLoader } from '../../components/ui/Skeleton';
 import { CheckCircle2, Target, HeartHandshake, ArrowRight, ArrowLeft } from 'lucide-react';
+import { ErrorState } from '../../components/ui/ErrorState';
 
 export const ProgramDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [program, setProgram] = useState<Program | null>(null);
   const [allPrograms, setAllPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProgram = React.useCallback(async () => {
+    if (!slug) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const [current, all] = await Promise.all([
+        programService.getBySlug(slug),
+        programService.getAll().catch(() => [])
+      ]);
+      setProgram(current);
+      setAllPrograms(all || []);
+    } catch (err: any) {
+      setError(err?.message || 'The community program information could not be retrieved. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [slug]);
 
   useEffect(() => {
-    let isMounted = true;
-    setLoading(true);
-
-    Promise.all([
-      programService.getBySlug(slug || ''),
-      programService.getAll()
-    ]).then(([current, all]) => {
-      if (isMounted) {
-        setProgram(current);
-        setAllPrograms(all);
-        setLoading(false);
-      }
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [slug]);
+    fetchProgram();
+  }, [fetchProgram]);
 
   if (loading) {
     return <PageLoader />;
+  }
+
+  if (error) {
+    return (
+      <div className="py-20">
+        <Container size="md">
+          <ErrorState
+            title="Program Details Unavailable"
+            description={error}
+            onRetry={fetchProgram}
+            secondaryAction={{
+              label: 'Back to Programs',
+              href: '/programs'
+            }}
+          />
+        </Container>
+      </div>
+    );
   }
 
   if (!program) {

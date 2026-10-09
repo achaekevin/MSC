@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container } from '../../components/ui/Container';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { EventCard } from '../../components/cards/EventCard';
 import { SkeletonCard } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { ErrorState } from '../../components/ui/ErrorState';
 import { eventService } from '../../services/eventService';
 import { EventItem } from '../../types';
 import { Calendar, Search } from 'lucide-react';
@@ -13,32 +14,36 @@ export const EventsPage: React.FC = () => {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [categories, setCategories] = useState<string[]>(['All', 'Community Outreach', 'Senior Engagement', 'Health Outreach', 'Stakeholder Meeting']);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'completed'>('upcoming');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  useEffect(() => {
-    let isMounted = true;
-    Promise.all([
-      eventService.getAll(),
-      eventService.getCategories().catch(() => [])
-    ]).then(([eventsData, catsData]) => {
-      if (isMounted) {
-        setEvents(eventsData);
-        if (catsData && catsData.length > 0) {
-          const names = Array.from(new Set(['All', ...catsData.map(c => c.name)]));
-          setCategories(names);
-        }
-        setLoading(false);
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [eventsData, catsData] = await Promise.all([
+        eventService.getAll(),
+        eventService.getCategories().catch(() => [])
+      ]);
+      setEvents(eventsData);
+      if (catsData && catsData.length > 0) {
+        const names = Array.from(new Set(['All', ...catsData.map(c => c.name)]));
+        setCategories(names);
       }
-    }).catch(() => {
-      if (isMounted) setLoading(false);
-    });
-
-    return () => {
-      isMounted = false;
-    };
+    } catch (err: any) {
+      setError(
+        err?.message || 'Unable to retrieve community events right now. Please verify your connection or try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   const now = new Date();
   const isUpcoming = (e: EventItem) => {
@@ -150,6 +155,12 @@ export const EventsPage: React.FC = () => {
                 <SkeletonCard key={i} />
               ))}
             </div>
+          ) : error ? (
+            <ErrorState
+              title="Community Events Temporarily Unavailable"
+              description="We encountered a temporary delay loading community events. Please try again."
+              onRetry={fetchEvents}
+            />
           ) : filteredEvents.length === 0 ? (
             <EmptyState
               icon={<Calendar className="w-8 h-8 text-forest-700" />}

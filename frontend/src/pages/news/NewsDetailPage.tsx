@@ -9,33 +9,37 @@ import { NewsArticle } from '../../types';
 import { PageLoader } from '../../components/ui/Skeleton';
 import { Calendar, User, Tag, Share2, ArrowLeft, Check } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
+import { ErrorState } from '../../components/ui/ErrorState';
 
 export const NewsDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [article, setArticle] = useState<NewsArticle | null>(null);
   const [related, setRelated] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
 
-  useEffect(() => {
-    let isMounted = true;
+  const fetchArticle = React.useCallback(async () => {
+    if (!slug) return;
     setLoading(true);
-
-    Promise.all([
-      newsService.getBySlug(slug || ''),
-      newsService.getAll()
-    ]).then(([current, all]) => {
-      if (isMounted) {
-        setArticle(current);
-        setRelated(all.filter((a) => a.slug !== slug).slice(0, 2));
-        setLoading(false);
-      }
-    });
-
-    return () => {
-      isMounted = false;
-    };
+    setError(null);
+    try {
+      const [current, all] = await Promise.all([
+        newsService.getBySlug(slug),
+        newsService.getAll().catch(() => [])
+      ]);
+      setArticle(current);
+      setRelated((all || []).filter((a) => a.slug !== slug).slice(0, 2));
+    } catch (err: any) {
+      setError(err?.message || 'The news article service is temporarily unavailable. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }, [slug]);
+
+  useEffect(() => {
+    fetchArticle();
+  }, [fetchArticle]);
 
   const handleShare = () => {
     if (navigator.clipboard) {
@@ -47,6 +51,24 @@ export const NewsDetailPage: React.FC = () => {
 
   if (loading) {
     return <PageLoader />;
+  }
+
+  if (error) {
+    return (
+      <div className="py-20">
+        <Container size="md">
+          <ErrorState
+            title="News Article Temporarily Unavailable"
+            description={error}
+            onRetry={fetchArticle}
+            secondaryAction={{
+              label: 'Back to News & Updates',
+              href: '/news'
+            }}
+          />
+        </Container>
+      </div>
+    );
   }
 
   if (!article) {

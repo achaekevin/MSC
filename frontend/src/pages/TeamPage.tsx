@@ -7,26 +7,33 @@ import { teamService } from '../services/teamService';
 import { TeamMember } from '../types';
 import { TEAM_STRUCTURE_CATEGORIES } from '../data/teamData';
 import { SkeletonCard } from '../components/ui/Skeleton';
-import { ShieldCheck, Heart, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Heart, AlertCircle, Users } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { ErrorState } from '../components/ui/ErrorState';
+import { EmptyState } from '../components/ui/EmptyState';
 
 export const TeamPage: React.FC = () => {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [selectedDept, setSelectedDept] = useState<string>('All');
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchTeam = React.useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await teamService.getAll();
+      setTeamMembers(data || []);
+    } catch (err: any) {
+      setError(err?.message || 'Unable to load leadership and team roster.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let isMounted = true;
-    teamService.getAll().then((data) => {
-      if (isMounted) {
-        setTeamMembers(data);
-        setLoading(false);
-      }
-    });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    fetchTeam();
+  }, [fetchTeam]);
 
   const filteredMembers =
     selectedDept === 'All'
@@ -99,12 +106,27 @@ export const TeamPage: React.FC = () => {
           </div>
 
           {/* Team Grid */}
-          {loading ? (
+          {error ? (
+            <ErrorState
+              title="Failed to Load Governance & Team Directory"
+              description={error}
+              onRetry={fetchTeam}
+            />
+          ) : loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <SkeletonCard key={i} />
               ))}
             </div>
+          ) : filteredMembers.length === 0 ? (
+            <EmptyState
+              title="No Team Members Found"
+              description="No appointees found matching the selected organizational tier."
+              action={{
+                label: 'View All Tiers',
+                onClick: () => setSelectedDept('All')
+              }}
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredMembers.map((member) => (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Container } from '../../components/ui/Container';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
@@ -6,6 +6,7 @@ import { SectionHeading } from '../../components/ui/SectionHeading';
 import { NewsCard } from '../../components/cards/NewsCard';
 import { SkeletonArticle } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { ErrorState } from '../../components/ui/ErrorState';
 import { newsService } from '../../services/newsService';
 import { NewsArticle } from '../../types';
 import { Search, Calendar, ArrowRight } from 'lucide-react';
@@ -16,31 +17,35 @@ export const NewsPage: React.FC = () => {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [categories, setCategories] = useState<string[]>(['All', 'Community Story', 'Organizational News', 'Advocacy']);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  useEffect(() => {
-    let isMounted = true;
-    Promise.all([
-      newsService.getAll(),
-      newsService.getCategories().catch(() => [])
-    ]).then(([newsData, catData]) => {
-      if (isMounted) {
-        setArticles(newsData);
-        if (catData && catData.length > 0) {
-          const names = Array.from(new Set(['All', ...catData.map(c => c.name)]));
-          setCategories(names);
-        }
-        setLoading(false);
+  const fetchNews = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [newsData, catData] = await Promise.all([
+        newsService.getAll(),
+        newsService.getCategories().catch(() => [])
+      ]);
+      setArticles(newsData);
+      if (catData && catData.length > 0) {
+        const names = Array.from(new Set(['All', ...catData.map(c => c.name)]));
+        setCategories(names);
       }
-    }).catch(() => {
-      if (isMounted) setLoading(false);
-    });
-
-    return () => {
-      isMounted = false;
-    };
+    } catch (err: any) {
+      setError(
+        err?.message || 'Unable to retrieve news stories right now. Please verify your connection or try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchNews();
+  }, [fetchNews]);
 
   const getArticleCategoryName = (art: NewsArticle): string => {
     if (!art.category) return '';
@@ -175,6 +180,12 @@ export const NewsPage: React.FC = () => {
                 <SkeletonArticle key={i} />
               ))}
             </div>
+          ) : error ? (
+            <ErrorState
+              title="News Updates Temporarily Unavailable"
+              description="We are experiencing a temporary delay retrieving news articles and field dispatches. Please try again."
+              onRetry={fetchNews}
+            />
           ) : filteredArticles.length === 0 ? (
             <EmptyState
               title="No Stories Found"

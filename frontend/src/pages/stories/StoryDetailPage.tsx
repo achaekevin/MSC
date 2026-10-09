@@ -21,6 +21,7 @@ import {
   AlertTriangle,
   HeartHandshake
 } from 'lucide-react';
+import { ErrorState } from '../../components/ui/ErrorState';
 
 export const StoryDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -31,22 +32,23 @@ export const StoryDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
+  const fetchStory = React.useCallback(async () => {
     if (!slug) return;
-    const fetchStory = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await storyService.getPublicStoryBySlug(slug);
-        setStory(data);
-      } catch (err: any) {
-        setError(err?.message || 'Story not found or pending client approval.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStory();
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await storyService.getPublicStoryBySlug(slug);
+      setStory(data);
+    } catch (err: any) {
+      setError(err?.message || 'Story details could not be retrieved from the archive.');
+    } finally {
+      setLoading(false);
+    }
   }, [slug]);
+
+  useEffect(() => {
+    fetchStory();
+  }, [fetchStory]);
 
   const handleCopyLink = () => {
     if (typeof window !== 'undefined') {
@@ -65,7 +67,25 @@ export const StoryDetailPage: React.FC = () => {
     );
   }
 
-  if (error || !story) {
+  if (error) {
+    return (
+      <div className="min-h-screen py-24 bg-warm-50/70 dark:bg-charcoal-950">
+        <Container size="md">
+          <ErrorState
+            title="Impact Story Temporarily Unavailable"
+            description={error}
+            onRetry={fetchStory}
+            secondaryAction={{
+              label: 'Return to Stories of Impact',
+              href: '/stories'
+            }}
+          />
+        </Container>
+      </div>
+    );
+  }
+
+  if (!story) {
     return (
       <div className="min-h-screen py-24 bg-warm-50/70 dark:bg-charcoal-950">
         <Container>

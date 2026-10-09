@@ -36,7 +36,6 @@ export const healthCheck = async (req: Request, res: Response): Promise<Response
 
 export const readinessCheck = (req: Request, res: Response): Response => {
   return res.status(200).json({
-    status: 'ready',
-    timestamp: new Date().toISOString()
+    status: 'ready'
   });
 };

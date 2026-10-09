@@ -8,31 +8,53 @@ import { EventItem } from '../../types';
 import { PageLoader } from '../../components/ui/Skeleton';
 import { Calendar, Clock, MapPin, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
+import { ErrorState } from '../../components/ui/ErrorState';
 
 export const EventDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [event, setEvent] = useState<EventItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [registered, setRegistered] = useState<boolean>(false);
 
-  useEffect(() => {
-    let isMounted = true;
+  const fetchEvent = React.useCallback(async () => {
+    if (!slug) return;
     setLoading(true);
-
-    eventService.getBySlug(slug || '').then((data) => {
-      if (isMounted) {
-        setEvent(data);
-        setLoading(false);
-      }
-    });
-
-    return () => {
-      isMounted = false;
-    };
+    setError(null);
+    try {
+      const data = await eventService.getBySlug(slug);
+      setEvent(data);
+    } catch (err: any) {
+      setError(err?.message || 'The community event details could not be retrieved. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }, [slug]);
+
+  useEffect(() => {
+    fetchEvent();
+  }, [fetchEvent]);
 
   if (loading) {
     return <PageLoader />;
+  }
+
+  if (error) {
+    return (
+      <div className="py-20">
+        <Container size="md">
+          <ErrorState
+            title="Event Details Unavailable"
+            description={error}
+            onRetry={fetchEvent}
+            secondaryAction={{
+              label: 'Back to Events',
+              href: '/events'
+            }}
+          />
+        </Container>
+      </div>
+    );
   }
 
   if (!event) {

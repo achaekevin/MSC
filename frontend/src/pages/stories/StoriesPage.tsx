@@ -7,6 +7,7 @@ import { Container } from '../../components/ui/Container';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { Button } from '../../components/ui/Button';
 import { SEO } from '../../components/common/SEO';
+import { ErrorState } from '../../components/ui/ErrorState';
 import {
   HeartHandshake,
   ShieldCheck,
@@ -39,23 +40,26 @@ export const StoriesPage: React.FC = () => {
 
   const [stories, setStories] = useState<StoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProgram, setSelectedProgram] = useState('All Programs');
 
-  useEffect(() => {
-    const fetchStories = async () => {
-      setLoading(true);
-      try {
-        const res = await storyService.getPublicStories(1, 24);
-        setStories(res.items || []);
-      } catch (err) {
-        console.warn('Error loading stories:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStories();
+  const fetchStories = React.useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await storyService.getPublicStories(1, 24);
+      setStories(res.items || []);
+    } catch (err: any) {
+      setError(err?.message || 'Unable to load impact stories from case archives.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchStories();
+  }, [fetchStories]);
 
   const filteredStories = useMemo(() => {
     return stories.filter(s => {
@@ -164,7 +168,13 @@ export const StoriesPage: React.FC = () => {
 
         {/* Stories Grid */}
         <div className="mt-8">
-          {loading ? (
+          {error ? (
+            <ErrorState
+              title="Failed to Load Stories of Impact"
+              description={error}
+              onRetry={fetchStories}
+            />
+          ) : loading ? (
             <div className="py-24 text-center">
               <div className="inline-block w-8 h-8 border-3 border-forest-700 border-t-transparent rounded-full animate-spin mb-3" />
               <p className="text-sm text-charcoal-500 dark:text-warm-400">Loading verified impact stories...</p>

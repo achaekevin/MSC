@@ -6,11 +6,12 @@ import { ProgramCard } from '../../components/cards/ProgramCard';
 import { PageLoader, SkeletonCard } from '../../components/ui/Skeleton';
 import { usePrograms } from '../../contexts/CMSContext';
 import { Button } from '../../components/ui/Button';
+import { ErrorState } from '../../components/ui/ErrorState';
 import { ShieldCheck, HeartHandshake } from 'lucide-react';
 import { SEO } from '../../components/common/SEO';
 
 export const ProgramsPage: React.FC = () => {
-  const { programs, isLoading, error } = usePrograms();
+  const { programs, isLoading, error, refetch } = usePrograms();
   const [categories, setCategories] = React.useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = React.useState<string>('ALL');
   const [searchFilter, setSearchFilter] = React.useState<string>('');
@@ -72,20 +73,27 @@ export const ProgramsPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="pb-20">
+      <div className="pb-20 space-y-12">
         <section className="bg-warm-100/80 border-b border-warm-200 py-12">
           <Container>
             <Breadcrumb items={[{ label: 'Programs' }]} />
             <div className="max-w-3xl text-left mt-4">
+              <span className="text-xs font-bold text-forest-800 uppercase tracking-wider bg-forest-100 px-3 py-1 rounded-full border border-forest-200 inline-block mb-3">
+                Strategic Interventions
+              </span>
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-charcoal-900 font-display">
-                Programs Temporarily Unavailable
+                Our Core Program Areas
               </h1>
-              <p className="mt-4 text-lg text-charcoal-700 leading-relaxed">
-                We're working to restore access to our program information. Please try again later.
-              </p>
             </div>
           </Container>
         </section>
+        <Container>
+          <ErrorState
+            title="Program Information Temporarily Unavailable"
+            description="We encountered a temporary delay loading our strategic intervention pillars. Please try again or reach out to our team."
+            onRetry={refetch}
+          />
+        </Container>
       </div>
     );
   }

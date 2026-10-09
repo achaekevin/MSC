@@ -9,9 +9,10 @@ import { ShieldCheck, HeartHandshake, FileCheck, CheckCircle } from 'lucide-reac
 import { PageLoader } from '../components/ui/Skeleton';
 import { SEO } from '../components/common/SEO';
 import { ImpactDashboardSection } from '../components/impact/ImpactDashboardSection';
+import { ErrorState } from '../components/ui/ErrorState';
 
 export const ImpactPage: React.FC = () => {
-  const { metrics, organizedMetrics, categories, isLoading, error } = useImpactMetrics();
+  const { metrics, organizedMetrics, categories, isLoading, error, refetch } = useImpactMetrics();
 
   if (isLoading) {
     return <PageLoader />;
@@ -25,14 +26,18 @@ export const ImpactPage: React.FC = () => {
             <Breadcrumb items={[{ label: 'Our Impact' }]} />
             <div className="max-w-3xl text-left mt-4">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-charcoal-900 font-display">
-                Impact Data Temporarily Unavailable
+                Documented Impact & Community Footprint
               </h1>
-              <p className="mt-4 text-lg text-charcoal-700 leading-relaxed">
-                We're working to restore access to our impact metrics. Please try again later.
-              </p>
             </div>
           </Container>
         </section>
+        <Container className="py-12">
+          <ErrorState
+            title="Impact Data Temporarily Unavailable"
+            description="We were unable to load the verified impact metrics. Please check your internet connection or try again."
+            onRetry={refetch}
+          />
+        </Container>
       </div>
     );
   }

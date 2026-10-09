@@ -16,7 +16,8 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status?: number,
-    public errors?: Record<string, string[]> | Array<{ field: string; message: string }>
+    public errors?: Record<string, string[]> | Array<{ field: string; message: string }>,
+    public code?: string
   ) {
     super(message);
     this.name = 'ApiError';
@@ -59,6 +60,52 @@ const handleUnauthorized = () => {
   }
 };
 
+const processErrorResponse = (response: Response, errData: any): ApiError => {
+  const status = response.status;
+  if (status === 401) {
+    handleUnauthorized();
+  }
+
+  const rawMessage = errData?.error?.message || errData?.message;
+  const errors = errData?.errors || errData?.error?.details;
+  const code = errData?.error?.code;
+
+  if (rawMessage && typeof rawMessage === 'string' && rawMessage.trim().length > 0) {
+    return new ApiError(rawMessage, status, errors, code);
+  }
+
+  // Friendly defaults by status code
+  let defaultMessage = 'An unexpected error occurred. Please try again.';
+  if (status === 400) defaultMessage = 'The request was invalid. Please check your submission.';
+  else if (status === 401) defaultMessage = 'Your session has expired. Please sign in again.';
+  else if (status === 403) defaultMessage = 'You do not have permission to access this resource.';
+  else if (status === 404) defaultMessage = 'The requested information was not found.';
+  else if (status === 409) defaultMessage = 'A conflict occurred with an existing entry.';
+  else if (status === 422) defaultMessage = 'Please verify that all required fields are filled correctly.';
+  else if (status === 429) defaultMessage = 'Too many requests. Please wait a moment and try again.';
+  else if (status >= 500) defaultMessage = 'Server is temporarily unavailable. Please try again shortly.';
+
+  return new ApiError(defaultMessage, status, errors, code);
+};
+
+const handleNetworkOrCatchError = (error: unknown): ApiError => {
+  if (error instanceof ApiError) {
+    return error;
+  }
+  const rawMsg = error instanceof Error ? error.message : '';
+  const isNetwork =
+    (typeof navigator !== 'undefined' && !navigator.onLine) ||
+    rawMsg.includes('Failed to fetch') ||
+    rawMsg.includes('NetworkError') ||
+    rawMsg.includes('Load failed');
+
+  const message = isNetwork
+    ? 'Unable to connect to the server. Please check your internet connection and try again.'
+    : 'A technical error occurred while processing your request. Please try again.';
+
+  return new ApiError(message, undefined, undefined, 'NETWORK_ERROR');
+};
+
 export const apiClient = {
   async get<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const url = normalizeUrl(endpoint);
@@ -74,7 +121,7 @@ export const apiClient = {
           ...getAuthHeaders(),
           ...(options?.headers || {})
         },
-        credentials: 'include', // Include cookies for refresh token
+        credentials: 'include',
         ...options
       });
 
@@ -83,25 +130,15 @@ export const apiClient = {
         try {
           errData = await response.json();
         } catch {
-          errData = { message: `Request failed with status ${response.status}` };
+          errData = null;
         }
-
-        if (response.status === 401) {
-          handleUnauthorized();
-        }
-
-        throw new ApiError(errData.message || 'API request failed', response.status, errData.errors);
+        throw processErrorResponse(response, errData);
       }
 
       const data = await response.json();
       return data.success ? data.data : data;
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      throw new ApiError(
-        error instanceof Error ? error.message : 'Network error or backend server unreachable'
-      );
+      throw handleNetworkOrCatchError(error);
     }
   },
 
@@ -125,14 +162,9 @@ export const apiClient = {
         try {
           errData = await response.json();
         } catch {
-          errData = { message: `Request failed with status ${response.status}` };
+          errData = null;
         }
-
-        if (response.status === 401) {
-          handleUnauthorized();
-        }
-
-        throw new ApiError(errData.message || 'API request failed', response.status, errData.errors);
+        throw processErrorResponse(response, errData);
       }
 
       const json = await response.json();
@@ -141,12 +173,7 @@ export const apiClient = {
         pagination: json.pagination
       };
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      throw new ApiError(
-        error instanceof Error ? error.message : 'Network error or backend server unreachable'
-      );
+      throw handleNetworkOrCatchError(error);
     }
   },
 
@@ -171,25 +198,15 @@ export const apiClient = {
         try {
           errData = await response.json();
         } catch {
-          errData = { message: `Submission failed with status ${response.status}` };
+          errData = null;
         }
-
-        if (response.status === 401) {
-          handleUnauthorized();
-        }
-
-        throw new ApiError(errData.message || 'Form submission failed', response.status, errData.errors);
+        throw processErrorResponse(response, errData);
       }
 
       const responseData = await response.json();
       return responseData.success ? responseData.data : responseData;
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      throw new ApiError(
-        error instanceof Error ? error.message : 'Network error or backend server unreachable'
-      );
+      throw handleNetworkOrCatchError(error);
     }
   },
 
@@ -214,25 +231,15 @@ export const apiClient = {
         try {
           errData = await response.json();
         } catch {
-          errData = { message: `Update failed with status ${response.status}` };
+          errData = null;
         }
-
-        if (response.status === 401) {
-          handleUnauthorized();
-        }
-
-        throw new ApiError(errData.message || 'Update failed', response.status, errData.errors);
+        throw processErrorResponse(response, errData);
       }
 
       const responseData = await response.json();
       return responseData.success ? responseData.data : responseData;
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      throw new ApiError(
-        error instanceof Error ? error.message : 'Network error or backend server unreachable'
-      );
+      throw handleNetworkOrCatchError(error);
     }
   },
 
@@ -257,25 +264,15 @@ export const apiClient = {
         try {
           errData = await response.json();
         } catch {
-          errData = { message: `Update failed with status ${response.status}` };
+          errData = null;
         }
-
-        if (response.status === 401) {
-          handleUnauthorized();
-        }
-
-        throw new ApiError(errData.message || 'Patch failed', response.status, errData.errors);
+        throw processErrorResponse(response, errData);
       }
 
       const responseData = await response.json();
       return responseData.success ? responseData.data : responseData;
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      throw new ApiError(
-        error instanceof Error ? error.message : 'Network error or backend server unreachable'
-      );
+      throw handleNetworkOrCatchError(error);
     }
   },
 
@@ -299,25 +296,15 @@ export const apiClient = {
         try {
           errData = await response.json();
         } catch {
-          errData = { message: `Delete failed with status ${response.status}` };
+          errData = null;
         }
-
-        if (response.status === 401) {
-          handleUnauthorized();
-        }
-
-        throw new ApiError(errData.message || 'Delete failed', response.status, errData.errors);
+        throw processErrorResponse(response, errData);
       }
 
       const responseData = await response.json();
       return responseData.success ? responseData.data : responseData;
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      throw new ApiError(
-        error instanceof Error ? error.message : 'Network error or backend server unreachable'
-      );
+      throw handleNetworkOrCatchError(error);
     }
   }
 };

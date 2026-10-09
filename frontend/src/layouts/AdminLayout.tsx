@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { LogOut, ExternalLink } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ConditionalRender } from '../components/auth/ProtectedRoute';
 import { AdminNotificationCenter } from '../components/admin/AdminNotificationCenter';
+import { ErrorBoundary } from '../components/common/ErrorBoundary';
 
 interface NavItem {
   name: string;
@@ -179,6 +180,7 @@ const navigation: NavItem[] = [
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -423,7 +425,9 @@ export const AdminLayout: React.FC = () => {
           <main className="flex-1 w-full max-w-full overflow-x-hidden">
             <div className="py-4 sm:py-6 w-full max-w-full">
               <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full max-w-full">
-                <Outlet />
+                <ErrorBoundary key={location.pathname}>
+                  <Outlet />
+                </ErrorBoundary>
               </div>
             </div>
           </main>

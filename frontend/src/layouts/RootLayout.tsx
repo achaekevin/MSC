@@ -5,6 +5,7 @@ import { Footer } from '../components/layout/Footer';
 import { WhatsAppButton } from '../components/common/WhatsAppButton';
 import { AccessibilityToolbar } from '../components/common/AccessibilityToolbar';
 import { PrivacyConsentBanner } from '../components/common/PrivacyConsentBanner';
+import { ErrorBoundary } from '../components/common/ErrorBoundary';
 
 export const RootLayout: React.FC = () => {
   const location = useLocation();
@@ -30,7 +31,9 @@ export const RootLayout: React.FC = () => {
 
       {/* Primary Page Content */}
       <main id="main-content" className="flex-1 focus:outline-none">
-        <Outlet />
+        <ErrorBoundary key={location.pathname}>
+          <Outlet />
+        </ErrorBoundary>
       </main>
 
       {/* Senior Accessibility Floating Controls */}

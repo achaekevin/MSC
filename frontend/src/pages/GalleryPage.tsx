@@ -8,10 +8,13 @@ import { SkeletonGallery } from '../components/ui/Skeleton';
 import { X, ChevronLeft, ChevronRight, MapPin, Calendar, CheckCircle2 } from 'lucide-react';
 import { Badge } from '../components/ui/Badge';
 import { SEO } from '../components/common/SEO';
+import { ErrorState } from '../components/ui/ErrorState';
+import { EmptyState } from '../components/ui/EmptyState';
 
 export const GalleryPage: React.FC = () => {
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [activeItemIndex, setActiveItemIndex] = useState<number | null>(null);
 
@@ -24,28 +27,29 @@ export const GalleryPage: React.FC = () => {
     'Sensitization'
   ]);
 
-  useEffect(() => {
-    let isMounted = true;
-    Promise.all([
-      galleryService.getAll(),
-      galleryService.getAlbums().catch(() => [])
-    ]).then(([galleryData, albumsData]) => {
-      if (isMounted) {
-        setItems(galleryData);
-        if (albumsData && albumsData.length > 0) {
-          const names = Array.from(new Set(['All', ...albumsData.map(a => a.name)]));
-          setCategories(names);
-        }
-        setLoading(false);
+  const fetchGallery = React.useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [galleryData, albumsData] = await Promise.all([
+        galleryService.getAll(),
+        galleryService.getAlbums().catch(() => [])
+      ]);
+      setItems(galleryData || []);
+      if (albumsData && albumsData.length > 0) {
+        const names = Array.from(new Set(['All', ...albumsData.map(a => a.name)]));
+        setCategories(names);
       }
-    }).catch(() => {
-      if (isMounted) setLoading(false);
-    });
-
-    return () => {
-      isMounted = false;
-    };
+    } catch (err: any) {
+      setError(err?.message || 'Unable to load photo gallery from field archives.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchGallery();
+  }, [fetchGallery]);
 
   const filteredItems =
     selectedCategory === 'All'
@@ -128,8 +132,23 @@ export const GalleryPage: React.FC = () => {
           </div>
 
           {/* Gallery Grid */}
-          {loading ? (
+          {error ? (
+            <ErrorState
+              title="Failed to Load Field Gallery"
+              description={error}
+              onRetry={fetchGallery}
+            />
+          ) : loading ? (
             <SkeletonGallery />
+          ) : filteredItems.length === 0 ? (
+            <EmptyState
+              title="No Field Photos Found"
+              description="No gallery images found matching the selected category."
+              action={{
+                label: 'View All Categories',
+                onClick: () => setSelectedCategory('All')
+              }}
+            />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredItems.map((item, index) => (

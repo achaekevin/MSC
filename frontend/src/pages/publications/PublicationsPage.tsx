@@ -7,6 +7,7 @@ import { Container } from '../../components/ui/Container';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { Button } from '../../components/ui/Button';
 import { SEO } from '../../components/common/SEO';
+import { ErrorState } from '../../components/ui/ErrorState';
 import {
   BookOpen,
   Download,
@@ -43,24 +44,26 @@ export const PublicationsPage: React.FC = () => {
 
   const [publications, setPublications] = useState<PublicationItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Publications');
 
-  useEffect(() => {
-    const fetchPublications = async () => {
-      setLoading(true);
-      try {
-        const data = await publicationService.getPublicPublications();
-        setPublications(data);
-      } catch (err) {
-        console.error('Failed to load publications:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPublications();
+  const fetchPublications = React.useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await publicationService.getPublicPublications();
+      setPublications(data || []);
+    } catch (err: any) {
+      setError(err?.message || 'Unable to load official publications and research materials.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchPublications();
+  }, [fetchPublications]);
 
   const filteredPublications = useMemo(() => {
     return publications.filter((item) => {
@@ -169,7 +172,13 @@ export const PublicationsPage: React.FC = () => {
         </div>
 
         {/* Publications Grid */}
-        {loading ? (
+        {error ? (
+          <ErrorState
+            title="Failed to Load Publications Catalogue"
+            description={error}
+            onRetry={fetchPublications}
+          />
+        ) : loading ? (
           <div className="py-24 text-center">
             <div className="w-10 h-10 border-4 border-forest-800 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-sm font-semibold text-charcoal-600 dark:text-warm-300">

@@ -126,34 +126,35 @@ export const useCMS = () => {
 // Utility hooks for common CMS operations
 
 export const useOrganizationProfile = () => {
-  const { profile, isOrganizationLoading, organizationError } = useCMS();
-  return { profile, isLoading: isOrganizationLoading, error: organizationError };
+  const { profile, isOrganizationLoading, organizationError, refreshOrganization } = useCMS();
+  return { profile, isLoading: isOrganizationLoading, error: organizationError, refetch: refreshOrganization };
 };
 
 export const useOrganizationValues = () => {
-  const { values, isOrganizationLoading, organizationError } = useCMS();
-  return { values, isLoading: isOrganizationLoading, error: organizationError };
+  const { values, isOrganizationLoading, organizationError, refreshOrganization } = useCMS();
+  return { values, isLoading: isOrganizationLoading, error: organizationError, refetch: refreshOrganization };
 };
 
 export const useOrganizationContacts = () => {
-  const { contacts, isOrganizationLoading, organizationError } = useCMS();
-  return { contacts, isLoading: isOrganizationLoading, error: organizationError };
+  const { contacts, isOrganizationLoading, organizationError, refreshOrganization } = useCMS();
+  return { contacts, isLoading: isOrganizationLoading, error: organizationError, refetch: refreshOrganization };
 };
 
 export const useImpactMetrics = () => {
-  const { impactMetrics, organizedMetrics, impactCategories, isImpactLoading, impactError } = useCMS();
+  const { impactMetrics, organizedMetrics, impactCategories, isImpactLoading, impactError, refreshImpact } = useCMS();
   return { 
     metrics: impactMetrics, 
     organizedMetrics, 
     categories: impactCategories, 
     isLoading: isImpactLoading, 
-    error: impactError 
+    error: impactError,
+    refetch: refreshImpact
   };
 };
 
 export const usePrograms = () => {
-  const { programs, isProgramsLoading, programsError } = useCMS();
-  return { programs, isLoading: isProgramsLoading, error: programsError };
+  const { programs, isProgramsLoading, programsError, refreshPrograms } = useCMS();
+  return { programs, isLoading: isProgramsLoading, error: programsError, refetch: refreshPrograms };
 };
 
 export const useFeaturedPrograms = () => {

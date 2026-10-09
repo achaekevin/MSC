@@ -2,13 +2,20 @@ import React from 'react';
 import { FolderSearch } from 'lucide-react';
 import { Button } from './Button';
 
-interface EmptyStateProps {
+export interface EmptyStateAction {
+  label: string;
+  href?: string;
+  onClick?: () => void;
+}
+
+export interface EmptyStateProps {
   icon?: React.ReactNode;
   title: string;
   description: string;
   actionText?: string;
   actionHref?: string;
   onAction?: () => void;
+  action?: EmptyStateAction;
   className?: string;
 }
 
@@ -19,8 +26,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   actionText,
   actionHref,
   onAction,
+  action,
   className = ''
 }) => {
+  const effectiveLabel = action?.label || actionText;
+  const effectiveHref = action?.href || actionHref;
+  const effectiveOnClick = action?.onClick || onAction;
+
   return (
     <div
       className={`text-center py-12 px-6 rounded-2xl bg-white border border-dashed border-warm-300 max-w-xl mx-auto my-6 ${className}`}
@@ -34,14 +46,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       <p className="text-sm text-charcoal-600 mb-6 leading-relaxed max-w-md mx-auto">
         {description}
       </p>
-      {actionText && (
+      {effectiveLabel && (
         <Button
           variant="outline"
           size="sm"
-          to={actionHref}
-          onClick={onAction}
+          to={effectiveHref}
+          onClick={effectiveOnClick}
         >
-          {actionText}
+          {effectiveLabel}
         </Button>
       )}
     </div>
