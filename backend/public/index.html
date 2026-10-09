@@ -84,7 +84,25 @@
         } catch (e) {}
       })();
     </script>
-    <script type="module" crossorigin src="/assets/index-DrqN8iJH.js"></script>
+
+    <!-- Service Worker and Cache Cleanup (Ensures no stale workers intercept requests on localhost) -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (var i = 0; i < registrations.length; i++) {
+            registrations[i].unregister();
+          }
+        });
+      }
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (var i = 0; i < names.length; i++) {
+            caches.delete(names[i]);
+          }
+        });
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-B_JmTOAp.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-hePW80VL.js">
     <link rel="modulepreload" crossorigin href="/assets/jsx-runtime-BNakU3Ej.js">
     <link rel="modulepreload" crossorigin href="/assets/createLucideIcon-Cn6LRB4K.js">
