@@ -328,9 +328,9 @@ export const HomePage: React.FC = () => {
                 Dignity and Care for Older Persons
               </h1>
 
-              {/* Clear, Strong Descriptive Statement of MSC Work */}
+              {/* Stated Mission and Scope of MSC Work */}
               <p className="text-base sm:text-xl text-white leading-relaxed font-medium max-w-3xl drop-shadow-xs">
-                We provide free medical care, nutritious food, safe shelter, and protection against abuse for vulnerable older persons, ensuring every elder lives with dignity and respect.
+                We empower senior citizens through health, economic, social, and psychosocial development initiatives that enhance their dignity and quality of life.
               </p>
 
               {/* High-Contrast Action Buttons (Unified Fast-Action Green Palette) */}
