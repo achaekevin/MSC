@@ -84,6 +84,24 @@
         } catch (e) {}
       })();
     </script>
+
+    <!-- Service Worker and Cache Cleanup (Ensures no stale workers intercept requests on localhost) -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (var i = 0; i < registrations.length; i++) {
+            registrations[i].unregister();
+          }
+        });
+      }
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (var i = 0; i < names.length; i++) {
+            caches.delete(names[i]);
+          }
+        });
+      }
+    </script>
   </head>
   <body class="bg-warm-50 dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 font-sans antialiased selection:bg-forest-100 selection:text-forest-900 min-h-screen">
     <div id="root"></div>

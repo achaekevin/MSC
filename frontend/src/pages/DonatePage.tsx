@@ -886,3 +886,5 @@ export const DonatePage: React.FC = () => {
     </div>
   );
 };
+
+export default DonatePage;
