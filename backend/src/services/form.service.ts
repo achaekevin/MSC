@@ -1,14 +1,14 @@
 import { prisma } from '../config/database.js';
 import { NotFoundError } from '../errors/AppError.js';
 import { ContactStatus, FormStatus } from '@prisma/client';
-import { mailService, emailTemplates } from '../config/mail.js';
-import { env } from '../config/env.js';
+import { notificationService } from './notification.service.js';
 
 export class FormService {
   // ----------------------------------------------------
   // CONTACT SUBMISSIONS
   // ----------------------------------------------------
   async submitContact(data: any) {
+    // 1. Form Submission: Save record to database first
     const submission = await prisma.contactSubmission.create({
       data: {
         name: data.name,
@@ -21,41 +21,24 @@ export class FormService {
       }
     });
 
-    // 1. Send confirmation to sender
-    await mailService.sendEmail({
-      to: data.email,
-      subject: `Mwancha Senior Community: We Received Your Inquiry: ${data.subject}`,
-      html: emailTemplates.contactReceived(data.name, data.subject, data.message)
-    });
+    // 2. Email Delivery: Separate operation that never invalidates a successful submission
+    let emailDelivery = { adminNotified: false, confirmationSent: false };
+    try {
+      emailDelivery = await notificationService.notifyContactSubmission(submission);
+    } catch {
+      // Form submission succeeded even if email delivery encountered an issue
+    }
 
-    // 2. Send notification to MSC admin
-    await mailService.sendEmail({
-      to: env.ADMIN_NOTIFICATION_EMAIL,
-      subject: `[NEW CONTACT INQUIRY]: ${data.subject} from ${data.name}`,
-      replyTo: data.email,
-      html: emailTemplates.adminContactAlert({
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        subject: data.subject,
-        message: data.message,
-        referenceId: submission.id
-      })
-    });
-
-    // Record internal notification
-    await prisma.notification.create({
-      data: {
-        title: `New Contact Submission from ${data.name}`,
-        message: data.subject,
-        type: 'FORM_SUBMISSION',
-        link: `/admin/forms/contact/${submission.id}`
-      }
-    });
+    // Accurate messaging: never claim email was delivered if delivery failed
+    const message = emailDelivery.confirmationSent
+      ? 'Your inquiry has been received and a confirmation email has been sent to your address.'
+      : 'Your inquiry has been received and logged in our system. Our team will review your message and respond promptly.';
 
     return {
-      message: 'Your inquiry has been received. Our team will review your message and respond promptly.',
-      referenceId: submission.id
+      success: true,
+      referenceId: submission.id,
+      emailDelivery,
+      message
     };
   }
 
@@ -117,6 +100,7 @@ export class FormService {
   // VOLUNTEER APPLICATIONS
   // ----------------------------------------------------
   async submitVolunteer(data: any) {
+    // 1. Form Submission: Save application in database first
     const application = await prisma.volunteerApplication.create({
       data: {
         fullName: data.fullName,
@@ -133,42 +117,24 @@ export class FormService {
       }
     });
 
-    await mailService.sendEmail({
-      to: data.email,
-      subject: 'Mwancha Senior Community: Volunteer Application Received',
-      html: emailTemplates.volunteerReceived(data.fullName, data.areaOfInterest)
-    });
+    // 2. Email Delivery: Separate operation that never invalidates a saved application
+    let emailDelivery = { adminNotified: false, confirmationSent: false };
+    try {
+      emailDelivery = await notificationService.notifyVolunteerApplication(application);
+    } catch {
+      // Application record is preserved even if notification delivery fails
+    }
 
-    await mailService.sendEmail({
-      to: env.ADMIN_NOTIFICATION_EMAIL,
-      subject: `[NEW VOLUNTEER APPLICATION]: ${data.fullName} (${data.county})`,
-      replyTo: data.email,
-      html: emailTemplates.adminVolunteerAlert({
-        fullName: data.fullName,
-        email: data.email,
-        phone: data.phone,
-        county: data.county,
-        subCounty: data.subCounty,
-        areaOfInterest: data.areaOfInterest,
-        availability: data.availability,
-        experience: data.experience,
-        message: data.message,
-        applicationId: application.id
-      })
-    });
-
-    await prisma.notification.create({
-      data: {
-        title: `Volunteer Application: ${data.fullName}`,
-        message: `Applied for ${data.areaOfInterest} in ${data.county}`,
-        type: 'FORM_SUBMISSION',
-        link: `/admin/forms/volunteers/${application.id}`
-      }
-    });
+    // Accurate messaging: never claim email was delivered if delivery failed
+    const message = emailDelivery.confirmationSent
+      ? 'Thank you for volunteering! Your application has been logged and a confirmation email has been sent to your address.'
+      : 'Thank you for volunteering! Your application has been logged in our system. Our Volunteer Coordinator will be in touch.';
 
     return {
-      message: 'Thank you for volunteering! Your application has been logged and our Volunteer Coordinator will be in touch.',
-      applicationId: application.id
+      success: true,
+      applicationId: application.id,
+      emailDelivery,
+      message
     };
   }
 
@@ -230,6 +196,7 @@ export class FormService {
   // PARTNERSHIP APPLICATIONS
   // ----------------------------------------------------
   async submitPartnership(data: any) {
+    // 1. Form Submission: Save application in database first
     const application = await prisma.partnershipApplication.create({
       data: {
         organizationName: data.organizationName,
@@ -245,41 +212,24 @@ export class FormService {
       }
     });
 
-    await mailService.sendEmail({
-      to: data.email,
-      subject: 'Mwancha Senior Community: Partnership Proposal Acknowledgment',
-      html: emailTemplates.partnershipReceived(data.organizationName, data.contactPerson)
-    });
+    // 2. Email Delivery: Separate operation that never invalidates a saved application
+    let emailDelivery = { adminNotified: false, confirmationSent: false };
+    try {
+      emailDelivery = await notificationService.notifyPartnershipApplication(application);
+    } catch {
+      // Application record is preserved even if notification delivery fails
+    }
 
-    await mailService.sendEmail({
-      to: env.ADMIN_NOTIFICATION_EMAIL,
-      subject: `[NEW PARTNERSHIP PROPOSAL]: ${data.organizationName}`,
-      replyTo: data.email,
-      html: emailTemplates.adminPartnershipAlert({
-        organizationName: data.organizationName,
-        contactPerson: data.contactPerson,
-        email: data.email,
-        phone: data.phone,
-        organizationType: data.organizationType,
-        partnershipInterests: data.partnershipInterests,
-        message: data.message,
-        website: data.website,
-        applicationId: application.id
-      })
-    });
-
-    await prisma.notification.create({
-      data: {
-        title: `Partnership Proposal: ${data.organizationName}`,
-        message: `Proposed by ${data.contactPerson}`,
-        type: 'FORM_SUBMISSION',
-        link: `/admin/forms/partnerships/${application.id}`
-      }
-    });
+    // Accurate messaging: never claim email was delivered if delivery failed
+    const message = emailDelivery.confirmationSent
+      ? 'Partnership proposal successfully submitted. A confirmation email has been sent to your address.'
+      : 'Partnership proposal successfully submitted and logged in our system. Our Executive Leadership will review your proposal.';
 
     return {
-      message: 'Partnership proposal successfully submitted. Our Executive Leadership will review your proposal.',
-      applicationId: application.id
+      success: true,
+      applicationId: application.id,
+      emailDelivery,
+      message
     };
   }
 

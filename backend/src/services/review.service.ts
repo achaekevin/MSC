@@ -3,6 +3,7 @@ import { NotFoundError, BadRequestError } from '../errors/AppError.js';
 import { ContentStatus } from '@prisma/client';
 import { mailService, emailTemplates } from '../config/mail.js';
 import { env } from '../config/env.js';
+import { notificationService } from './notification.service.js';
 
 export class ReviewService {
   async getPendingReviews() {
@@ -84,6 +85,55 @@ export class ReviewService {
     return review;
   }
 
+  async submitForReview(entityType: string, entityId: string, notes?: string, submitterId?: string) {
+    const previousStatus = await this.getEntityStatus(entityType, entityId);
+    await this.updateEntityStatus(entityType, entityId, ContentStatus.IN_REVIEW);
+
+    const review = await prisma.contentReview.create({
+      data: {
+        entityType,
+        entityId,
+        currentStatus: ContentStatus.IN_REVIEW,
+        previousStatus,
+        requestedAction: 'SUBMIT',
+        reviewerId: submitterId,
+        reviewNotes: notes,
+        decidedAt: new Date()
+      }
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: submitterId,
+        action: 'SUBMIT_REVIEW',
+        entity: entityType,
+        entityId,
+        newData: JSON.stringify({ status: ContentStatus.IN_REVIEW, notes })
+      }
+    });
+
+    const title = await this.getEntityTitle(entityType, entityId);
+    let submitterName = 'MSC Staff Member';
+    if (submitterId) {
+      const user = await prisma.user.findUnique({ where: { id: submitterId }, select: { name: true } });
+      if (user?.name) submitterName = user.name;
+    }
+
+    try {
+      await notificationService.notifyContentSubmittedForReview({
+        entityType,
+        entityId,
+        title,
+        submitterName,
+        notes
+      });
+    } catch {
+      // Review submission succeeds even if email dispatch encounters an issue
+    }
+
+    return review;
+  }
+
   async approveContent(entityType: string, entityId: string, notes?: string, reviewerId?: string) {
     await this.updateEntityStatus(entityType, entityId, ContentStatus.APPROVED);
 
@@ -109,6 +159,26 @@ export class ReviewService {
         newData: JSON.stringify({ status: ContentStatus.APPROVED, notes })
       }
     });
+
+    // Notify relevant editor(s) that content was approved
+    const title = await this.getEntityTitle(entityType, entityId);
+    let reviewerName = 'MSC Reviewer';
+    if (reviewerId) {
+      const user = await prisma.user.findUnique({ where: { id: reviewerId }, select: { name: true } });
+      if (user?.name) reviewerName = user.name;
+    }
+
+    try {
+      await notificationService.notifyContentApproved({
+        entityType,
+        entityId,
+        title,
+        reviewerName,
+        notes
+      });
+    } catch {
+      // Approval succeeds even if email dispatch encounters an issue
+    }
 
     return review;
   }
@@ -142,6 +212,27 @@ export class ReviewService {
         newData: JSON.stringify({ status: ContentStatus.PUBLISHED })
       }
     });
+
+    // Record publishing event and optionally notify relevant staff
+    const title = await this.getEntityTitle(entityType, entityId);
+    let publisherName = 'MSC Publisher';
+    if (publisherId) {
+      const user = await prisma.user.findUnique({ where: { id: publisherId }, select: { name: true } });
+      if (user?.name) publisherName = user.name;
+    }
+
+    try {
+      await notificationService.notifyContentPublished({
+        entityType,
+        entityId,
+        title,
+        publisherName,
+        publisherId,
+        notifyStaff: true
+      });
+    } catch {
+      // Publishing succeeds even if staff email notification encounters an issue
+    }
 
     return review;
   }
@@ -231,6 +322,36 @@ export class ReviewService {
 
     if (!record) throw new NotFoundError(`${entityType} not found`);
     return record.status;
+  }
+
+  private async getEntityTitle(entityType: string, id: string): Promise<string> {
+    try {
+      let record: any = null;
+      switch (entityType) {
+        case 'Program':
+          record = await prisma.program.findUnique({ where: { id }, select: { title: true } });
+          return record?.title || 'Program Item';
+        case 'NewsArticle':
+          record = await prisma.newsArticle.findUnique({ where: { id }, select: { title: true } });
+          return record?.title || 'News Article';
+        case 'Event':
+          record = await prisma.event.findUnique({ where: { id }, select: { title: true } });
+          return record?.title || 'Event Item';
+        case 'TeamMember':
+          record = await prisma.teamMember.findUnique({ where: { id }, select: { name: true } });
+          return record?.name || 'Team Member';
+        case 'ImpactMetric':
+          record = await prisma.impactMetric.findUnique({ where: { id }, select: { name: true } });
+          return record?.name || 'Impact Metric';
+        case 'Media':
+          record = await prisma.media.findUnique({ where: { id }, select: { title: true } });
+          return record?.title || 'Media Item';
+        default:
+          return `${entityType} Item`;
+      }
+    } catch {
+      return `${entityType} #${id.slice(-6)}`;
+    }
   }
 }
 

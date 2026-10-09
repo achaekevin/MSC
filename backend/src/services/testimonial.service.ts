@@ -1,6 +1,7 @@
 import { prisma } from '../config/database.js';
 import { NotFoundError, BadRequestError } from '../errors/AppError.js';
 import { ContentStatus, ContentSource } from '@prisma/client';
+import { notificationService } from './notification.service.js';
 
 export class TestimonialService {
   async getPublicTestimonials() {
@@ -128,13 +129,31 @@ export class TestimonialService {
     const testimonial = await prisma.testimonial.findUnique({ where: { id } });
     if (!testimonial) throw new NotFoundError('Testimonial not found');
 
-    return prisma.testimonial.update({
+    const updated = await prisma.testimonial.update({
       where: { id },
       data: {
         status: ContentStatus.APPROVED,
         publishedAt: new Date()
       }
     });
+
+    try {
+      let reviewerName = 'MSC Reviewer';
+      if (reviewerId) {
+        const user = await prisma.user.findUnique({ where: { id: reviewerId }, select: { name: true } });
+        if (user?.name) reviewerName = user.name;
+      }
+      await notificationService.notifyContentApproved({
+        entityType: 'Testimonial',
+        entityId: id,
+        title: `Testimonial from ${testimonial.name}`,
+        reviewerName
+      });
+    } catch {
+      // Notification dispatch should not invalidate approval
+    }
+
+    return updated;
   }
 
   async publishTestimonial(id: string, publisherId?: string) {
@@ -149,13 +168,33 @@ export class TestimonialService {
       throw new BadRequestError('Cannot publish testimonial without documented beneficiary consent.');
     }
 
-    return prisma.testimonial.update({
+    const updated = await prisma.testimonial.update({
       where: { id },
       data: {
         status: ContentStatus.PUBLISHED,
         publishedAt: new Date()
       }
     });
+
+    try {
+      let publisherName = 'MSC Publisher';
+      if (publisherId) {
+        const user = await prisma.user.findUnique({ where: { id: publisherId }, select: { name: true } });
+        if (user?.name) publisherName = user.name;
+      }
+      await notificationService.notifyContentPublished({
+        entityType: 'Testimonial',
+        entityId: id,
+        title: `Testimonial from ${testimonial.name}`,
+        publisherName,
+        publisherId,
+        notifyStaff: true
+      });
+    } catch {
+      // Notification dispatch should not invalidate publication
+    }
+
+    return updated;
   }
 }
 

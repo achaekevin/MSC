@@ -4,12 +4,22 @@ import type { Transporter } from 'nodemailer';
 import { env } from './env.js';
 import { logger } from './logger.js';
 
+import { prisma } from './database.js';
+
 export interface EmailOptions {
   to: string | string[];
   subject: string;
   html: string;
   text?: string;
   replyTo?: string;
+  templateName?: string;
+}
+
+export interface EmailDeliveryResult {
+  delivered: boolean;
+  provider: 'Resend' | 'SMTP' | 'ConsoleMock' | 'None';
+  messageId?: string;
+  error?: string;
 }
 
 export class MailService {
@@ -62,18 +72,20 @@ export class MailService {
       .filter((email) => email.length > 0 && email.includes('@'));
   }
 
-  async sendEmail(options: EmailOptions): Promise<boolean> {
+  async sendEmail(options: EmailOptions): Promise<EmailDeliveryResult> {
+    const recipientList = this.normalizeRecipients(options.to);
+    const recipientStr = recipientList.join(', ');
+    const templateName = options.templateName || 'GENERAL_TRANSACTIONAL';
+
+    if (recipientList.length === 0) {
+      logger.warn({ options }, 'Email send skipped: No valid recipients provided.');
+      return { delivered: false, provider: 'None', error: 'No valid recipient email address provided' };
+    }
+
     try {
-      const recipientList = this.normalizeRecipients(options.to);
-
-      if (recipientList.length === 0) {
-        logger.warn({ options }, 'Email send skipped: No valid recipients provided.');
-        return false;
-      }
-
       // 1. Try Resend if configured
       if (this.resend) {
-        await this.resend.emails.send({
+        const resendRes: any = await this.resend.emails.send({
           from: env.EMAIL_FROM,
           to: recipientList,
           subject: options.subject,
@@ -82,13 +94,31 @@ export class MailService {
           replyTo: options.replyTo
         });
 
+        const providerMessageId = resendRes?.data?.id || resendRes?.id || null;
         logger.info({ to: recipientList, subject: options.subject, provider: 'Resend' }, 'Email sent successfully via Resend.');
-        return true;
+
+        try {
+          await prisma.emailLog.create({
+            data: {
+              recipient: recipientStr,
+              subject: options.subject,
+              template: templateName,
+              provider: 'Resend',
+              providerMessageId,
+              status: 'SENT',
+              sentAt: new Date()
+            }
+          });
+        } catch (dbErr) {
+          logger.warn({ dbErr }, 'Could not record EmailLog entry for Resend delivery.');
+        }
+
+        return { delivered: true, provider: 'Resend', messageId: providerMessageId || undefined };
       }
 
       // 2. Try SMTP if configured
       if (this.smtpTransporter) {
-        await this.smtpTransporter.sendMail({
+        const info: any = await this.smtpTransporter.sendMail({
           from: env.EMAIL_FROM,
           to: recipientList.join(', '),
           subject: options.subject,
@@ -97,8 +127,26 @@ export class MailService {
           replyTo: options.replyTo
         });
 
+        const messageId = info?.messageId || null;
         logger.info({ to: recipientList, subject: options.subject, provider: 'SMTP' }, 'Email sent successfully via SMTP transporter.');
-        return true;
+
+        try {
+          await prisma.emailLog.create({
+            data: {
+              recipient: recipientStr,
+              subject: options.subject,
+              template: templateName,
+              provider: 'SMTP',
+              providerMessageId: messageId,
+              status: 'SENT',
+              sentAt: new Date()
+            }
+          });
+        } catch (dbErr) {
+          logger.warn({ dbErr }, 'Could not record EmailLog entry for SMTP delivery.');
+        }
+
+        return { delivered: true, provider: 'SMTP', messageId: messageId || undefined };
       }
 
       // 3. Fallback dev/mock logger (Safe development mode when external providers are unconfigured)
@@ -111,10 +159,45 @@ export class MailService {
         },
         '[DEV/MOCK EMAIL NOTIFICATION]: Resend or SMTP not configured in .env. Logged email safely to console.'
       );
-      return true;
-    } catch (error) {
+
+      try {
+        await prisma.emailLog.create({
+          data: {
+            recipient: recipientStr,
+            subject: options.subject,
+            template: templateName,
+            provider: 'ConsoleMock',
+            status: 'SIMULATED',
+            errorMessage: 'Logged to server console (no live SMTP/Resend API key configured in .env)',
+            sentAt: new Date()
+          }
+        });
+      } catch (dbErr) {
+        logger.warn({ dbErr }, 'Could not record EmailLog entry for simulated delivery.');
+      }
+
+      // Simulation mode: email was not delivered across the internet to an actual mailbox
+      return { delivered: false, provider: 'ConsoleMock', error: 'Email service in simulation mode: live provider not configured' };
+    } catch (error: any) {
       logger.error({ error, options }, 'Failed to send transactional email.');
-      return false;
+
+      try {
+        await prisma.emailLog.create({
+          data: {
+            recipient: recipientStr,
+            subject: options.subject,
+            template: templateName,
+            provider: this.resend ? 'Resend' : this.smtpTransporter ? 'SMTP' : 'None',
+            status: 'FAILED',
+            errorMessage: error?.message || 'Unknown email transmission error',
+            sentAt: new Date()
+          }
+        });
+      } catch (dbErr) {
+        logger.warn({ dbErr }, 'Could not record failed EmailLog entry.');
+      }
+
+      return { delivered: false, provider: 'None', error: error?.message || 'Transmission failure' };
     }
   }
 }
@@ -314,16 +397,71 @@ export const emailTemplates = {
     </div>
   `,
 
-  contentSubmittedForReview: (entityType: string, title: string, submittedBy: string) => `
-    <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #E2E8F0; border-radius: 8px;">
-      <h3 style="color: #1E3A2F; margin-top: 0;">MSC Content Review Alert: [IN REVIEW]</h3>
-      <p>A new content record has been submitted for verification:</p>
-      <ul>
-        <li><strong>Type:</strong> ${entityType}</li>
-        <li><strong>Title:</strong> ${title}</li>
-        <li><strong>Submitted By:</strong> ${submittedBy}</li>
-      </ul>
-      <p>Please review and verify in the MSC Content Approval dashboard.</p>
+  contentSubmittedForReview: (entityType: string, title: string, submittedBy: string, notes?: string) => `
+    <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #1E3A2F; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #1E3A2F; color: #FFFFFF; padding: 20px;">
+        <h2 style="margin: 0; font-size: 18px;">[CONTENT SUBMITTED FOR REVIEW]</h2>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: #A7F3D0;">Mwancha Senior Community Editorial Review Desk</p>
+      </div>
+      <div style="padding: 24px; line-height: 1.6;">
+        <p>A new content record has been submitted for editorial verification:</p>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr><td style="padding: 6px 0; font-weight: bold; width: 140px; color: #1E3A2F;">Content Type:</td><td>${entityType}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Title / Label:</td><td>${title}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Submitted By:</td><td>${submittedBy}</td></tr>
+        </table>
+        ${notes ? `
+          <div style="background-color: #F3F4F6; border-left: 4px solid #1E3A2F; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+            <p style="margin: 0 0 4px 0; font-weight: bold; font-size: 12px; text-transform: uppercase; color: #4B5563;">Editorial Notes:</p>
+            <p style="margin: 0; font-size: 14px;">${notes}</p>
+          </div>
+        ` : ''}
+        <p style="margin-top: 24px;">Please sign in to the MSC Admin Portal to inspect and verify this item.</p>
+      </div>
+    </div>
+  `,
+
+  contentApprovedAlert: (entityType: string, title: string, approvedBy?: string, notes?: string) => `
+    <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #059669; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #065F46; color: #FFFFFF; padding: 20px;">
+        <h2 style="margin: 0; font-size: 18px;">[CONTENT APPROVED BY REVIEWER]</h2>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: #A7F3D0;">Mwancha Senior Community Editorial Board</p>
+      </div>
+      <div style="padding: 24px; line-height: 1.6;">
+        <p>The following content has been officially approved:</p>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr><td style="padding: 6px 0; font-weight: bold; width: 140px; color: #065F46;">Content Type:</td><td>${entityType}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #065F46;">Title:</td><td>${title}</td></tr>
+          ${approvedBy ? `<tr><td style="padding: 6px 0; font-weight: bold; color: #065F46;">Approved By:</td><td>${approvedBy}</td></tr>` : ''}
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #065F46;">Status:</td><td><strong style="color: #059669;">APPROVED</strong></td></tr>
+        </table>
+        ${notes ? `
+          <div style="background-color: #F3F4F6; border-left: 4px solid #059669; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+            <p style="margin: 0 0 4px 0; font-weight: bold; font-size: 12px; text-transform: uppercase; color: #4B5563;">Reviewer Notes:</p>
+            <p style="margin: 0; font-size: 14px;">${notes}</p>
+          </div>
+        ` : ''}
+        <p style="margin-top: 24px;">This content is now ready for publishing.</p>
+      </div>
+    </div>
+  `,
+
+  contentPublishedAlert: (entityType: string, title: string, publishedBy?: string) => `
+    <div style="font-family: Arial, sans-serif; color: #1F2421; max-width: 600px; margin: 0 auto; border: 1px solid #1E3A2F; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #1E3A2F; color: #FFFFFF; padding: 20px;">
+        <h2 style="margin: 0; font-size: 18px;">[CONTENT PUBLISHED LIVE]</h2>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: #A7F3D0;">Mwancha Senior Community Public Portal</p>
+      </div>
+      <div style="padding: 24px; line-height: 1.6;">
+        <p>The following content has been published live to the public website:</p>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr><td style="padding: 6px 0; font-weight: bold; width: 140px; color: #1E3A2F;">Content Type:</td><td>${entityType}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Title:</td><td>${title}</td></tr>
+          ${publishedBy ? `<tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Published By:</td><td>${publishedBy}</td></tr>` : ''}
+          <tr><td style="padding: 6px 0; font-weight: bold; color: #1E3A2F;">Status:</td><td><strong style="color: #1E3A2F;">PUBLISHED</strong></td></tr>
+        </table>
+        <p style="margin-top: 20px; font-size: 13px; color: #4B5563;">This record is now accessible to the public and synchronized with search indexes.</p>
+      </div>
     </div>
   `,
 

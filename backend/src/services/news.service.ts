@@ -2,6 +2,7 @@ import { prisma } from '../config/database.js';
 import { NotFoundError, BadRequestError } from '../errors/AppError.js';
 import { ContentStatus, ContentSource } from '@prisma/client';
 import { generateUniqueSlug } from '../utils/slugify.js';
+import { notificationService } from './notification.service.js';
 
 export class NewsService {
   private formatArticle(a: any) {
@@ -346,6 +347,23 @@ export class NewsService {
       }
     });
 
+    try {
+      let submitterName = 'MSC Staff Member';
+      if (userId) {
+        const user = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+        if (user?.name) submitterName = user.name;
+      }
+      await notificationService.notifyContentSubmittedForReview({
+        entityType: 'NewsArticle',
+        entityId: id,
+        title: article.title,
+        submitterName,
+        notes
+      });
+    } catch {
+      // Notification dispatch should not invalidate submission
+    }
+
     return this.formatArticle(updated);
   }
 
@@ -379,6 +397,23 @@ export class NewsService {
         entityId: id
       }
     });
+
+    try {
+      let reviewerName = 'MSC Reviewer';
+      if (reviewerId) {
+        const user = await prisma.user.findUnique({ where: { id: reviewerId }, select: { name: true } });
+        if (user?.name) reviewerName = user.name;
+      }
+      await notificationService.notifyContentApproved({
+        entityType: 'NewsArticle',
+        entityId: id,
+        title: article.title,
+        reviewerName,
+        notes
+      });
+    } catch {
+      // Notification dispatch should not invalidate approval
+    }
 
     return this.formatArticle(updated);
   }
@@ -420,6 +455,24 @@ export class NewsService {
         entityId: id
       }
     });
+
+    try {
+      let publisherName = 'MSC Publisher';
+      if (publisherId) {
+        const user = await prisma.user.findUnique({ where: { id: publisherId }, select: { name: true } });
+        if (user?.name) publisherName = user.name;
+      }
+      await notificationService.notifyContentPublished({
+        entityType: 'NewsArticle',
+        entityId: id,
+        title: article.title,
+        publisherName,
+        publisherId,
+        notifyStaff: true
+      });
+    } catch {
+      // Notification dispatch should not invalidate publication
+    }
 
     return this.formatArticle(updated);
   }

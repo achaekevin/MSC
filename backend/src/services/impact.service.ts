@@ -1,6 +1,7 @@
 import { prisma } from '../config/database.js';
 import { NotFoundError } from '../errors/AppError.js';
 import { ContentStatus, ContentSource } from '@prisma/client';
+import { notificationService } from './notification.service.js';
 
 export class ImpactService {
   private async ensureDefaultMetrics() {
@@ -227,38 +228,94 @@ export class ImpactService {
     const metric = await prisma.impactMetric.findUnique({ where: { id } });
     if (!metric) throw new NotFoundError('Metric not found');
 
-    return prisma.impactMetric.update({
+    const updated = await prisma.impactMetric.update({
       where: { id },
       data: {
         status: ContentStatus.APPROVED,
         publishedAt: new Date()
       }
     });
+
+    try {
+      let reviewerName = 'MSC Reviewer';
+      if (reviewerId) {
+        const user = await prisma.user.findUnique({ where: { id: reviewerId }, select: { name: true } });
+        if (user?.name) reviewerName = user.name;
+      }
+      await notificationService.notifyContentApproved({
+        entityType: 'ImpactMetric',
+        entityId: id,
+        title: `${metric.name}: ${metric.value}`,
+        reviewerName
+      });
+    } catch {
+      // Notification dispatch should not invalidate approval
+    }
+
+    return updated;
   }
 
   async submitReview(id: string, userId?: string) {
     const metric = await prisma.impactMetric.findUnique({ where: { id } });
     if (!metric || metric.deletedAt) throw new NotFoundError('Metric not found');
 
-    return prisma.impactMetric.update({
+    const updated = await prisma.impactMetric.update({
       where: { id },
       data: {
         status: ContentStatus.IN_REVIEW
       }
     });
+
+    try {
+      let submitterName = 'MSC Staff Member';
+      if (userId) {
+        const user = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+        if (user?.name) submitterName = user.name;
+      }
+      await notificationService.notifyContentSubmittedForReview({
+        entityType: 'ImpactMetric',
+        entityId: id,
+        title: `${metric.name}: ${metric.value}`,
+        submitterName
+      });
+    } catch {
+      // Notification dispatch should not invalidate submission
+    }
+
+    return updated;
   }
 
   async publishMetric(id: string, userId?: string) {
     const metric = await prisma.impactMetric.findUnique({ where: { id } });
     if (!metric || metric.deletedAt) throw new NotFoundError('Metric not found');
 
-    return prisma.impactMetric.update({
+    const updated = await prisma.impactMetric.update({
       where: { id },
       data: {
         status: ContentStatus.PUBLISHED,
         publishedAt: new Date()
       }
     });
+
+    try {
+      let publisherName = 'MSC Publisher';
+      if (userId) {
+        const user = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+        if (user?.name) publisherName = user.name;
+      }
+      await notificationService.notifyContentPublished({
+        entityType: 'ImpactMetric',
+        entityId: id,
+        title: `${metric.name}: ${metric.value}`,
+        publisherName,
+        publisherId: userId,
+        notifyStaff: true
+      });
+    } catch {
+      // Notification dispatch should not invalidate publication
+    }
+
+    return updated;
   }
 
   async deleteMetric(id: string, userId?: string) {

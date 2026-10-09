@@ -2,6 +2,7 @@ import { prisma } from '../config/database.js';
 import { NotFoundError, BadRequestError } from '../errors/AppError.js';
 import { ContentStatus, ContentSource } from '@prisma/client';
 import { generateUniqueSlug } from '../utils/slugify.js';
+import { notificationService } from './notification.service.js';
 
 export class ProgramService {
   private formatProgram(p: any) {
@@ -286,6 +287,23 @@ export class ProgramService {
       }
     });
 
+    try {
+      let submitterName = 'MSC Staff Member';
+      if (userId) {
+        const user = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+        if (user?.name) submitterName = user.name;
+      }
+      await notificationService.notifyContentSubmittedForReview({
+        entityType: 'Program',
+        entityId: id,
+        title: program.title,
+        submitterName,
+        notes
+      });
+    } catch {
+      // Notification dispatch should not invalidate successful submission
+    }
+
     return this.formatProgram(updated);
   }
 
@@ -320,6 +338,23 @@ export class ProgramService {
         newData: JSON.stringify({ status: ContentStatus.APPROVED, notes })
       }
     });
+
+    try {
+      let reviewerName = 'MSC Reviewer';
+      if (reviewerId) {
+        const user = await prisma.user.findUnique({ where: { id: reviewerId }, select: { name: true } });
+        if (user?.name) reviewerName = user.name;
+      }
+      await notificationService.notifyContentApproved({
+        entityType: 'Program',
+        entityId: id,
+        title: program.title,
+        reviewerName,
+        notes
+      });
+    } catch {
+      // Notification dispatch should not invalidate successful approval
+    }
 
     return this.formatProgram(updated);
   }
@@ -362,6 +397,24 @@ export class ProgramService {
         newData: JSON.stringify({ status: ContentStatus.PUBLISHED })
       }
     });
+
+    try {
+      let publisherName = 'MSC Publisher';
+      if (publisherId) {
+        const user = await prisma.user.findUnique({ where: { id: publisherId }, select: { name: true } });
+        if (user?.name) publisherName = user.name;
+      }
+      await notificationService.notifyContentPublished({
+        entityType: 'Program',
+        entityId: id,
+        title: program.title,
+        publisherName,
+        publisherId,
+        notifyStaff: true
+      });
+    } catch {
+      // Notification dispatch should not invalidate publication
+    }
 
     return this.formatProgram(updated);
   }

@@ -2,6 +2,7 @@ import { prisma } from '../config/database.js';
 import { NotFoundError, BadRequestError } from '../errors/AppError.js';
 import { ContentStatus, ContentSource } from '@prisma/client';
 import { generateUniqueSlug } from '../utils/slugify.js';
+import { notificationService } from './notification.service.js';
 
 export class EventService {
   async getCategories() {
@@ -284,6 +285,23 @@ export class EventService {
       }
     });
 
+    try {
+      let reviewerName = 'MSC Reviewer';
+      if (reviewerId) {
+        const user = await prisma.user.findUnique({ where: { id: reviewerId }, select: { name: true } });
+        if (user?.name) reviewerName = user.name;
+      }
+      await notificationService.notifyContentApproved({
+        entityType: 'Event',
+        entityId: id,
+        title: event.title,
+        reviewerName,
+        notes
+      });
+    } catch {
+      // Notification dispatch should not invalidate approval
+    }
+
     return updated;
   }
 
@@ -326,6 +344,24 @@ export class EventService {
       }
     });
 
+    try {
+      let publisherName = 'MSC Publisher';
+      if (publisherId) {
+        const user = await prisma.user.findUnique({ where: { id: publisherId }, select: { name: true } });
+        if (user?.name) publisherName = user.name;
+      }
+      await notificationService.notifyContentPublished({
+        entityType: 'Event',
+        entityId: id,
+        title: event.title,
+        publisherName,
+        publisherId,
+        notifyStaff: true
+      });
+    } catch {
+      // Notification dispatch should not invalidate publication
+    }
+
     return updated;
   }
 
@@ -349,6 +385,23 @@ export class EventService {
         notes: notes
       }
     });
+
+    try {
+      let submitterName = 'MSC Staff Member';
+      if (submitterId) {
+        const user = await prisma.user.findUnique({ where: { id: submitterId }, select: { name: true } });
+        if (user?.name) submitterName = user.name;
+      }
+      await notificationService.notifyContentSubmittedForReview({
+        entityType: 'Event',
+        entityId: id,
+        title: event.title,
+        submitterName,
+        notes
+      });
+    } catch {
+      // Notification dispatch should not invalidate submission
+    }
 
     return updated;
   }

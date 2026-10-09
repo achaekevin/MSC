@@ -2,6 +2,7 @@ import { prisma } from '../config/database.js';
 import { NotFoundError, BadRequestError } from '../errors/AppError.js';
 import { ContentStatus, ContentSource } from '@prisma/client';
 import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';
+import { notificationService } from './notification.service.js';
 
 export class GalleryService {
   async getPublicGallery(category?: string, page = 1, limit = 12) {
@@ -177,13 +178,31 @@ export class GalleryService {
     const media = await prisma.media.findUnique({ where: { id } });
     if (!media) throw new NotFoundError('Media record not found');
 
-    return prisma.media.update({
+    const updated = await prisma.media.update({
       where: { id },
       data: {
         status: ContentStatus.APPROVED,
         publishedAt: new Date()
       }
     });
+
+    try {
+      let reviewerName = 'MSC Reviewer';
+      if (reviewerId) {
+        const user = await prisma.user.findUnique({ where: { id: reviewerId }, select: { name: true } });
+        if (user?.name) reviewerName = user.name;
+      }
+      await notificationService.notifyContentApproved({
+        entityType: 'Media',
+        entityId: id,
+        title: media.title || 'Media Item',
+        reviewerName
+      });
+    } catch {
+      // Notification dispatch should not invalidate approval
+    }
+
+    return updated;
   }
 
   async publishMedia(id: string, publisherId?: string) {
@@ -194,25 +213,64 @@ export class GalleryService {
       throw new BadRequestError('Only APPROVED media records can transition to PUBLISHED.');
     }
 
-    return prisma.media.update({
+    const updated = await prisma.media.update({
       where: { id },
       data: {
         status: ContentStatus.PUBLISHED,
         publishedAt: new Date()
       }
     });
+
+    try {
+      let publisherName = 'MSC Publisher';
+      if (publisherId) {
+        const user = await prisma.user.findUnique({ where: { id: publisherId }, select: { name: true } });
+        if (user?.name) publisherName = user.name;
+      }
+      await notificationService.notifyContentPublished({
+        entityType: 'Media',
+        entityId: id,
+        title: media.title || 'Media Item',
+        publisherName,
+        publisherId,
+        notifyStaff: true
+      });
+    } catch {
+      // Notification dispatch should not invalidate publication
+    }
+
+    return updated;
   }
 
   async submitReview(id: string, notes?: string, submitterId?: string) {
     const media = await prisma.media.findUnique({ where: { id } });
     if (!media || media.deletedAt) throw new NotFoundError('Media record not found');
 
-    return prisma.media.update({
+    const updated = await prisma.media.update({
       where: { id },
       data: {
         status: ContentStatus.IN_REVIEW
       }
     });
+
+    try {
+      let submitterName = 'MSC Staff Member';
+      if (submitterId) {
+        const user = await prisma.user.findUnique({ where: { id: submitterId }, select: { name: true } });
+        if (user?.name) submitterName = user.name;
+      }
+      await notificationService.notifyContentSubmittedForReview({
+        entityType: 'Media',
+        entityId: id,
+        title: media.title || 'Media Item',
+        submitterName,
+        notes
+      });
+    } catch {
+      // Notification dispatch should not invalidate submission
+    }
+
+    return updated;
   }
 
   async updateMedia(id: string, data: any, userId?: string) {

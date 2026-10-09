@@ -2,6 +2,7 @@ import { prisma } from '../config/database.js';
 import { NotFoundError, BadRequestError } from '../errors/AppError.js';
 import { ContentStatus, ContentSource } from '@prisma/client';
 import { generateUniqueSlug } from '../utils/slugify.js';
+import { notificationService } from './notification.service.js';
 
 function formatStoryRecord(s: any) {
   const images: string[] = (() => {
@@ -264,13 +265,31 @@ export class StoryService {
     const story = await prisma.successStory.findUnique({ where: { id } });
     if (!story) throw new NotFoundError('Story not found');
 
-    return prisma.successStory.update({
+    const updated = await prisma.successStory.update({
       where: { id },
       data: {
         status: ContentStatus.APPROVED,
         publishedAt: new Date()
       }
     });
+
+    try {
+      let reviewerName = 'MSC Reviewer';
+      if (reviewerId) {
+        const user = await prisma.user.findUnique({ where: { id: reviewerId }, select: { name: true } });
+        if (user?.name) reviewerName = user.name;
+      }
+      await notificationService.notifyContentApproved({
+        entityType: 'SuccessStory',
+        entityId: id,
+        title: story.title,
+        reviewerName
+      });
+    } catch {
+      // Notification dispatch should not invalidate approval
+    }
+
+    return updated;
   }
 
   async publishStory(id: string, publisherId?: string) {
@@ -285,13 +304,33 @@ export class StoryService {
       throw new BadRequestError('Cannot publish identified beneficiary story without verified legal consent.');
     }
 
-    return prisma.successStory.update({
+    const updated = await prisma.successStory.update({
       where: { id },
       data: {
         status: ContentStatus.PUBLISHED,
         publishedAt: new Date()
       }
     });
+
+    try {
+      let publisherName = 'MSC Publisher';
+      if (publisherId) {
+        const user = await prisma.user.findUnique({ where: { id: publisherId }, select: { name: true } });
+        if (user?.name) publisherName = user.name;
+      }
+      await notificationService.notifyContentPublished({
+        entityType: 'SuccessStory',
+        entityId: id,
+        title: story.title,
+        publisherName,
+        publisherId,
+        notifyStaff: true
+      });
+    } catch {
+      // Notification dispatch should not invalidate publication
+    }
+
+    return updated;
   }
 }
 

@@ -1,8 +1,7 @@
 import { prisma } from '../config/database.js';
 import { NotFoundError } from '../errors/AppError.js';
 import { ContentStatus, ContactStatus } from '@prisma/client';
-import { mailService, emailTemplates } from '../config/mail.js';
-import { env } from '../config/env.js';
+import { notificationService } from './notification.service.js';
 
 export class DonationService {
   private formatDetails(provider: string | null | undefined, detailsRaw: string | null): Record<string, any> {
@@ -298,44 +297,24 @@ export class DonationService {
       }
     });
 
-    await mailService.sendEmail({
-      to: data.email,
-      subject: `Mwancha Senior Community: In-Kind Donation Pledge Received [${referenceNumber}]`,
-      html: emailTemplates.inKindDonationReceived(data.fullName, categoryLabel, data.deliveryMethod, referenceNumber)
-    });
+    // 2. Email Delivery: Separate operation that never invalidates a saved pledge
+    let emailDelivery = { adminNotified: false, confirmationSent: false };
+    try {
+      emailDelivery = await notificationService.notifyInKindDonation(submission, data, referenceNumber);
+    } catch {
+      // Pledge record is preserved even if notification delivery fails
+    }
 
-    await mailService.sendEmail({
-      to: env.ADMIN_NOTIFICATION_EMAIL,
-      subject: `[IN-KIND DONATION PLEDGE]: ${categoryLabel} from ${data.fullName}`,
-      replyTo: data.email,
-      html: emailTemplates.adminInKindAlert({
-        fullName: data.fullName,
-        email: data.email,
-        phone: data.phone,
-        category: categoryLabel,
-        itemDescription: data.itemDescription,
-        estimatedQuantity: data.estimatedQuantity,
-        deliveryMethod: deliveryMethodLabel,
-        pickupAddress: data.pickupAddress,
-        notes: data.notes,
-        referenceNumber
-      })
-    });
-
-    await prisma.notification.create({
-      data: {
-        title: `In-Kind Donation: ${categoryLabel}`,
-        message: `Pledged by ${data.fullName} (${deliveryMethodLabel})`,
-        type: 'DONATION',
-        link: `/admin/forms/contacts/${submission.id}`
-      }
-    });
+    const message = emailDelivery.confirmationSent
+      ? 'Thank you for your generous in-kind contribution! Your pledge has been registered and a confirmation email has been sent to your address.'
+      : 'Thank you for your generous in-kind contribution! Your pledge has been registered and our team will coordinate the handover.';
 
     return {
       success: true,
-      message: 'Thank you for your generous in-kind contribution! Your pledge has been registered and our team will coordinate the handover.',
+      message,
       referenceNumber,
-      submissionId: submission.id
+      submissionId: submission.id,
+      emailDelivery
     };
   }
 }
