@@ -1,18 +1,16 @@
 import React from 'react';
 import { Container } from '../components/ui/Container';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
-import { SectionHeading } from '../components/ui/SectionHeading';
-import { ImpactStatCard } from '../components/cards/ImpactStatCard';
 import { useImpactMetrics } from '../contexts/CMSContext';
 import { Button } from '../components/ui/Button';
-import { ShieldCheck, HeartHandshake, FileCheck, CheckCircle } from 'lucide-react';
+import { ShieldCheck, CheckCircle } from 'lucide-react';
 import { PageLoader } from '../components/ui/Skeleton';
 import { SEO } from '../components/common/SEO';
 import { ImpactDashboardSection } from '../components/impact/ImpactDashboardSection';
 import { ErrorState } from '../components/ui/ErrorState';
 
 export const ImpactPage: React.FC = () => {
-  const { metrics, organizedMetrics, categories, isLoading, error, refetch } = useImpactMetrics();
+  const { isLoading, error, refetch } = useImpactMetrics();
 
   if (isLoading) {
     return <PageLoader />;
@@ -66,60 +64,8 @@ export const ImpactPage: React.FC = () => {
         </Container>
       </section>
 
-      {/* Interactive Impact Dashboard with Viewport-Animated Figures */}
-      <ImpactDashboardSection className="rounded-3xl mx-4 sm:mx-6 lg:mx-8" />
-
-      {/* Dynamic Core Metrics */}
-      <section>
-        <Container>
-          <div className="mb-10 text-left">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-charcoal-900 font-display">
-              Verified Institutional Indicators
-            </h2>
-            <p className="text-sm sm:text-base text-charcoal-600 mt-1">
-              Data points documented through our grassroots case management registries and volunteer rosters.
-            </p>
-          </div>
-
-          {metrics.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {metrics.map((metric) => (
-                <ImpactStatCard key={metric.id} metric={metric} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="max-w-md mx-auto">
-                <div className="rounded-full bg-gray-100 p-3 w-16 h-16 mx-auto mb-4">
-                  <FileCheck className="w-10 h-10 text-gray-600" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900">No Impact Metrics Available</h3>
-                <p className="text-gray-600 mt-2">
-                  Impact metrics are being updated. Please check back soon.
-                </p>
-              </div>
-            </div>
-          )}
-        </Container>
-      </section>
-
-      {/* Organized Metrics by Category */}
-      {categories.length > 0 && Object.keys(organizedMetrics).map(category => (
-        <section key={category}>
-          <Container>
-            <div className="mb-8">
-              <h2 className="text-xl font-bold text-charcoal-900 font-display capitalize">
-                {category} Impact
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {organizedMetrics[category].map((metric) => (
-                <ImpactStatCard key={metric.id} metric={metric} />
-              ))}
-            </div>
-          </Container>
-        </section>
-      ))}
+      {/* Single Retained Interactive Impact Dashboard with Viewport-Animated Figures & Auditing Roll */}
+      <ImpactDashboardSection className="rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-xl" />
 
       {/* Impact Commitment Statement */}
       <section>

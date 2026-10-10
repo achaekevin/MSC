@@ -69,6 +69,17 @@ export const ImpactDashboardSection: React.FC<ImpactDashboardSectionProps> = ({
     };
   }, []);
 
+  // Keyboard navigation to close detail modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedMetric) {
+        setSelectedMetric(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedMetric]);
+
   // Icon resolver
   const getIcon = (iconName?: string) => {
     switch (iconName?.toLowerCase()) {
@@ -396,11 +407,14 @@ export const ImpactDashboardSection: React.FC<ImpactDashboardSectionProps> = ({
             onClick={() => setSelectedMetric(null)}
           >
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="impact-modal-title"
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-charcoal-900 border-2 border-forest-700/80 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl text-left text-white relative"
+              className="bg-charcoal-900 border-2 border-forest-700/80 rounded-3xl p-6 sm:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl text-left text-white relative"
             >
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="flex items-center gap-3">
@@ -411,14 +425,16 @@ export const ImpactDashboardSection: React.FC<ImpactDashboardSectionProps> = ({
                     <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 block">
                       {selectedMetric.category} Metric
                     </span>
-                    <h3 className="text-xl font-black font-display text-white">
+                    <h3 id="impact-modal-title" className="text-xl font-black font-display text-white">
                       {selectedMetric.label}
                     </h3>
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setSelectedMetric(null)}
-                  className="w-8 h-8 rounded-full bg-forest-800 hover:bg-forest-700 text-forest-200 hover:text-white flex items-center justify-center text-sm font-bold"
+                  aria-label="Close metric details"
+                  className="w-8 h-8 rounded-full bg-forest-800 hover:bg-forest-700 text-forest-200 hover:text-white flex items-center justify-center text-sm font-bold transition-colors"
                 >
                   &times;
                 </button>

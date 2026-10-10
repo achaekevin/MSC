@@ -27,7 +27,6 @@ import { Button } from '../components/ui/Button';
 import { Container } from '../components/ui/Container';
 import { SectionHeading } from '../components/ui/SectionHeading';
 import { ProgramCard } from '../components/cards/ProgramCard';
-import { ImpactStatCard } from '../components/cards/ImpactStatCard';
 import { NewsCard } from '../components/cards/NewsCard';
 import { MSC_ORGANIZATION } from '../constants';
 import { PROGRAMS_DATA } from '../data/programsData';
@@ -718,11 +717,6 @@ export const HomePage: React.FC = () => {
           </div>
         </Container>
       </section>
-
-      {/* =========================================================================
-          INTERACTIVE IMPACT DASHBOARD (Directly Synchronized with Admin Statistics)
-          ========================================================================= */}
-      <ImpactDashboardSection className="py-14 bg-warm-50/80 dark:bg-charcoal-900/60 border-y-2 border-warm-200 dark:border-charcoal-800 transition-colors" />
 
       {/* =========================================================================
           WHY OUR WORK MATTERS: DOCUMENTED CHALLENGES FACED BY OLDER PERSONS
