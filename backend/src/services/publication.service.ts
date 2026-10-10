@@ -20,7 +20,7 @@ const DEFAULT_MSC_PUBLICATIONS = [
     fileSize: '3.2 MB',
     pages: 44,
     readingTime: '35 min read',
-    isbn: 'ISBN 978-9966-821-04-1',
+    isbn: 'Doc Ref: MSC-PB-2024-01',
     tags: ['Policy Brief', 'Elder Rights', 'National Mandate', 'Social Protection', 'Kenya'],
     isFeatured: true,
     status: ContentStatus.PUBLISHED,
@@ -45,6 +45,10 @@ const DEFAULT_MSC_PUBLICATIONS = [
       {
         title: 'Chapter 5: Policy Recommendations for National Stakeholders',
         body: `To achieve genuine social equity for senior citizens, MSC recommends:\n1. Universal, non-contributory social pension coverage for all Kenyans aged 65 and above, disbursed through accessible local channels without digital exclusion.\n2. Dedicated geriatric healthcare desks and subsidized chronic disease medications across all Level 3 and Level 4 county health facilities.\n3. Robust legal aid and swift prosecution frameworks for elder property dispossession and abuse.\n4. Formal county government budgetary allocation and technical partnership with community-based elder welfare organizations.`
+      },
+      {
+        title: 'References, Statutory Sources & Research Citations',
+        body: `Primary Authorities & Statutory Sources:\n1. The Constitution of Kenya (2010), Article 57 (Affirmative Rights of Older Persons) & Article 43 (Economic and Social Rights). Official repository: Kenya Law Reports (kenyalaw.org).\n2. Ministry of Labour and Social Protection (2018), National Policy on Older Persons and Ageing (Sessional Paper No. 2 of 2018), Government of Kenya.\n3. State Department for Social Protection & Senior Citizen Affairs (2024), Older Persons Cash Transfer (OPCT / Inua Jamii) Implementation Framework. National Social Protection Secretariat (socialprotection.or.ke).\n4. Kenya National Commission on Human Rights (KNCHR), Special Inquiries into Witchcraft Allegations, Lynchings, and Property Dispossession Targeting Senior Citizens in Western Kenya.\n5. World Health Organization (WHO), Integrated Care for Older People (ICOPE): Guidance on Community-Level Interventions in Low-Resource Settings.\n6. African Union (2016), Protocol to the African Charter on Human and Peoples' Rights on the Rights of Older Persons in Africa.`
       }
     ]
   },
@@ -63,7 +67,7 @@ const DEFAULT_MSC_PUBLICATIONS = [
     fileSize: '2.8 MB',
     pages: 36,
     readingTime: '25 min read',
-    isbn: 'MSC-SOP-2024-V2',
+    isbn: 'Doc Ref: MSC-SOP-2024-02',
     tags: ['Field Manual', 'Case Management', 'Volunteers', 'Safeguarding', 'Mental Health'],
     isFeatured: true,
     status: ContentStatus.PUBLISHED,
@@ -84,6 +88,10 @@ const DEFAULT_MSC_PUBLICATIONS = [
       {
         title: 'Module 4: Incident Escalation & Legal Protection',
         body: `Whenever suspected neglect, sexual violence, or property dispossession is identified, the volunteer must activate the MSC Emergency Protection Protocol within 4 hours, informing the MSC Secretariat and local government authorities simultaneously.`
+      },
+      {
+        title: 'Operational Guidelines & Regulatory References',
+        body: `Field Authorities & Compliance References:\n1. Ministry of Health Kenya (2020), Community Health Strategy (CHS) & Community Health Promoter (CHP) Operational Curriculum.\n2. Republic of Kenya, Protection Against Domestic Violence Act (PADVA, Act No. 2 of 2015), Laws of Kenya.\n3. Data Protection Act (Act No. 24 of 2019, Laws of Kenya), Beneficiary Privacy and Safeguarding Standards in Humanitarian Fieldwork.\n4. Ministry of Labour and Social Protection, National Guidelines on Child and Vulnerable Adults Safeguarding in Community Organizations.\n5. Mwancha Senior Community Internal Protocols: 5-Point Vulnerability Scoring Matrix & 4-Hour Emergency Intervention Standard Operating Procedure (MSC-SOP-2024-V2).`
       }
     ]
   },
@@ -102,7 +110,7 @@ const DEFAULT_MSC_PUBLICATIONS = [
     fileSize: '1.9 MB',
     pages: 28,
     readingTime: '20 min read',
-    isbn: 'ISBN 978-9966-821-08-9',
+    isbn: 'Doc Ref: MSC-LEG-2024-03',
     tags: ['Legal Rights', 'Constitution', 'Article 57', 'Property Rights', 'Advocacy'],
     isFeatured: false,
     status: ContentStatus.PUBLISHED,
@@ -119,6 +127,10 @@ const DEFAULT_MSC_PUBLICATIONS = [
       {
         title: 'Section 3: Reporting Abuse & Accessing Emergency Relief',
         body: `Provides emergency hotline numbers, police gender & vulnerable persons desks, and MSC field coordination hotlines for immediate community response.`
+      },
+      {
+        title: 'Statutory References & Citizen Legal Aid Sources',
+        body: `Legal Citations & Citizen Referral Hotlines:\n1. The Constitution of Kenya (2010), Article 57 (Rights of Older Members of Society), Article 27 (Equality and Freedom from Discrimination), and Article 48 (Access to Justice). Kenya Law Reports (kenyalaw.org).\n2. Law of Succession Act (Chapter 160, Laws of Kenya), Provisions on Invalidation of Coerced Wills and Intestate Succession for Surviving Spouses.\n3. Land Registration Act (No. 3 of 2012, Laws of Kenya), Section 76: Lodging Cautions and Restrictions Against Fraudulent Land Transfers at County Land Registries.\n4. Penal Code (Chapter 63, Laws of Kenya), Offenses Related to Assault, Intimidation, and Violent Eviction.\n5. National Legal Aid Service (NLAS), Ministry of Justice and Constitutional Affairs: Subsidized Legal Representation for Indigent Older Persons.\n6. National Police Service (NPS) Gender and Vulnerable Persons Desks, Nyamira County Command.`
       }
     ]
   }

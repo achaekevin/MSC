@@ -495,8 +495,22 @@ export const PublicationReaderPage: React.FC = () => {
                 )}
               </div>
 
+              {/* Institutional Research & Legal Verification Callout */}
+              <div className="mt-12 p-6 rounded-2xl bg-forest-50 dark:bg-charcoal-800/80 border border-forest-200 dark:border-charcoal-700 text-left">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
+                  <h4 className="text-xs font-black uppercase tracking-wider text-forest-900 dark:text-emerald-300">
+                    Institutional Research & Statutory Verification
+                  </h4>
+                </div>
+                <p className="text-xs text-charcoal-700 dark:text-warm-200 leading-relaxed">
+                  This document serves as an official institutional publication and field manual of Mwancha Senior Community (MSC).
+                  All statutory and policy authorities cited (including Article 57 of the Constitution of Kenya, the National Social Protection Policy, and county land registration safeguards) can be verified via the official Kenya Law Reports portal (<a href="http://kenyalaw.org" target="_blank" rel="noopener noreferrer" className="text-forest-800 dark:text-emerald-400 underline font-semibold">kenyalaw.org</a>) and the National Social Protection Secretariat (<a href="https://www.socialprotection.or.ke" target="_blank" rel="noopener noreferrer" className="text-forest-800 dark:text-emerald-400 underline font-semibold">socialprotection.or.ke</a>).
+                </p>
+              </div>
+
               {/* Official Document Footer (Printed) */}
-              <footer className="mt-16 pt-8 border-t border-current/15 text-xs opacity-75 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <footer className="mt-12 pt-8 border-t border-current/15 text-xs opacity-75 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                   <p className="font-bold">Mwancha Senior Community (MSC)</p>
                   <p>© {new Date().getFullYear()} All rights reserved. Registered Community Organization in Kenya.</p>
