@@ -113,6 +113,7 @@ export const createApp = (): Express => {
 
   // CORS (Section 39)
   app.use(cors(corsOptions));
+  app.options('*', cors(corsOptions));
 
   // Rate Limiting (Section 38)
   app.use(generalLimiter);

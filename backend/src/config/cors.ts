@@ -31,6 +31,20 @@ export const corsOptions: CorsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-  exposedHeaders: ['Set-Cookie']
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'Cache-Control',
+    'cache-control',
+    'Pragma',
+    'pragma',
+    'Expires',
+    'X-CSRF-Token',
+    'If-Modified-Since'
+  ],
+  exposedHeaders: ['Set-Cookie', 'Content-Range', 'X-Total-Count'],
+  optionsSuccessStatus: 200
 };
