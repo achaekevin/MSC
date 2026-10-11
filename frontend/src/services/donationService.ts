@@ -40,19 +40,36 @@ export const donationService = {
 
   async submitInKindDonation(data: InKindDonationRequest): Promise<{ success: boolean; message: string; referenceNumber?: string }> {
     try {
+      const {
+        fullName = '',
+        email = '',
+        phone = '',
+        donorType = 'Individual',
+        donationCategory,
+        itemDescription = '',
+        estimatedQuantity = '',
+        deliveryMethod,
+        pickupAddress = '',
+        preferredDate = '',
+        notes = '',
+        consent = true,
+        ...spamFields
+      } = data as any;
+
       const payload = {
-        fullName: data.fullName.trim(),
-        email: data.email.trim(),
-        phone: data.phone.trim(),
-        donorType: data.donorType || 'Individual',
-        donationCategory: data.donationCategory,
-        itemDescription: data.itemDescription.trim(),
-        estimatedQuantity: data.estimatedQuantity?.trim() || '',
-        deliveryMethod: data.deliveryMethod,
-        pickupAddress: data.pickupAddress?.trim() || '',
-        preferredDate: data.preferredDate?.trim() || '',
-        notes: data.notes?.trim() || '',
-        consent: data.consent !== undefined ? data.consent : true
+        fullName: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        donorType: donorType || 'Individual',
+        donationCategory,
+        itemDescription: itemDescription.trim(),
+        estimatedQuantity: estimatedQuantity?.trim() || '',
+        deliveryMethod,
+        pickupAddress: pickupAddress?.trim() || '',
+        preferredDate: preferredDate?.trim() || '',
+        notes: notes?.trim() || '',
+        consent: consent !== undefined ? consent : true,
+        ...spamFields
       };
 
       const res = await apiClient.post<any>('/donations/in-kind', payload);

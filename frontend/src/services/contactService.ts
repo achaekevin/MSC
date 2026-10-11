@@ -4,13 +4,24 @@ import { ContactMessage } from '../types';
 export const contactService = {
   async submitContactMessage(message: ContactMessage): Promise<{ success: boolean; message: string; referenceId?: string }> {
     try {
+      const {
+        name = '',
+        email = '',
+        phone = '',
+        subject = '',
+        message: msg = '',
+        consent = true,
+        ...spamFields
+      } = message as any;
+
       const payload = {
-        name: message.name.trim(),
-        email: message.email.trim(),
-        phone: message.phone ? message.phone.trim() : '',
-        subject: message.subject.trim(),
-        message: message.message.trim(),
-        consent: message.consent !== undefined ? message.consent : true
+        name: name.trim(),
+        email: email.trim(),
+        phone: phone ? phone.trim() : '',
+        subject: subject.trim(),
+        message: msg.trim(),
+        consent: consent !== undefined ? consent : true,
+        ...spamFields
       };
 
       const res = await apiClient.post<any>('/contact', payload);

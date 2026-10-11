@@ -4,17 +4,32 @@ import { VolunteerApplication } from '../types';
 export const volunteerService = {
   async submitApplication(application: VolunteerApplication): Promise<{ success: boolean; message: string; applicationId?: string }> {
     try {
+      const {
+        fullName = '',
+        email = '',
+        phone = '',
+        county = '',
+        subCounty = '',
+        areaOfInterest = '',
+        availability = '',
+        experience = '',
+        message = '',
+        consent = true,
+        ...spamFields
+      } = application as any;
+
       const payload = {
-        fullName: application.fullName.trim(),
-        email: application.email.trim(),
-        phone: application.phone.trim(),
-        county: application.county.trim(),
-        subCounty: application.subCounty ? application.subCounty.trim() : '',
-        areaOfInterest: application.areaOfInterest.trim(),
-        availability: application.availability.trim(),
-        experience: application.experience ? application.experience.trim() : '',
-        message: application.message.trim(),
-        consent: true
+        fullName: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        county: county.trim(),
+        subCounty: subCounty ? subCounty.trim() : '',
+        areaOfInterest: areaOfInterest.trim(),
+        availability: availability.trim(),
+        experience: experience ? experience.trim() : '',
+        message: message.trim(),
+        consent: consent !== undefined ? consent : true,
+        ...spamFields
       };
 
       const res = await apiClient.post<any>('/volunteers/apply', payload);

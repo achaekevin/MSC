@@ -4,16 +4,32 @@ import { PartnershipRequest } from '../types';
 export const partnershipService = {
   async submitPartnershipRequest(request: PartnershipRequest): Promise<{ success: boolean; message: string; applicationId?: string }> {
     try {
+      const {
+        organizationName = '',
+        organization = '',
+        contactPerson = '',
+        email = '',
+        phone = '',
+        organizationType = '',
+        partnershipInterests = '',
+        areaOfInterest = '',
+        message: msg = '',
+        website = '',
+        consent = true,
+        ...spamFields
+      } = request as any;
+
       const payload = {
-        organizationName: (request.organizationName || request.organization || '').trim(),
-        contactPerson: request.contactPerson.trim(),
-        email: request.email.trim(),
-        phone: request.phone.trim(),
-        organizationType: request.organizationType.trim(),
-        partnershipInterests: (request.partnershipInterests || request.areaOfInterest || '').trim(),
-        message: request.message.trim(),
-        website: request.website ? request.website.trim() : '',
-        consent: true
+        organizationName: (organizationName || organization || '').trim(),
+        contactPerson: contactPerson.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        organizationType: organizationType.trim(),
+        partnershipInterests: (partnershipInterests || areaOfInterest || '').trim(),
+        message: msg.trim(),
+        website: website ? website.trim() : '',
+        consent: consent !== undefined ? consent : true,
+        ...spamFields
       };
 
       const res = await apiClient.post<any>('/partnerships/apply', payload);
