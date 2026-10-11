@@ -14,7 +14,7 @@ export const spamService = {
    */
   async getChallenge(): Promise<SecurityChallenge> {
     try {
-      const response = await api.get<{ data: SecurityChallenge }>('/forms/challenge');
+      const response = await api.get<{ data: SecurityChallenge }>('/challenge');
       if (response && (response as any).data) {
         return (response as any).data;
       }
