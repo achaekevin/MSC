@@ -64,9 +64,14 @@ export const NewsletterSubscription: React.FC<Props> = ({ variant = 'card' }) =>
         </p>
 
         {status?.type === 'success' ? (
-          <div className="p-3.5 rounded-xl bg-forest-900 border border-emerald-500/40 text-emerald-300 text-xs flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-400" />
-            <span>{status.message}</span>
+          <div className="p-3.5 rounded-xl bg-forest-900 border border-emerald-500/40 text-emerald-300 text-xs space-y-1.5">
+            <div className="flex items-start gap-2">
+              <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-400" />
+              <span className="font-bold text-white">{status.message}</span>
+            </div>
+            <p className="text-[11px] text-forest-300 pl-6">
+              Check your inbox (and spam folder) for a confirmation email.
+            </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-2.5">
@@ -128,11 +133,19 @@ export const NewsletterSubscription: React.FC<Props> = ({ variant = 'card' }) =>
         </p>
 
         {status?.type === 'success' ? (
-          <div className="mt-6 p-4 rounded-2xl bg-forest-900 border border-emerald-500/50 text-emerald-300 text-sm flex items-start gap-3">
-            <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5 text-emerald-400" />
-            <div>
-              <p className="font-bold text-white">Subscription Confirmed!</p>
-              <p className="text-xs text-emerald-200 mt-1">{status.message}</p>
+          <div className="mt-6 p-5 rounded-2xl bg-forest-900 border border-emerald-500/50 text-emerald-300 text-sm">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="w-6 h-6 flex-shrink-0 mt-0.5 text-emerald-400" />
+              <div className="space-y-2">
+                <p className="font-bold text-white text-base">Subscription Confirmed!</p>
+                <p className="text-xs text-emerald-200 leading-relaxed">{status.message}</p>
+                <div className="flex items-center gap-2 pt-1">
+                  <Mail className="w-3.5 h-3.5 text-emerald-400" />
+                  <p className="text-xs text-forest-200">
+                    Please check your email inbox (and spam/junk folder) for a welcome message from Mwancha Senior Community.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         ) : (

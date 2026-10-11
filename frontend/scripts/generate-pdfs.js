@@ -11,6 +11,17 @@ if (!fs.existsSync(targetDir)) {
   fs.mkdirSync(targetDir, { recursive: true });
 }
 
+// Load MSC logo as base64 for embedding in PDFs
+const logoPath = path.resolve(__dirname, '../public/logo.png');
+let logoBase64 = null;
+if (fs.existsSync(logoPath)) {
+  const logoBuffer = fs.readFileSync(logoPath);
+  logoBase64 = 'data:image/png;base64,' + logoBuffer.toString('base64');
+  console.log('MSC logo loaded successfully for PDF embedding.');
+} else {
+  console.warn('Warning: logo.png not found at public/logo.png. PDFs will be generated without logo.');
+}
+
 const publications = [
   {
     fileName: 'dignified-ageing-kenya-blueprint.pdf',
@@ -58,7 +69,7 @@ const publications = [
     role: 'Care Coordination Secretariat',
     date: 'August 2024',
     isbn: 'Doc Ref: MSC-SOP-2024-02',
-    summary: 'The operational manual utilized by Mwancha Senior Community’s 40 ward volunteers. Contains field screening checklists, psychosocial counseling guidelines, safeguarding protocols, and intergenerational referral pathways.',
+    summary: 'The operational manual utilized by Mwancha Senior Community\'s 40 ward volunteers. Contains field screening checklists, psychosocial counseling guidelines, safeguarding protocols, and intergenerational referral pathways.',
     chapters: [
       {
         title: 'Module 1: Intake & Vulnerability Scoring',
@@ -85,7 +96,7 @@ const publications = [
   {
     fileName: 'senior-citizen-rights-handbook.pdf',
     title: 'Handbook on Senior Citizen Rights & Safeguards in Kenya',
-    subtitle: 'A Citizen’s Guide to the Kenyan Constitution (Article 57), Succession Law, and Human Rights',
+    subtitle: 'A Citizen\'s Guide to the Kenyan Constitution (Article 57), Succession Law, and Human Rights',
     category: 'Civic Legal Guide',
     author: 'MSC Legal & Advocacy Committee',
     role: 'Civic Education & Rights Advocacy',
@@ -120,6 +131,15 @@ function buildPdf(pub) {
     orientation: 'portrait'
   });
 
+  // ===== SET PDF DOCUMENT METADATA (fixes browser tab title) =====
+  doc.setProperties({
+    title: `${pub.title} - Mwancha Senior Community`,
+    subject: pub.summary,
+    author: pub.author,
+    keywords: 'Mwancha Senior Community, MSC, elder care, Kenya, senior citizens, Nyamira County, Ekerenyo',
+    creator: 'Mwancha Senior Community (MSC) - Official Publications'
+  });
+
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 50;
@@ -129,18 +149,33 @@ function buildPdf(pub) {
   const charcoal = [30, 41, 59];
   const gold = [180, 83, 9];
 
-  // COVER PAGE
+  // ===== COVER PAGE =====
   doc.setFillColor(...forestGreen);
   doc.rect(0, 0, pageWidth, 120, 'F');
+
+  // Embed logo on cover page header
+  let logoEndX = margin;
+  if (logoBase64) {
+    try {
+      const logoSize = 55;
+      const logoX = margin;
+      const logoY = 20;
+      doc.addImage(logoBase64, 'PNG', logoX, logoY, logoSize, logoSize);
+      logoEndX = margin + logoSize + 12;
+    } catch (err) {
+      console.warn('Could not embed logo on cover page:', err.message);
+      logoEndX = margin;
+    }
+  }
 
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
-  doc.text('MWANCHA SENIOR COMMUNITY (MSC)', margin, 45);
+  doc.text('MWANCHA SENIOR COMMUNITY (MSC)', logoEndX, 45);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
-  doc.text('Institutional Eldercare & Social Protection Repository • Kenya', margin, 65);
+  doc.text('Institutional Eldercare & Social Protection Repository • Kenya', logoEndX, 65);
 
   doc.setFillColor(...gold);
   doc.rect(0, 115, pageWidth, 5, 'F');
@@ -199,16 +234,29 @@ function buildPdf(pub) {
   doc.setTextColor(148, 163, 184);
   doc.text('Official Publication of Mwancha Senior Community • Ekerenyo, Nyamira County, Kenya', margin, pageHeight - 35);
 
-  // CHAPTER PAGES
+  // ===== CHAPTER PAGES =====
   for (const chapter of pub.chapters) {
     doc.addPage();
 
+    // Chapter header bar with logo
     doc.setFillColor(...forestGreen);
-    doc.rect(0, 0, pageWidth, 28, 'F');
+    doc.rect(0, 0, pageWidth, 32, 'F');
+
+    let headerTextX = margin;
+    if (logoBase64) {
+      try {
+        const hLogoSize = 20;
+        doc.addImage(logoBase64, 'PNG', margin - 2, 6, hLogoSize, hLogoSize);
+        headerTextX = margin + hLogoSize + 8;
+      } catch (err) {
+        // Skip logo on chapter headers if it fails
+      }
+    }
+
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.text('MWANCHA SENIOR COMMUNITY (MSC) : OFFICIAL RESOURCE', margin, 18);
+    doc.text('MWANCHA SENIOR COMMUNITY (MSC) : OFFICIAL RESOURCE', headerTextX, 20);
 
     let curY = 65;
 
@@ -241,12 +289,25 @@ function buildPdf(pub) {
 
         doc.addPage();
 
+        // Continuation page header with logo
         doc.setFillColor(...forestGreen);
-        doc.rect(0, 0, pageWidth, 28, 'F');
+        doc.rect(0, 0, pageWidth, 32, 'F');
+
+        let contTextX = margin;
+        if (logoBase64) {
+          try {
+            const hLogoSize = 20;
+            doc.addImage(logoBase64, 'PNG', margin - 2, 6, hLogoSize, hLogoSize);
+            contTextX = margin + hLogoSize + 8;
+          } catch (err) {
+            // Skip logo if it fails
+          }
+        }
+
         doc.setTextColor(255, 255, 255);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(9);
-        doc.text('MWANCHA SENIOR COMMUNITY (MSC) : OFFICIAL RESOURCE', margin, 18);
+        doc.text('MWANCHA SENIOR COMMUNITY (MSC) : OFFICIAL RESOURCE', contTextX, 20);
 
         curY = 55;
         doc.setTextColor(...charcoal);
@@ -264,16 +325,43 @@ function buildPdf(pub) {
     doc.text('Mwancha Senior Community • Eldercare Knowledge Repository', margin, pageHeight - 25);
   }
 
-  // Final Colophon Page
+  // ===== FINAL COLOPHON PAGE =====
   doc.addPage();
   doc.setFillColor(...forestGreen);
-  doc.rect(0, 0, pageWidth, 28, 'F');
+  doc.rect(0, 0, pageWidth, 32, 'F');
+
+  let colHeaderX = margin;
+  if (logoBase64) {
+    try {
+      const hLogoSize = 20;
+      doc.addImage(logoBase64, 'PNG', margin - 2, 6, hLogoSize, hLogoSize);
+      colHeaderX = margin + hLogoSize + 8;
+    } catch (err) {
+      // Skip logo if it fails
+    }
+  }
+
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
-  doc.text('MWANCHA SENIOR COMMUNITY (MSC) : INSTITUTIONAL COLOPHON', margin, 18);
+  doc.text('MWANCHA SENIOR COMMUNITY (MSC) : INSTITUTIONAL COLOPHON', colHeaderX, 20);
 
-  let colY = 100;
+  let colY = 70;
+
+  // Large centered logo on colophon page
+  if (logoBase64) {
+    try {
+      const bigLogoSize = 80;
+      const bigLogoX = (pageWidth - bigLogoSize) / 2;
+      doc.addImage(logoBase64, 'PNG', bigLogoX, colY, bigLogoSize, bigLogoSize);
+      colY += bigLogoSize + 25;
+    } catch (err) {
+      colY = 100;
+    }
+  } else {
+    colY = 100;
+  }
+
   doc.setTextColor(...forestGreen);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
