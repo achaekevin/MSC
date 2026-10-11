@@ -22,23 +22,15 @@ export class FormService {
     });
 
     // 2. Email Delivery: Separate operation that never invalidates a successful submission
-    let emailDelivery = { adminNotified: false, confirmationSent: false };
-    try {
-      emailDelivery = await notificationService.notifyContactSubmission(submission);
-    } catch {
-      // Form submission succeeded even if email delivery encountered an issue
-    }
-
-    // Accurate messaging: never claim email was delivered if delivery failed
-    const message = emailDelivery.confirmationSent
-      ? 'Your inquiry has been received and a confirmation email has been sent to your address.'
-      : 'Your inquiry has been received and logged in our system. Our team will review your message and respond promptly.';
+    // Email Delivery: Fire-and-forget — never blocks the user response
+    notificationService.notifyContactSubmission(submission).catch((err) => {
+      console.error('Background contact notification failed:', err?.message || err);
+    });
 
     return {
       success: true,
       referenceId: submission.id,
-      emailDelivery,
-      message
+      message: 'Your inquiry has been received and logged in our system. Our team will review your message and respond promptly.'
     };
   }
 
@@ -117,24 +109,16 @@ export class FormService {
       }
     });
 
-    // 2. Email Delivery: Separate operation that never invalidates a saved application
-    let emailDelivery = { adminNotified: false, confirmationSent: false };
-    try {
-      emailDelivery = await notificationService.notifyVolunteerApplication(application);
-    } catch {
-      // Application record is preserved even if notification delivery fails
-    }
-
-    // Accurate messaging: never claim email was delivered if delivery failed
-    const message = emailDelivery.confirmationSent
-      ? 'Thank you for volunteering! Your application has been logged and a confirmation email has been sent to your address.'
-      : 'Thank you for volunteering! Your application has been logged in our system. Our Volunteer Coordinator will be in touch.';
+    // 2. Email Delivery: Fire-and-forget — never blocks the user response
+    //    The application is already safely persisted in the database above.
+    notificationService.notifyVolunteerApplication(application).catch((err) => {
+      console.error('Background volunteer notification failed:', err?.message || err);
+    });
 
     return {
       success: true,
       applicationId: application.id,
-      emailDelivery,
-      message
+      message: 'Thank you for volunteering! Your application has been logged in our system. Our Volunteer Coordinator will be in touch.'
     };
   }
 
@@ -212,24 +196,15 @@ export class FormService {
       }
     });
 
-    // 2. Email Delivery: Separate operation that never invalidates a saved application
-    let emailDelivery = { adminNotified: false, confirmationSent: false };
-    try {
-      emailDelivery = await notificationService.notifyPartnershipApplication(application);
-    } catch {
-      // Application record is preserved even if notification delivery fails
-    }
-
-    // Accurate messaging: never claim email was delivered if delivery failed
-    const message = emailDelivery.confirmationSent
-      ? 'Partnership proposal successfully submitted. A confirmation email has been sent to your address.'
-      : 'Partnership proposal successfully submitted and logged in our system. Our Executive Leadership will review your proposal.';
+    // 2. Email Delivery: Fire-and-forget — never blocks the user response
+    notificationService.notifyPartnershipApplication(application).catch((err) => {
+      console.error('Background partnership notification failed:', err?.message || err);
+    });
 
     return {
       success: true,
       applicationId: application.id,
-      emailDelivery,
-      message
+      message: 'Partnership proposal successfully submitted and logged in our system. Our Executive Leadership will review your proposal.'
     };
   }
 

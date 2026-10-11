@@ -297,24 +297,16 @@ export class DonationService {
       }
     });
 
-    // 2. Email Delivery: Separate operation that never invalidates a saved pledge
-    let emailDelivery = { adminNotified: false, confirmationSent: false };
-    try {
-      emailDelivery = await notificationService.notifyInKindDonation(submission, data, referenceNumber);
-    } catch {
-      // Pledge record is preserved even if notification delivery fails
-    }
-
-    const message = emailDelivery.confirmationSent
-      ? 'Thank you for your generous in-kind contribution! Your pledge has been registered and a confirmation email has been sent to your address.'
-      : 'Thank you for your generous in-kind contribution! Your pledge has been registered and our team will coordinate the handover.';
+    // 2. Email Delivery: Fire-and-forget — never blocks the user response
+    notificationService.notifyInKindDonation(submission, data, referenceNumber).catch((err) => {
+      console.error('Background donation notification failed:', err?.message || err);
+    });
 
     return {
       success: true,
-      message,
+      message: 'Thank you for your generous in-kind contribution! Your pledge has been registered and our team will coordinate the handover.',
       referenceNumber,
-      submissionId: submission.id,
-      emailDelivery
+      submissionId: submission.id
     };
   }
 }

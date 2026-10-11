@@ -47,7 +47,10 @@ export class MailService {
           auth: {
             user: env.SMTP_USER,
             pass: env.SMTP_PASS
-          }
+          },
+          connectionTimeout: 10000,
+          greetingTimeout: 10000,
+          socketTimeout: 10000
         });
         logger.info({ host: env.SMTP_HOST, port: env.SMTP_PORT }, 'Transactional email service initialized with SMTP provider.');
       } catch (err) {
