@@ -13,7 +13,7 @@ router.get('/methods', (req, res, next) => donationController.getPublicMethods(r
 router.post(
   '/in-kind',
   inKindDonationLimiter,
-  spamProtection({ checkHoneypot: true, checkTimeTrap: true, checkDisposableEmail: true, checkContentPatterns: true }),
+  spamProtection({ checkHoneypot: true, checkTimeTrap: true, checkDisposableEmail: true, checkContentPatterns: true, requireChallenge: true }),
   validate({ body: inKindDonationSchema }),
   (req, res, next) => donationController.submitInKindDonation(req, res, next)
 );

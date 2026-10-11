@@ -7,9 +7,8 @@ import { createPublicationSchema, updatePublicationSchema } from '../schemas/con
 
 const router = Router();
 
-// Public routes
+// Public collection route
 router.get('/', (req, res, next) => publicationController.getPublicPublications(req, res, next));
-router.get('/:slug', (req, res, next) => publicationController.getPublicPublicationBySlug(req, res, next));
 
 // Admin management routes
 router.get(
@@ -62,5 +61,8 @@ router.post(
   requirePermissions('CONTENT_APPROVE'),
   (req, res, next) => publicationController.approvePublication(req, res, next)
 );
+
+// Public single article lookup by slug (placed after all admin routes to avoid collisions)
+router.get('/:slug', (req, res, next) => publicationController.getPublicPublicationBySlug(req, res, next));
 
 export default router;

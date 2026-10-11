@@ -10,11 +10,12 @@ export interface TokenPayload {
 }
 
 export const signAccessToken = (user: { id: string; email: string; role: UserRole; name: string }): string => {
-  const payload: TokenPayload = {
+  const payload: TokenPayload & { type: string } = {
     userId: user.id,
     email: user.email,
     role: user.role,
-    name: user.name
+    name: user.name,
+    type: 'access'
   };
 
   return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
@@ -37,13 +38,23 @@ export const signRefreshToken = (user: { id: string; email: string; role: UserRo
 
 export const verifyAccessToken = (token: string): AuthUser | null => {
   try {
-    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as TokenPayload;
+    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as any;
+    // CRITICAL SECURITY FIX: Reject temporary 2FA tokens masquerading as full access tokens
+    if (
+      !decoded ||
+      decoded.purpose === '2fa_login' ||
+      decoded.type === '2fa_temp' ||
+      !decoded.role ||
+      !decoded.userId
+    ) {
+      return null;
+    }
     return {
       id: decoded.userId,
       email: decoded.email,
       name: decoded.name,
       role: decoded.role,
-      permissions: ROLE_PERMISSIONS[decoded.role] || []
+      permissions: ROLE_PERMISSIONS[decoded.role as UserRole] || []
     };
   } catch {
     return null;
@@ -60,7 +71,7 @@ export const verifyRefreshToken = (token: string): TokenPayload | null => {
 
 export const sign2FATempToken = (user: { id: string; email: string }): string => {
   return jwt.sign(
-    { userId: user.id, email: user.email, purpose: '2fa_login' },
+    { userId: user.id, email: user.email, purpose: '2fa_login', type: '2fa_temp' },
     env.JWT_ACCESS_SECRET,
     { expiresIn: '5m' }
   );

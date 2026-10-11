@@ -31,7 +31,7 @@ router.get('/challenge', challengeLimiter, (_req, res) => {
 router.post(
   '/contact',
   contactFormLimiter,
-  spamProtection({ checkHoneypot: true, checkTimeTrap: true, checkDisposableEmail: true, checkContentPatterns: true }),
+  spamProtection({ checkHoneypot: true, checkTimeTrap: true, checkDisposableEmail: true, checkContentPatterns: true, requireChallenge: true }),
   validate({ body: contactSubmissionSchema }),
   (req, res, next) => formController.submitContact(req, res, next)
 );
@@ -40,7 +40,7 @@ router.post(
 router.post(
   ['/volunteers/apply', '/volunteers'],
   volunteerFormLimiter,
-  spamProtection({ checkHoneypot: true, checkTimeTrap: true, checkDisposableEmail: true, checkContentPatterns: true }),
+  spamProtection({ checkHoneypot: true, checkTimeTrap: true, checkDisposableEmail: true, checkContentPatterns: true, requireChallenge: true }),
   validate({ body: volunteerApplicationSchema }),
   (req, res, next) => formController.submitVolunteer(req, res, next)
 );
@@ -49,7 +49,7 @@ router.post(
 router.post(
   ['/partnerships/apply', '/partnerships'],
   partnershipFormLimiter,
-  spamProtection({ checkHoneypot: true, checkTimeTrap: true, checkDisposableEmail: true, checkContentPatterns: true }),
+  spamProtection({ checkHoneypot: true, checkTimeTrap: true, checkDisposableEmail: true, checkContentPatterns: true, requireChallenge: true }),
   validate({ body: partnershipApplicationSchema }),
   (req, res, next) => formController.submitPartnership(req, res, next)
 );

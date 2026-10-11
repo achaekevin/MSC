@@ -63,9 +63,19 @@ if (env.NODE_ENV === 'production') {
       '⚠️ SECURITY WARNING: Insecure or default JWT_ACCESS_SECRET detected in production environment! Set a strong, unique 32+ character secret in .env.'
     );
   }
+  if (env.JWT_REFRESH_SECRET.includes('development') || env.JWT_REFRESH_SECRET.length < 32) {
+    console.warn(
+      '⚠️ SECURITY WARNING: Insecure or default JWT_REFRESH_SECRET detected in production environment! Set a strong, unique 32+ character secret in .env.'
+    );
+  }
   if (env.ADMIN_INVITE_CODE === 'MSC-ADMIN-2024-SECURE') {
     console.warn(
       '⚠️ SECURITY WARNING: Default ADMIN_INVITE_CODE detected in production! Please override with a private administrative key.'
+    );
+  }
+  if (env.INITIAL_ADMIN_PASSWORD === 'admin@1') {
+    console.warn(
+      '⚠️ SECURITY WARNING: Default INITIAL_ADMIN_PASSWORD ("admin@1") detected in production! Change the initial administrative password immediately.'
     );
   }
 }

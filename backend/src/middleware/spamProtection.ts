@@ -77,7 +77,11 @@ export const spamProtection = (options: SpamProtectionOptions = {
       }
 
       // 5. Anti-Spam Challenge Verification (Math verification or Turnstile)
-      if (options.requireChallenge || body.challengeToken || body.turnstileToken) {
+      if (options.requireChallenge || body.challengeToken || body.turnstileToken || body.challengeAnswer !== undefined) {
+        if (options.requireChallenge && !body.challengeToken && !body.turnstileToken) {
+          throw new BadRequestError('Security verification required: Please complete the anti-spam challenge.');
+        }
+
         const result = await spamChallengeService.verifyChallenge(
           body.challengeToken,
           body.challengeAnswer,

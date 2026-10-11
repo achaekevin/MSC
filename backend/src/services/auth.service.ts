@@ -368,8 +368,27 @@ export class AuthService {
     ipAddress?: string,
     userAgent?: string
   ) {
-    const expectedKey = env.ADMIN_INVITE_CODE || 'MSC-ADMIN-2024-SECURE';
-    if (!adminInviteCode || adminInviteCode.trim() !== expectedKey) {
+    // Security check: Never allow registration with default code in production
+    const isProd = env.NODE_ENV === 'production';
+    const defaultCode = 'MSC-ADMIN-2024-SECURE';
+    const configuredKey = env.ADMIN_INVITE_CODE;
+
+    if (isProd && (!configuredKey || configuredKey === defaultCode)) {
+      throw new ForbiddenError(
+        'Administrative registration is locked in production. A private, high-entropy ADMIN_INVITE_CODE must be configured in environment variables.'
+      );
+    }
+
+    const expectedKey = configuredKey || defaultCode;
+    const providedCode = (adminInviteCode || '').trim();
+    const providedBuf = Buffer.from(providedCode);
+    const expectedBuf = Buffer.from(expectedKey.trim());
+
+    if (
+      providedBuf.length === 0 ||
+      providedBuf.length !== expectedBuf.length ||
+      !crypto.timingSafeEqual(providedBuf, expectedBuf)
+    ) {
       throw new ForbiddenError(
         'Unauthorized: A valid administrative authorization key issued by MSC leadership is required to create an admin account.'
       );

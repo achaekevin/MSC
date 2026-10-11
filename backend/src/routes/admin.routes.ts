@@ -101,7 +101,11 @@ router.delete(
   requirePermissions('CONTENT_DELETE'),
   (req, res, next) => programController.deleteProgram(req, res, next)
 );
-router.post('/programs/:id/submit-review', (req, res, next) => programController.submitReview(req, res, next));
+router.post(
+  '/programs/:id/submit-review',
+  requirePermissions('CONTENT_UPDATE'),
+  (req, res, next) => programController.submitReview(req, res, next)
+);
 router.post(
   '/programs/:id/approve',
   requirePermissions('CONTENT_APPROVE'),
@@ -136,7 +140,11 @@ router.delete(
   requirePermissions('CONTENT_DELETE'),
   (req, res, next) => newsController.deleteNews(req, res, next)
 );
-router.post('/news/:id/submit-review', (req, res, next) => newsController.submitReview(req, res, next));
+router.post(
+  '/news/:id/submit-review',
+  requirePermissions('CONTENT_UPDATE'),
+  (req, res, next) => newsController.submitReview(req, res, next)
+);
 router.post(
   '/news/:id/approve',
   requirePermissions('CONTENT_APPROVE'),
@@ -171,7 +179,11 @@ router.delete(
   requirePermissions('CONTENT_DELETE'),
   (req, res, next) => eventController.deleteEvent(req, res, next)
 );
-router.post('/events/:id/submit-review', (req, res, next) => eventController.submitReview(req, res, next));
+router.post(
+  '/events/:id/submit-review',
+  requirePermissions('CONTENT_UPDATE'),
+  (req, res, next) => eventController.submitReview(req, res, next)
+);
 router.post(
   '/events/:id/approve',
   requirePermissions('CONTENT_APPROVE'),
@@ -209,7 +221,11 @@ router.delete(
   requirePermissions('CONTENT_DELETE'),
   (req, res, next) => teamController.deleteTeamMember(req, res, next)
 );
-router.post('/team/:id/submit-review', (req, res, next) => teamController.submitReview(req, res, next));
+router.post(
+  '/team/:id/submit-review',
+  requirePermissions('CONTENT_UPDATE'),
+  (req, res, next) => teamController.submitReview(req, res, next)
+);
 router.post(
   '/team/:id/approve',
   requirePermissions('CONTENT_APPROVE'),
@@ -242,7 +258,11 @@ router.post(
   requirePermissions('CONTENT_APPROVE'),
   (req, res, next) => impactController.approveMetric(req, res, next)
 );
-router.post('/impact/:id/submit-review', (req, res, next) => impactController.submitReview(req, res, next));
+router.post(
+  '/impact/:id/submit-review',
+  requirePermissions('CONTENT_UPDATE'),
+  (req, res, next) => impactController.submitReview(req, res, next)
+);
 router.post(
   '/impact/:id/publish',
   requirePermissions('CONTENT_PUBLISH'),
@@ -281,7 +301,11 @@ router.delete(
   requirePermissions('MEDIA_MANAGE'),
   (req, res, next) => galleryController.deleteMedia(req, res, next)
 );
-router.post('/media/:id/submit-review', (req, res, next) => galleryController.submitReview(req, res, next));
+router.post(
+  '/media/:id/submit-review',
+  requirePermissions('MEDIA_MANAGE'),
+  (req, res, next) => galleryController.submitReview(req, res, next)
+);
 router.post(
   '/media/:id/approve',
   requirePermissions('CONTENT_APPROVE'),

@@ -11,14 +11,24 @@ interface ChallengeData {
 
 export class SpamChallengeService {
   private secretKey: string;
+  private usedNonces: Map<string, number> = new Map();
 
   constructor() {
     this.secretKey = env.JWT_ACCESS_SECRET || 'msc-anti-spam-secret-seed-2024';
   }
 
+  private pruneUsedNonces() {
+    const now = Date.now();
+    for (const [nonce, exp] of this.usedNonces.entries()) {
+      if (now > exp) {
+        this.usedNonces.delete(nonce);
+      }
+    }
+  }
+
   /**
    * Generate an anti-spam challenge
-   * Includes mathematical proof question and signs token with HMAC SHA-256
+   * Includes mathematical proof question, dynamic cryptographic IV, and signs token with HMAC SHA-256
    */
   generateChallenge(): ChallengeData {
     const num1 = Math.floor(Math.random() * 12) + 1; // 1 - 12
@@ -39,23 +49,27 @@ export class SpamChallengeService {
     }
 
     const expiresAt = Date.now() + 20 * 60 * 1000; // 20 minutes validity
-    const nonce = crypto.randomBytes(8).toString('hex');
+    const nonce = crypto.randomBytes(16).toString('hex');
 
     const payload = JSON.stringify({ ans: answer, exp: expiresAt, nonce });
+    
+    // Dynamic random IV for AES-256-CBC to eliminate pattern leakage
+    const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv(
       'aes-256-cbc',
       crypto.createHash('sha256').update(this.secretKey).digest(),
-      Buffer.alloc(16, 0)
+      iv
     );
     let encrypted = cipher.update(payload, 'utf8', 'hex');
     encrypted += cipher.final('hex');
 
+    const ciphertextWithIv = `${iv.toString('hex')}:${encrypted}`;
     const signature = crypto
       .createHmac('sha256', this.secretKey)
-      .update(encrypted)
+      .update(ciphertextWithIv)
       .digest('hex');
 
-    const token = `${encrypted}.${signature}`;
+    const token = `${ciphertextWithIv}.${signature}`;
 
     const turnstileSiteKey = process.env.TURNSTILE_SITE_KEY;
     const hasTurnstile = Boolean(turnstileSiteKey && process.env.TURNSTILE_SECRET_KEY);
@@ -110,31 +124,56 @@ export class SpamChallengeService {
       return { valid: false, reason: 'Malformed anti-spam challenge token.' };
     }
 
-    const [encrypted, providedSignature] = parts;
+    const [ciphertextWithIv, providedSignature] = parts;
 
-    // Verify HMAC signature
+    // Verify HMAC signature using timing-safe comparison
     const expectedSignature = crypto
       .createHmac('sha256', this.secretKey)
-      .update(encrypted)
+      .update(ciphertextWithIv)
       .digest('hex');
 
-    if (providedSignature !== expectedSignature) {
+    const providedSigBuf = Buffer.from(providedSignature, 'hex');
+    const expectedSigBuf = Buffer.from(expectedSignature, 'hex');
+
+    if (
+      providedSigBuf.length === 0 ||
+      providedSigBuf.length !== expectedSigBuf.length ||
+      !crypto.timingSafeEqual(providedSigBuf, expectedSigBuf)
+    ) {
       return { valid: false, reason: 'Invalid challenge signature.' };
     }
 
     try {
+      let iv: Buffer;
+      let encryptedPayload: string;
+
+      if (ciphertextWithIv.includes(':')) {
+        const [ivHex, enc] = ciphertextWithIv.split(':');
+        iv = Buffer.from(ivHex, 'hex');
+        encryptedPayload = enc;
+      } else {
+        // Fallback for legacy tokens without prefixed IV
+        iv = Buffer.alloc(16, 0);
+        encryptedPayload = ciphertextWithIv;
+      }
+
       const decipher = crypto.createDecipheriv(
         'aes-256-cbc',
         crypto.createHash('sha256').update(this.secretKey).digest(),
-        Buffer.alloc(16, 0)
+        iv
       );
-      let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+      let decrypted = decipher.update(encryptedPayload, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
 
       const data = JSON.parse(decrypted);
 
       if (Date.now() > data.exp) {
         return { valid: false, reason: 'Security challenge has expired. Please refresh and try again.' };
+      }
+
+      // Replay prevention: Check if nonce was already consumed
+      if (this.usedNonces.has(data.nonce)) {
+        return { valid: false, reason: 'Security challenge has already been used. Please solve a fresh challenge.' };
       }
 
       if (challengeAnswer === undefined || challengeAnswer === null || String(challengeAnswer).trim() === '') {
@@ -145,6 +184,10 @@ export class SpamChallengeService {
       if (isNaN(parsedUserAnswer) || parsedUserAnswer !== data.ans) {
         return { valid: false, reason: 'Incorrect security verification answer. Please try again.' };
       }
+
+      // Consume nonce to prevent replay attacks
+      this.usedNonces.set(data.nonce, data.exp);
+      this.pruneUsedNonces();
 
       return { valid: true };
     } catch {
