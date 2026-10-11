@@ -173,6 +173,7 @@ export class SearchService {
       shouldFetch('stories')
         ? prisma.successStory.findMany({
             where: {
+              status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
               deletedAt: null,
               OR: [
                 { title: { contains: searchTerm } },
@@ -196,6 +197,7 @@ export class SearchService {
       shouldFetch('gallery')
         ? prisma.media.findMany({
             where: {
+              status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
               deletedAt: null,
               OR: [
                 { title: { contains: searchTerm } },
@@ -219,6 +221,7 @@ export class SearchService {
       shouldFetch('gallery')
         ? prisma.galleryAlbum.findMany({
             where: {
+              status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
               deletedAt: null,
               OR: [
                 { name: { contains: searchTerm } },
