@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Eye, EyeOff, ShieldCheck, ArrowLeft, KeyRound } from 'lucide-react';
@@ -23,6 +23,12 @@ export const LoginPage: React.FC = () => {
   const [twoFactorCode, setTwoFactorCode] = useState('');
 
   const from = (location.state as any)?.from?.pathname || '/admin/dashboard';
+
+  useEffect(() => {
+    void import('./DashboardPage').catch(error => {
+      console.warn('Failed to preload admin dashboard:', error);
+    });
+  }, []);
 
   // Redirect if already authenticated
   if (isAuthenticated) {
@@ -73,7 +79,7 @@ export const LoginPage: React.FC = () => {
       });
 
       // Check if 2FA verification is required
-      if ('requires2FA' in response && response.requires2FA) {
+      if (!('user' in response)) {
         setTwoFactorState({
           tempToken: response.tempToken,
           email: response.email
@@ -84,15 +90,7 @@ export const LoginPage: React.FC = () => {
       }
 
       // Normal login completed
-      const stored = localStorage.getItem('msc_user');
-      let authedUser = user;
-      if (stored) {
-        try {
-          authedUser = JSON.parse(stored);
-        } catch {}
-      }
-
-      const isAdmin = authedUser?.role === 'SUPER_ADMIN' || authedUser?.role === 'CONTENT_ADMIN';
+      const isAdmin = response.user.role === 'SUPER_ADMIN' || response.user.role === 'CONTENT_ADMIN';
       if (isAdmin) {
         navigate(from, { replace: true });
       } else {

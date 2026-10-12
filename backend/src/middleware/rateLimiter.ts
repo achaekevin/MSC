@@ -15,12 +15,12 @@ export const generalLimiter = rateLimit({
 
 /**
  * Authentication Rate Limiter
- * Explicit Policy: Maximum of 3 attempts per authentication route per 15 minutes.
+ * Explicit Policy: Maximum of 5 attempts per authentication route per 15 minutes.
  * Scoped per IP and individual authentication route path.
  */
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 3, // Maximum of 3 attempts per authentication route per 15 minutes
+  max: 5, // Maximum of 5 attempts per authentication route per 15 minutes
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
@@ -30,7 +30,7 @@ export const authLimiter = rateLimit({
   },
   handler: () => {
     throw new RateLimitError(
-      'Security Policy Limit Reached: Maximum of 3 attempts per 15 minutes allowed for this authentication route. Please wait 15 minutes before trying again.'
+      'Security Policy Limit Reached: Maximum of 5 attempts per 15 minutes allowed for this authentication route. Please wait 15 minutes before trying again.'
     );
   }
 });

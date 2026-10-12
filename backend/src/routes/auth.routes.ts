@@ -20,7 +20,7 @@ const router = Router();
 
 /**
  * Authentication Routes
- * Protected with strict rate limiting: maximum of 3 attempts per authentication route per 15 minutes
+ * Protected with strict rate limiting: maximum of 5 attempts per authentication route per 15 minutes
  */
 router.post(
   '/register',
