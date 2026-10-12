@@ -1,16 +1,8 @@
 // Centralized API Client Architecture for MSC Frontend
 // Connects with Node.js + Express + Prisma + MySQL backend (v1)
+import { getApiBaseUrl } from './apiConfig';
 
-const getBaseUrl = (): string => {
-  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
-  if (import.meta.env.VITE_API_BASE_URL) return import.meta.env.VITE_API_BASE_URL;
-  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return '/api/v1';
-  }
-  return 'http://localhost:5000/api/v1';
-};
-
-export const BASE_URL = getBaseUrl();
+export const BASE_URL = getApiBaseUrl();
 
 export class ApiError extends Error {
   constructor(
