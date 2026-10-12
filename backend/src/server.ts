@@ -3,6 +3,7 @@ import { env } from './config/env.js';
 import { logger } from './config/logger.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
 import { backupSchedulerService } from './services/backupScheduler.service.js';
+import { startDbKeepAlive, stopDbKeepAlive } from './utils/dbKeepAlive.js';
 
 const PORT = env.PORT || 5000;
 const HOST = env.HOST || '0.0.0.0';
@@ -28,12 +29,16 @@ const startServer = async () => {
 
     // Start Automated Backup & Retention Daemon
     backupSchedulerService.start();
+
+    // Start DB Keep-Alive to prevent Aiven free-tier from sleeping
+    startDbKeepAlive();
   });
 
   // Graceful Shutdown Handling (Section 62)
   const shutdown = async (signal: string) => {
     logger.info(`Received ${signal}. Initiating graceful server termination...`);
     backupSchedulerService.stop();
+    stopDbKeepAlive();
     server.close(async () => {
       logger.info('HTTP server closed.');
       await disconnectDatabase();
