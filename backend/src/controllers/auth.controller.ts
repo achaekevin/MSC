@@ -1,9 +1,34 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, CookieOptions } from 'express';
 import { authService } from '../services/auth.service.js';
 import { sendSuccess } from '../utils/apiResponse.js';
 import { AuthenticatedRequest } from '../types/index.js';
 import { env } from '../config/env.js';
 import { verifyAccessToken } from '../utils/jwt.js';
+
+/**
+ * Centralized cookie configuration for refresh tokens.
+ * Handles same-site vs cross-origin deployments (e.g. Railway).
+ */
+const getRefreshCookieOptions = (): CookieOptions => {
+  const isProd = env.NODE_ENV === 'production';
+  return {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  };
+};
+
+const getClearCookieOptions = (): CookieOptions => {
+  const isProd = env.NODE_ENV === 'production';
+  return {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
+    path: '/'
+  };
+};
 
 export class AuthController {
   async login(req: Request, res: Response, next: NextFunction) {
@@ -23,13 +48,7 @@ export class AuthController {
       }
 
       // Set refresh token in secure HTTP-only cookie
-      res.cookie('msc_refresh_token', result.refreshToken, {
-        httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
+      res.cookie('msc_refresh_token', result.refreshToken, getRefreshCookieOptions());
 
       return sendSuccess(res, {
         user: result.user,
@@ -48,13 +67,7 @@ export class AuthController {
 
       const result = await authService.verifyTwoFactorLogin(tempToken, code, ipAddress, userAgent);
 
-      res.cookie('msc_refresh_token', result.refreshToken, {
-        httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000
-      });
+      res.cookie('msc_refresh_token', result.refreshToken, getRefreshCookieOptions());
 
       return sendSuccess(res, {
         user: result.user,
@@ -139,13 +152,7 @@ export class AuthController {
 
       const result = await authService.register(email, password, name, role, adminInviteCode, ipAddress, userAgent);
 
-      res.cookie('msc_refresh_token', result.refreshToken, {
-        httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
+      res.cookie('msc_refresh_token', result.refreshToken, getRefreshCookieOptions());
 
       return sendSuccess(res, {
         user: result.user,
@@ -168,13 +175,7 @@ export class AuthController {
 
       const result = await authService.refreshToken(token);
 
-      res.cookie('msc_refresh_token', result.refreshToken, {
-        httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000
-      });
+      res.cookie('msc_refresh_token', result.refreshToken, getRefreshCookieOptions());
 
       return sendSuccess(res, {
         user: result.user,
@@ -202,18 +203,8 @@ export class AuthController {
 
       await authService.logout(token, userId);
 
-      res.clearCookie('msc_refresh_token', {
-        httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/'
-      });
-      res.clearCookie('msc_access_token', {
-        httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/'
-      });
+      res.clearCookie('msc_refresh_token', getClearCookieOptions());
+      res.clearCookie('msc_access_token', getClearCookieOptions());
 
       return sendSuccess(res, { message: 'Logged out successfully' }, 200);
     } catch (error) {

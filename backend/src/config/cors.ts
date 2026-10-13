@@ -11,6 +11,22 @@ const allowedOrigins: string[] = [
   'http://127.0.0.1:5000'
 ].filter(Boolean);
 
+/**
+ * Check if an origin is a Railway deployment URL.
+ * Railway uses *.railway.app and *.up.railway.app domains.
+ */
+const isRailwayOrigin = (origin: string): boolean => {
+  try {
+    const url = new URL(origin);
+    return (
+      url.protocol === 'https:' &&
+      (url.hostname.endsWith('.railway.app') || url.hostname.endsWith('.up.railway.app'))
+    );
+  } catch {
+    return false;
+  }
+};
+
 export const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
     // Allow non-browser requests (Postman, curl, server-to-server) where origin is undefined
@@ -23,7 +39,13 @@ export const corsOptions: CorsOptions = {
       return callback(null, true);
     }
 
+    // Allow explicitly configured origins
     if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // In production, allow Railway deployment origins (*.railway.app, *.up.railway.app)
+    if (isRailwayOrigin(origin)) {
       return callback(null, true);
     }
 

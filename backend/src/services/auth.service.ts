@@ -31,27 +31,33 @@ import { securityMonitoringService } from './securityMonitoring.service.js';
 
 export class AuthService {
   /**
-   * Helper to fetch 2FA information using direct query
+   * Helper to fetch 2FA information using safe Prisma query
    */
   async getUser2FA(userId: string) {
-    const rows: any = await prisma.$queryRawUnsafe(
-      'SELECT id, email, twoFactorEnabled, twoFactorSecret, twoFactorBackupCodes FROM users WHERE id = ? LIMIT 1',
-      userId
-    );
-    if (!rows || rows.length === 0) return null;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        twoFactorEnabled: true,
+        twoFactorSecret: true,
+        twoFactorBackupCodes: true
+      }
+    });
+    if (!user) return null;
     let backupCodes: { hash: string; used: boolean }[] = [];
-    if (rows[0].twoFactorBackupCodes) {
+    if (user.twoFactorBackupCodes) {
       try {
-        backupCodes = JSON.parse(rows[0].twoFactorBackupCodes);
+        backupCodes = JSON.parse(user.twoFactorBackupCodes);
       } catch {
         backupCodes = [];
       }
     }
     return {
-      id: rows[0].id,
-      email: rows[0].email,
-      twoFactorEnabled: Boolean(rows[0].twoFactorEnabled),
-      twoFactorSecret: rows[0].twoFactorSecret as string | null,
+      id: user.id,
+      email: user.email,
+      twoFactorEnabled: Boolean(user.twoFactorEnabled),
+      twoFactorSecret: user.twoFactorSecret as string | null,
       twoFactorBackupCodes: backupCodes
     };
   }
