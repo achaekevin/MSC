@@ -106,10 +106,19 @@ class OrganizationService {
   // Admin methods (protected)
   
   /**
+   * Get organization profile for administration
+   */
+  async getAdminProfile(): Promise<OrganizationProfile> {
+    const res = await apiClient.get<any>('/admin/organization');
+    return res?.data !== undefined ? res.data : res;
+  }
+
+  /**
    * Update organization profile (admin only)
    */
   async updateProfile(data: Partial<OrganizationProfile>): Promise<OrganizationProfile> {
-    return apiClient.put(`${this.baseEndpoint}/profile`, data);
+    const res = await apiClient.put<any>('/admin/organization', data);
+    return res?.data !== undefined ? res.data : res;
   }
 
   /**
