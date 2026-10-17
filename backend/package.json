@@ -4,7 +4,7 @@
   "description": "Production-Ready Backend for Mwancha Senior Community (MSC)",
   "main": "dist/server.js",
   "scripts": {
-    "build": "prisma generate && tsc",
+    "build": "prisma generate && tsc && node -e \"const fs=require('fs'); if(fs.existsSync('../frontend/dist')) { fs.cpSync('../frontend/dist', './public', {recursive:true}); console.log('Synced frontend build into public'); }\"",
     "postinstall": "prisma generate",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
