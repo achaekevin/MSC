@@ -13,7 +13,9 @@ import {
   changePasswordSchema,
   enableTwoFactorSchema,
   disableTwoFactorSchema,
-  verifyTwoFactorLoginSchema
+  verifyTwoFactorLoginSchema,
+  verifyEmailSchema,
+  resendVerificationSchema
 } from '../schemas/auth.schema.js';
 
 const router = Router();
@@ -114,12 +116,14 @@ router.post(
 router.post(
   '/verify-email',
   authLimiter,
+  validate({ body: verifyEmailSchema }),
   (req, res, next) => authController.verifyEmail(req, res, next)
 );
 
 router.post(
   '/resend-verification',
   authLimiter,
+  validate({ body: resendVerificationSchema }),
   (req, res, next) => authController.resendVerification(req, res, next)
 );
 

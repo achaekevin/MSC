@@ -38,4 +38,18 @@ describe('Authentication & JWT Utilities (Section 6, 7, 8)', () => {
     const result = verifyAccessToken(tampered);
     expect(result).toBeNull();
   });
+
+  it('SEC-01 Regression: resetPassword should reject access tokens or unrecorded tokens', async () => {
+    const { authService } = await import('../src/services/auth.service.js');
+    const { prisma } = await import('../src/config/database.js');
+    const { vi } = await import('vitest');
+
+    vi.spyOn(prisma.passwordResetToken, 'findFirst').mockResolvedValue(null as any);
+    const validAccessToken = signAccessToken(mockUser);
+    
+    // Attempting to reset password using an access token must be rejected even if valid JWT
+    await expect(
+      authService.resetPassword(validAccessToken, 'NewSecurePassword123!')
+    ).rejects.toThrow('Password reset link is invalid or has expired.');
+  });
 });

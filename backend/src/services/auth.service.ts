@@ -675,26 +675,16 @@ export class AuthService {
       include: { user: true }
     });
 
-    let targetUserId: string | null = null;
-
-    if (storedReset) {
-      targetUserId = storedReset.userId;
-      // Mark token as consumed immediately
-      await prisma.passwordResetToken.update({
-        where: { id: storedReset.id },
-        data: { usedAt: new Date() }
-      });
-    } else {
-      // Fallback check for JWT token if legacy link
-      const payload = verifyAccessToken(token);
-      if (payload) {
-        targetUserId = payload.id;
-      }
-    }
-
-    if (!targetUserId) {
+    if (!storedReset) {
       throw new BadRequestError('Password reset link is invalid or has expired.');
     }
+
+    const targetUserId = storedReset.userId;
+    // Mark token as consumed immediately
+    await prisma.passwordResetToken.update({
+      where: { id: storedReset.id },
+      data: { usedAt: new Date() }
+    });
 
     const newHash = await hashPassword(newPasswordPlain);
 
@@ -791,29 +781,39 @@ export class AuthService {
       // Continue to check 6-digit code
     }
 
-    const recentAudit = await prisma.auditLog.findFirst({
+    const recentAudits = await prisma.auditLog.findMany({
       where: {
-        action: 'EMAIL_VERIFICATION_SENT',
-        newData: { contains: trimmed }
+        action: 'EMAIL_VERIFICATION_SENT'
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      take: 30
     });
 
-    if (!recentAudit || !recentAudit.userId) {
+    const matchingAudit = recentAudits.find(audit => {
+      try {
+        if (!audit.newData) return false;
+        const parsed = JSON.parse(audit.newData);
+        return parsed.code === trimmed;
+      } catch {
+        return false;
+      }
+    });
+
+    if (!matchingAudit || !matchingAudit.userId) {
       throw new BadRequestError('Invalid or expired verification code. Please request a new verification code.');
     }
 
-    const ageMs = Date.now() - new Date(recentAudit.createdAt).getTime();
+    const ageMs = Date.now() - new Date(matchingAudit.createdAt).getTime();
     if (ageMs > 24 * 60 * 60 * 1000) {
       throw new BadRequestError('Verification code has expired. Please request a new one.');
     }
 
     await prisma.auditLog.create({
       data: {
-        userId: recentAudit.userId,
+        userId: matchingAudit.userId,
         action: 'EMAIL_VERIFIED',
         entity: 'User',
-        entityId: recentAudit.userId,
+        entityId: matchingAudit.userId,
         newData: JSON.stringify({ code: trimmed, verifiedAt: new Date() })
       }
     });
@@ -822,6 +822,9 @@ export class AuthService {
   }
 
   async resendVerification(email: string) {
+    if (!email || typeof email !== 'string') {
+      throw new BadRequestError('A valid email address is required.');
+    }
     const normalizedEmail = email.toLowerCase().trim();
     const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (!user) {

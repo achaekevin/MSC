@@ -56,23 +56,27 @@ if (!parsedEnv.success) {
 
 export const env = parsedEnv.data;
 
-// Security audit warning for production deployments
+// Security audit enforcement for production deployments
 if (env.NODE_ENV === 'production') {
+  const fatalErrors: string[] = [];
+
   if (env.JWT_ACCESS_SECRET.includes('development') || env.JWT_ACCESS_SECRET.length < 32) {
-    console.warn(
-      '⚠️ SECURITY WARNING: Insecure or default JWT_ACCESS_SECRET detected in production environment! Set a strong, unique 32+ character secret in .env.'
-    );
+    fatalErrors.push('FATAL SECURITY ERROR: JWT_ACCESS_SECRET must be at least 32 characters and cannot use development fallback in production.');
   }
   if (env.JWT_REFRESH_SECRET.includes('development') || env.JWT_REFRESH_SECRET.length < 32) {
-    console.warn(
-      '⚠️ SECURITY WARNING: Insecure or default JWT_REFRESH_SECRET detected in production environment! Set a strong, unique 32+ character secret in .env.'
-    );
+    fatalErrors.push('FATAL SECURITY ERROR: JWT_REFRESH_SECRET must be at least 32 characters and cannot use development fallback in production.');
   }
-  if (env.ADMIN_INVITE_CODE === 'MSC-ADMIN-2024-SECURE') {
-    console.warn(
-      '⚠️ SECURITY WARNING: Default ADMIN_INVITE_CODE detected in production! Please override with a private administrative key.'
-    );
+  if (env.ADMIN_INVITE_CODE === 'MSC-ADMIN-2024-SECURE' || env.ADMIN_INVITE_CODE.length < 16) {
+    fatalErrors.push('FATAL SECURITY ERROR: ADMIN_INVITE_CODE cannot use the default published key in production. Set a unique, private 16+ character code.');
   }
+
+  if (fatalErrors.length > 0) {
+    console.error('\n==================== PRODUCTION SECURITY CONFIGURATION ERROR ====================');
+    fatalErrors.forEach(err => console.error(err));
+    console.error('=================================================================================\n');
+    process.exit(1);
+  }
+
   if (env.INITIAL_ADMIN_PASSWORD === 'admin@1') {
     console.warn(
       '⚠️ SECURITY WARNING: Default INITIAL_ADMIN_PASSWORD ("admin@1") detected in production! Change the initial administrative password immediately.'

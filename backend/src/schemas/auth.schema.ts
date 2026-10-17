@@ -73,3 +73,14 @@ export const verifyTwoFactorLoginSchema = z.object({
   tempToken: z.string().min(10, 'Temporary 2FA authentication token is required'),
   code: z.string().min(6, 'Verification code or backup code is required')
 });
+
+export const verifyEmailSchema = z.object({
+  token: z.string().optional(),
+  code: z.string().optional()
+}).refine(data => !!(data.token?.trim() || data.code?.trim()), {
+  message: 'Verification token or 6-digit code is required'
+});
+
+export const resendVerificationSchema = z.object({
+  email: z.string().email('Please provide a valid email address').toLowerCase().trim()
+});
