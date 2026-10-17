@@ -20,16 +20,37 @@ import healthRoutes from './routes/health.routes.js';
 export const createApp = (): Express => {
   const app = express();
 
-  // Paths to public static assets and compiled frontend build
-  const backendPublicPath = path.resolve(process.cwd(), 'public');
-  const frontendPublicPath = path.resolve(process.cwd(), '../frontend/public');
-  const frontendDistPath = path.resolve(process.cwd(), '../frontend/dist');
+  const currentDir = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
 
-  // Serve static files from backend public (and frontend dist if present)
-  app.use(express.static(backendPublicPath));
+  // Paths to public static assets and compiled frontend build (handles repo root or backend subdir)
+  const candidateFrontendDistPaths = [
+    path.resolve(process.cwd(), 'frontend/dist'),
+    path.resolve(process.cwd(), '../frontend/dist'),
+    path.resolve(currentDir, '../../frontend/dist'),
+    path.resolve(currentDir, '../../../frontend/dist')
+  ];
+  const frontendDistPath = candidateFrontendDistPaths.find((p) => fs.existsSync(p)) || candidateFrontendDistPaths[0];
+
+  const candidateBackendPublicPaths = [
+    path.resolve(process.cwd(), 'backend/public'),
+    path.resolve(process.cwd(), 'public'),
+    path.resolve(currentDir, '../public'),
+    path.resolve(currentDir, '../../public')
+  ];
+  const backendPublicPath = candidateBackendPublicPaths.find((p) => fs.existsSync(p)) || candidateBackendPublicPaths[0];
+
+  const candidateFrontendPublicPaths = [
+    path.resolve(process.cwd(), 'frontend/public'),
+    path.resolve(process.cwd(), '../frontend/public'),
+    path.resolve(currentDir, '../../frontend/public')
+  ];
+  const frontendPublicPath = candidateFrontendPublicPaths.find((p) => fs.existsSync(p)) || candidateFrontendPublicPaths[0];
+
+  // Serve static files from compiled frontend dist first, then backend public assets
   if (fs.existsSync(frontendDistPath)) {
     app.use(express.static(frontendDistPath));
   }
+  app.use(express.static(backendPublicPath));
   app.use('/images', express.static(path.join(backendPublicPath, 'images')));
   if (fs.existsSync(frontendPublicPath)) {
     app.use('/images', express.static(path.join(frontendPublicPath, 'images')));
@@ -151,15 +172,15 @@ export const createApp = (): Express => {
       return next(new NotFoundError(`API endpoint '${req.method} ${req.originalUrl}' does not exist on this server.`));
     }
 
-    // Try backend public/index.html first, then ../frontend/dist/index.html
-    const localIndex = path.join(backendPublicPath, 'index.html');
-    if (fs.existsSync(localIndex)) {
-      return res.sendFile(localIndex);
-    }
-
+    // Try compiled frontend dist/index.html first, then backend public/index.html fallback
     const frontendIndex = path.join(frontendDistPath, 'index.html');
     if (fs.existsSync(frontendIndex)) {
       return res.sendFile(frontendIndex);
+    }
+
+    const localIndex = path.join(backendPublicPath, 'index.html');
+    if (fs.existsSync(localIndex)) {
+      return res.sendFile(localIndex);
     }
 
     // Fallback if no frontend build is present: return clean API status info
