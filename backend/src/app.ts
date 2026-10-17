@@ -46,11 +46,23 @@ export const createApp = (): Express => {
   ];
   const frontendPublicPath = candidateFrontendPublicPaths.find((p) => fs.existsSync(p)) || candidateFrontendPublicPaths[0];
 
+  const staticOptions = {
+    setHeaders: (res: Response, filePath: string) => {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+      } else if (filePath.includes('assets') || filePath.match(/\.[a-f0-9]{8,}\./i)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    }
+  };
+
   // Serve static files from compiled frontend dist first, then backend public assets
   if (fs.existsSync(frontendDistPath)) {
-    app.use(express.static(frontendDistPath));
+    app.use(express.static(frontendDistPath, staticOptions));
   }
-  app.use(express.static(backendPublicPath));
+  app.use(express.static(backendPublicPath, staticOptions));
   app.use('/images', express.static(path.join(backendPublicPath, 'images')));
   if (fs.existsSync(frontendPublicPath)) {
     app.use('/images', express.static(path.join(frontendPublicPath, 'images')));
@@ -172,15 +184,23 @@ export const createApp = (): Express => {
       return next(new NotFoundError(`API endpoint '${req.method} ${req.originalUrl}' does not exist on this server.`));
     }
 
+    // Helper to serve index.html with strict cache invalidation headers
+    const sendNoCacheFile = (filePath: string) => {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      return res.sendFile(filePath);
+    };
+
     // Try compiled frontend dist/index.html first, then backend public/index.html fallback
     const frontendIndex = path.join(frontendDistPath, 'index.html');
     if (fs.existsSync(frontendIndex)) {
-      return res.sendFile(frontendIndex);
+      return sendNoCacheFile(frontendIndex);
     }
 
     const localIndex = path.join(backendPublicPath, 'index.html');
     if (fs.existsSync(localIndex)) {
-      return res.sendFile(localIndex);
+      return sendNoCacheFile(localIndex);
     }
 
     // Fallback if no frontend build is present: return clean API status info
