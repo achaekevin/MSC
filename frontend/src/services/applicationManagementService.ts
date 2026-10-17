@@ -24,10 +24,10 @@ export const applicationManagementService = {
       if (params?.status && params.status !== 'all') query.append('status', params.status);
 
       const qs = query.toString() ? `?${query.toString()}` : '';
-      const res = await apiClient.get<any>(`/admin/volunteer-applications${qs}`);
-      const items = res.data?.items || res.data || [];
-      const total = res.data?.pagination?.total ?? items.length;
-      const totalPages = res.data?.pagination?.totalPages ?? 1;
+      const res = await apiClient.getWithMeta<VolunteerApplication[]>(`/admin/volunteer-applications${qs}`);
+      const items = Array.isArray(res.data) ? res.data : [];
+      const total = res.pagination?.total ?? items.length;
+      const totalPages = res.pagination?.totalPages ?? (total > 0 ? Math.ceil(total / (params?.limit || 10)) : 1);
 
       return { items, total, totalPages };
     } catch {
@@ -92,10 +92,10 @@ export const applicationManagementService = {
       if (params?.status && params.status !== 'all') query.append('status', params.status);
 
       const qs = query.toString() ? `?${query.toString()}` : '';
-      const res = await apiClient.get<any>(`/admin/partnership-applications${qs}`);
-      const items = res.data?.items || res.data || [];
-      const total = res.data?.pagination?.total ?? items.length;
-      const totalPages = res.data?.pagination?.totalPages ?? 1;
+      const res = await apiClient.getWithMeta<PartnershipRequest[]>(`/admin/partnership-applications${qs}`);
+      const items = Array.isArray(res.data) ? res.data : [];
+      const total = res.pagination?.total ?? items.length;
+      const totalPages = res.pagination?.totalPages ?? (total > 0 ? Math.ceil(total / (params?.limit || 10)) : 1);
 
       return { items, total, totalPages };
     } catch {
@@ -158,10 +158,10 @@ export const applicationManagementService = {
       if (params?.status && params.status !== 'all') query.append('status', params.status);
 
       const qs = query.toString() ? `?${query.toString()}` : '';
-      const res = await apiClient.get<any>(`/admin/contact-submissions${qs}`);
-      const items = res.data?.items || res.data || [];
-      const total = res.data?.pagination?.total ?? items.length;
-      const totalPages = res.data?.pagination?.totalPages ?? 1;
+      const res = await apiClient.getWithMeta<ContactMessage[]>(`/admin/contact-submissions${qs}`);
+      const items = Array.isArray(res.data) ? res.data : [];
+      const total = res.pagination?.total ?? items.length;
+      const totalPages = res.pagination?.totalPages ?? (total > 0 ? Math.ceil(total / (params?.limit || 10)) : 1);
 
       return { items, total, totalPages };
     } catch {

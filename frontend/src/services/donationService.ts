@@ -5,33 +5,34 @@ import { DONATION_METHODS_CONFIG } from '../data/donationData';
 export const donationService = {
   async getDonationMethods(): Promise<DonationMethod[]> {
     try {
-      const res = await apiClient.get<{ success: boolean; data: DonationMethod[] }>('/donations/methods');
-      return res.data && res.data.length > 0 ? res.data : DONATION_METHODS_CONFIG;
+      const res = await apiClient.get<any>('/donations/methods');
+      const items = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
+      return items && items.length > 0 ? items : DONATION_METHODS_CONFIG;
     } catch {
       return DONATION_METHODS_CONFIG;
     }
   },
 
   async getAdminPaymentSettings(): Promise<DonationMethod[]> {
-    const res = await apiClient.get<{ success: boolean; data: DonationMethod[] }>('/admin/donations/config');
-    return res.data || [];
+    const res = await apiClient.get<any>('/admin/donations/config');
+    return Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
   },
 
   async updatePaymentSetting(id: string, data: any): Promise<DonationMethod> {
-    const res = await apiClient.put<{ success: boolean; data: DonationMethod }>(`/admin/donations/config/${id}`, data);
-    return res.data;
+    const res = await apiClient.put<any>(`/admin/donations/config/${id}`, data);
+    return res?.data !== undefined ? res.data : res;
   },
 
   async togglePaymentMethodStatus(id: string, isActive?: boolean): Promise<DonationMethod> {
-    const res = await apiClient.patch<{ success: boolean; data: DonationMethod }>(`/admin/donations/config/${id}/toggle`, {
+    const res = await apiClient.patch<any>(`/admin/donations/config/${id}/toggle`, {
       isActive
     });
-    return res.data;
+    return res?.data !== undefined ? res.data : res;
   },
 
   async createPaymentSetting(data: any): Promise<DonationMethod> {
-    const res = await apiClient.post<{ success: boolean; data: DonationMethod }>('/admin/donations/config', data);
-    return res.data;
+    const res = await apiClient.post<any>('/admin/donations/config', data);
+    return res?.data !== undefined ? res.data : res;
   },
 
   async deletePaymentSetting(id: string): Promise<void> {

@@ -31,7 +31,7 @@ export const galleryService = {
 
       const qs = query.toString() ? `?${query.toString()}` : '';
       const res = await apiClient.get<any>(`/gallery${qs}`);
-      const items = res.data?.items || res.data || [];
+      const items = Array.isArray(res) ? res : (Array.isArray(res?.items) ? res.items : (Array.isArray(res?.data) ? res.data : []));
       return items.length > 0 ? items : GALLERY_DATA;
     } catch {
       return GALLERY_DATA;
@@ -47,7 +47,7 @@ export const galleryService = {
   async getAlbums(): Promise<AlbumItem[]> {
     try {
       const res = await apiClient.get<any>('/gallery/albums');
-      const items = res.data?.data || res.data || [];
+      const items = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
       if (items.length > 0) return items;
     } catch {
       // Fallback
@@ -73,12 +73,13 @@ export const galleryService = {
       if (params?.page) query.append('page', params.page.toString());
       if (params?.limit) query.append('limit', params.limit.toString());
       if (params?.status && params.status !== 'all') query.append('status', params.status);
+      if (params?.albumId) query.append('albumId', params.albumId);
 
       const qs = query.toString() ? `?${query.toString()}` : '';
-      const res = await apiClient.get<any>(`/admin/media${qs}`);
-      const rawItems = res.data?.items || res.data || [];
-      const total = res.data?.pagination?.total ?? rawItems.length;
-      const totalPages = res.data?.pagination?.totalPages ?? 1;
+      const res = await apiClient.getWithMeta<any[]>(`/admin/media${qs}`);
+      const rawItems = Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : []);
+      const total = res.pagination?.total ?? rawItems.length;
+      const totalPages = res.pagination?.totalPages ?? (total > 0 ? Math.ceil(total / (params?.limit || 12)) : 1);
 
       const items: GalleryItem[] = rawItems.map((m: any) => ({
         id: m.id,
@@ -117,37 +118,37 @@ export const galleryService = {
         'Content-Type': 'multipart/form-data'
       }
     });
-    return res.data?.data || res.data;
+    return res?.data !== undefined ? res.data : res;
   },
 
   async updateMedia(id: string, data: Partial<GalleryItem>): Promise<GalleryItem> {
     const res = await apiClient.put<any>(`/admin/media/${id}`, data);
-    return res.data?.data || res.data;
+    return res?.data !== undefined ? res.data : res;
   },
 
   async deleteMedia(id: string): Promise<boolean> {
     const res = await apiClient.delete<any>(`/admin/media/${id}`);
-    return res.data?.success ?? true;
+    return res?.success !== undefined ? res.success : true;
   },
 
   async submitReview(id: string, notes?: string): Promise<GalleryItem> {
     const res = await apiClient.post<any>(`/admin/media/${id}/submit-review`, { notes });
-    return res.data?.data || res.data;
+    return res?.data !== undefined ? res.data : res;
   },
 
   async approveMedia(id: string): Promise<GalleryItem> {
     const res = await apiClient.post<any>(`/admin/media/${id}/approve`, {});
-    return res.data?.data || res.data;
+    return res?.data !== undefined ? res.data : res;
   },
 
   async publishMedia(id: string): Promise<GalleryItem> {
     const res = await apiClient.post<any>(`/admin/media/${id}/publish`, {});
-    return res.data?.data || res.data;
+    return res?.data !== undefined ? res.data : res;
   },
 
   async createAlbum(name: string, description?: string): Promise<AlbumItem> {
     const res = await apiClient.post<any>('/admin/media/albums', { name, description });
-    return res.data?.data || res.data;
+    return res?.data !== undefined ? res.data : res;
   },
 
   async bulkUpdateStatus(ids: string[], status: ContentStatus): Promise<boolean> {

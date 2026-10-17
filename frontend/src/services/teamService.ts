@@ -16,7 +16,7 @@ export const teamService = {
   async getAll(): Promise<TeamMember[]> {
     try {
       const res = await apiClient.get<any>('/team');
-      const items = res.data?.data || res.data || [];
+      const items = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
       return items.length > 0 ? items : TEAM_DATA;
     } catch {
       return TEAM_DATA;
@@ -33,7 +33,7 @@ export const teamService = {
   async getAdminTeam(): Promise<TeamMember[]> {
     try {
       const res = await apiClient.get<any>('/admin/team');
-      const raw = res.data?.data || res.data || [];
+      const raw = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
       return raw.map((m: any) => ({
         id: m.id,
         name: m.name,
@@ -73,7 +73,7 @@ export const teamService = {
     };
 
     const res = await apiClient.post<any>('/admin/team', payload);
-    return res.data?.data || res.data;
+    return res?.data !== undefined ? res.data : res;
   },
 
   async updateTeamMember(id: string, data: Partial<TeamMember>): Promise<TeamMember> {
@@ -90,27 +90,27 @@ export const teamService = {
     };
 
     const res = await apiClient.put<any>(`/admin/team/${id}`, payload);
-    return res.data?.data || res.data;
+    return res?.data !== undefined ? res.data : res;
   },
 
   async deleteTeamMember(id: string): Promise<boolean> {
     const res = await apiClient.delete<any>(`/admin/team/${id}`);
-    return res.data?.success ?? true;
+    return res?.success !== undefined ? res.success : true;
   },
 
   async submitReview(id: string): Promise<TeamMember> {
     const res = await apiClient.post<any>(`/admin/team/${id}/submit-review`, {});
-    return res.data?.data || res.data;
+    return res?.data !== undefined ? res.data : res;
   },
 
   async approveTeamMember(id: string): Promise<TeamMember> {
     const res = await apiClient.post<any>(`/admin/team/${id}/approve`, {});
-    return res.data?.data || res.data;
+    return res?.data !== undefined ? res.data : res;
   },
 
   async publishTeamMember(id: string): Promise<TeamMember> {
     const res = await apiClient.post<any>(`/admin/team/${id}/publish`, {});
-    return res.data?.data || res.data;
+    return res?.data !== undefined ? res.data : res;
   },
 
   async bulkUpdateStatus(ids: string[], status: ContentStatus): Promise<boolean> {
