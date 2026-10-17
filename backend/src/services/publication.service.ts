@@ -407,9 +407,9 @@ export class PublicationService {
         isFeatured: Boolean(data.isFeatured),
         status: (data.status as ContentStatus) || ContentStatus.APPROVED,
         publishedAt: data.status === 'PUBLISHED' ? new Date() : new Date(),
-        createdById: userId,
+        authorId: userId,
         updatedById: userId
-      } as any
+      }
     });
 
     await prisma.auditLog.create({

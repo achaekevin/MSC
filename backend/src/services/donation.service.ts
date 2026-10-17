@@ -1,6 +1,6 @@
 import { prisma } from '../config/database.js';
 import { NotFoundError } from '../errors/AppError.js';
-import { ContentStatus, ContactStatus } from '@prisma/client';
+import { ContentStatus, ContactStatus, ContentSource } from '@prisma/client';
 import { notificationService } from './notification.service.js';
 
 export class DonationService {
@@ -71,7 +71,7 @@ export class DonationService {
           isActive: false,
           statusMessage: 'Client-approved instructions to be configured by the administrator',
           status: ContentStatus.PUBLISHED,
-          source: 'CUSTOM' as any,
+          source: ContentSource.OFFICIAL_PROFILE,
           approvalRequired: false
         }
       });
