@@ -6,14 +6,16 @@ import { WhatsAppButton } from '../components/common/WhatsAppButton';
 import { AccessibilityToolbar } from '../components/common/AccessibilityToolbar';
 import { PrivacyConsentBanner } from '../components/common/PrivacyConsentBanner';
 import { ErrorBoundary } from '../components/common/ErrorBoundary';
+import { analytics } from '../utils/analytics';
 
 export const RootLayout: React.FC = () => {
   const location = useLocation();
 
-  // Scroll to top on route change
+  // Scroll to top and track pageview on route change
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [location.pathname]);
+    analytics.trackPageView(location.pathname + location.search);
+  }, [location.pathname, location.search]);
 
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col bg-warm-50 dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 transition-colors duration-200 selection:bg-forest-100 selection:text-forest-900 relative">
