@@ -101,12 +101,19 @@ export const PublicationReaderPage: React.FC = () => {
       if (publication.pdfUrl) {
         window.open(publication.pdfUrl, '_blank');
       } else {
+        // Temporarily set document.title to the publication title only
+        // so the browser doesn't inject a stale/wrong page title in the print header
+        const originalTitle = document.title;
+        document.title = publication.title;
         window.print();
+        // Restore original title after print dialog closes
+        setTimeout(() => { document.title = originalTitle; }, 500);
       }
     } finally {
       setDownloading(false);
     }
   };
+
 
   // Copy link
   const handleCopyLink = () => {

@@ -39,8 +39,8 @@ const CATEGORY_TABS = [
 ];
 
 export const PublicationsPage: React.FC = () => {
-  const { isAuthenticated, user } = useAuth();
-  const isAdmin = isAuthenticated && (user?.role === 'SUPER_ADMIN' || user?.role === 'CONTENT_ADMIN');
+  const { isAuthenticated, user, hasPermission } = useAuth();
+  const isAdmin = isAuthenticated && (user?.role === 'SUPER_ADMIN' || user?.role === 'CONTENT_ADMIN' || hasPermission('CONTENT_CREATE'));
 
   const [publications, setPublications] = useState<PublicationItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,13 +70,13 @@ export const PublicationsPage: React.FC = () => {
       const matchesSearch =
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (item.subtitle && item.subtitle.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        item.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.authorName.toLowerCase().includes(searchQuery.toLowerCase());
+        (item.summary && item.summary.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (item.authorName && item.authorName.toLowerCase().includes(searchQuery.toLowerCase()));
 
       const matchesCategory =
         selectedCategory === 'All Publications' ||
-        item.category.toLowerCase() === selectedCategory.toLowerCase() ||
-        item.type.toLowerCase() === selectedCategory.toLowerCase();
+        Boolean(item.category && item.category.toLowerCase() === selectedCategory.toLowerCase()) ||
+        Boolean(item.type && item.type.toLowerCase() === selectedCategory.toLowerCase());
 
       return matchesSearch && matchesCategory;
     });

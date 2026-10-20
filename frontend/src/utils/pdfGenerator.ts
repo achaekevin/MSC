@@ -12,6 +12,17 @@ export const downloadPublicationPdf = (pub: PublicationItem): void => {
     orientation: 'portrait'
   });
 
+  // Set PDF document metadata properties so viewers display the correct title
+  // This prevents external/cached titles from appearing in PDF viewer headers
+  doc.setProperties({
+    title: pub.title,
+    subject: pub.subtitle || pub.summary || 'Mwancha Senior Community Publication',
+    author: pub.authorName || 'Mwancha Senior Community (MSC)',
+    creator: 'Mwancha Senior Community (MSC)',
+    keywords: 'MSC, Mwancha Senior Community, eldercare, Kenya'
+  });
+
+
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 50;

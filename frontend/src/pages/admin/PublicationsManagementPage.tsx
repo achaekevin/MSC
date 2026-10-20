@@ -83,12 +83,13 @@ const DEFAULT_FORM_DATA: PublicationFormData = {
 };
 
 export const PublicationsManagementPage: React.FC = () => {
-  const { hasPermission } = useAuth();
-  const canCreate = hasPermission('CONTENT_CREATE');
-  const canUpdate = hasPermission('CONTENT_UPDATE');
-  const canDelete = hasPermission('CONTENT_DELETE');
-  const canApprove = hasPermission('CONTENT_APPROVE');
-  const canPublish = hasPermission('CONTENT_PUBLISH');
+  const { hasPermission, user } = useAuth();
+  const isSuperOrContentAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'CONTENT_ADMIN';
+  const canCreate = isSuperOrContentAdmin || hasPermission('CONTENT_CREATE');
+  const canUpdate = isSuperOrContentAdmin || hasPermission('CONTENT_UPDATE');
+  const canDelete = isSuperOrContentAdmin || hasPermission('CONTENT_DELETE');
+  const canApprove = isSuperOrContentAdmin || hasPermission('CONTENT_APPROVE');
+  const canPublish = isSuperOrContentAdmin || hasPermission('CONTENT_PUBLISH');
 
   const [publications, setPublications] = useState<PublicationItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -101,6 +102,7 @@ export const PublicationsManagementPage: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<PublicationFormData>(DEFAULT_FORM_DATA);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [modalError, setModalError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   // Notification
@@ -138,7 +140,7 @@ export const PublicationsManagementPage: React.FC = () => {
       title: pub.title,
       subtitle: pub.subtitle || '',
       summary: pub.summary,
-      content: pub.content || pub.fullText,
+      content: pub.content || pub.fullText || pub.summary,
       category: pub.category || 'Book',
       authorName: pub.authorName || 'MSC Editorial & Research Unit',
       authorRole: pub.authorRole || 'Research & Knowledge Hub',
@@ -155,6 +157,7 @@ export const PublicationsManagementPage: React.FC = () => {
         : [{ title: 'Chapter 1: Overview', body: pub.content || pub.summary }]
     });
     setFormErrors({});
+    setModalError(null);
     setIsModalOpen(true);
   };
 
@@ -163,6 +166,7 @@ export const PublicationsManagementPage: React.FC = () => {
     setEditingId(null);
     setFormData(DEFAULT_FORM_DATA);
     setFormErrors({});
+    setModalError(null);
     setIsModalOpen(true);
   };
 
@@ -170,6 +174,8 @@ export const PublicationsManagementPage: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingId(null);
+    setModalError(null);
+    setFormErrors({});
   };
 
   // Chapter management
@@ -200,18 +206,31 @@ export const PublicationsManagementPage: React.FC = () => {
   // Form Validation
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
-    if (!formData.title.trim()) errors.title = 'Title is required.';
-    if (!formData.summary.trim()) errors.summary = 'Summary / Abstract is required.';
-    if (formData.chapters.length === 0 && !formData.content.trim()) {
-      errors.content = 'At least one chapter or document content is required.';
+    if (!formData.title.trim()) {
+      errors.title = 'Title is required (minimum 3 characters).';
+    } else if (formData.title.trim().length < 3) {
+      errors.title = 'Title must be at least 3 characters.';
     }
+
+    if (!formData.summary.trim()) {
+      errors.summary = 'Summary / Abstract is required (minimum 10 characters).';
+    } else if (formData.summary.trim().length < 10) {
+      errors.summary = 'Summary must be at least 10 characters.';
+    }
+
     setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    if (Object.keys(errors).length > 0) {
+      setModalError('Please correct the highlighted fields before saving.');
+      return false;
+    }
+    setModalError(null);
+    return true;
   };
 
   // Handle Submit Form
   const handleSubmitForm = async (e: React.FormEvent) => {
     e.preventDefault();
+    setModalError(null);
     if (!validateForm()) return;
 
     setSubmitting(true);
@@ -222,6 +241,7 @@ export const PublicationsManagementPage: React.FC = () => {
         summary: formData.summary.trim(),
         content: formData.content.trim() || formData.summary.trim(),
         category: formData.category,
+        type: formData.category,
         authorName: formData.authorName.trim(),
         authorRole: formData.authorRole.trim(),
         coverImage: formData.coverImage,
@@ -246,18 +266,23 @@ export const PublicationsManagementPage: React.FC = () => {
       handleCloseModal();
       await fetchPublications();
     } catch (err: any) {
-      showNotification('error', err?.message || 'Failed to save publication.');
+      const msg = err?.message || 'Failed to save publication.';
+      setModalError(msg);
+      showNotification('error', msg);
     } finally {
       setSubmitting(false);
     }
   };
 
   // Status Change actions
-  const handleStatusAction = async (id: string, action: 'publish' | 'approve' | 'delete') => {
+  const handleStatusAction = async (id: string, action: 'publish' | 'unpublish' | 'approve' | 'delete') => {
     try {
       if (action === 'publish') {
         await publicationService.publishPublication(id);
-        showNotification('success', 'Publication published live.');
+        showNotification('success', 'Publication published live to public website catalogue.');
+      } else if (action === 'unpublish') {
+        await publicationService.updatePublication(id, { status: 'DRAFT' });
+        showNotification('success', 'Publication unpublished and moved back to Draft.');
       } else if (action === 'approve') {
         await publicationService.approvePublication(id);
         showNotification('success', 'Publication approved.');
@@ -545,14 +570,24 @@ export const PublicationsManagementPage: React.FC = () => {
                           </button>
                         )}
 
-                        {canPublish && pub.status !== 'PUBLISHED' && (
-                          <button
-                            onClick={() => handleStatusAction(pub.id, 'publish')}
-                            className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors shadow-xs"
-                            title="Publish Live"
-                          >
-                            Publish
-                          </button>
+                        {canPublish && (
+                          pub.status === 'PUBLISHED' ? (
+                            <button
+                              onClick={() => handleStatusAction(pub.id, 'unpublish')}
+                              className="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/60 dark:hover:bg-amber-900/60 text-amber-900 dark:text-amber-200 text-xs font-bold transition-colors border border-amber-200 dark:border-amber-800"
+                              title="Unpublish (Move back to Draft)"
+                            >
+                              Unpublish
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleStatusAction(pub.id, 'publish')}
+                              className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors shadow-xs"
+                              title="Publish Live"
+                            >
+                              Publish Live
+                            </button>
+                          )
                         )}
 
                         {canDelete && (
@@ -596,6 +631,16 @@ export const PublicationsManagementPage: React.FC = () => {
                 &times;
               </button>
             </div>
+
+            {modalError && (
+              <div className="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-sm flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-bold">Cannot Save Publication</p>
+                  <p className="text-xs text-rose-700 dark:text-rose-300 mt-0.5">{modalError}</p>
+                </div>
+              </div>
+            )}
 
             <form onSubmit={handleSubmitForm} className="space-y-6">
               {/* Title & Subtitle */}
@@ -715,6 +760,19 @@ export const PublicationsManagementPage: React.FC = () => {
 
                 <div>
                   <label className="block text-xs font-bold uppercase text-charcoal-700 dark:text-warm-300 mb-1">
+                    Document Ref / ISBN
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Doc Ref: MSC-PB-2024-01"
+                    value={formData.isbn}
+                    onChange={(e) => setFormData({ ...formData, isbn: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-warm-200 dark:border-charcoal-700 bg-warm-50 dark:bg-charcoal-800 text-charcoal-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-forest-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-charcoal-700 dark:text-warm-300 mb-1">
                     Pages Count
                   </label>
                   <input
@@ -733,6 +791,19 @@ export const PublicationsManagementPage: React.FC = () => {
                     type="text"
                     value={formData.readingTime}
                     onChange={(e) => setFormData({ ...formData, readingTime: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-warm-200 dark:border-charcoal-700 bg-warm-50 dark:bg-charcoal-800 text-charcoal-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-forest-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-charcoal-700 dark:text-warm-300 mb-1">
+                    File Size
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 2.5 MB"
+                    value={formData.fileSize}
+                    onChange={(e) => setFormData({ ...formData, fileSize: e.target.value })}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-warm-200 dark:border-charcoal-700 bg-warm-50 dark:bg-charcoal-800 text-charcoal-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-forest-600"
                   />
                 </div>
@@ -858,13 +929,16 @@ export const PublicationsManagementPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-6 py-2.5 rounded-xl bg-forest-900 dark:bg-emerald-600 hover:bg-forest-800 dark:hover:bg-emerald-500 text-white font-bold text-sm shadow-md transition-all active:scale-95 disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl bg-forest-900 dark:bg-emerald-600 hover:bg-forest-800 dark:hover:bg-emerald-500 text-white font-bold text-sm shadow-md transition-all active:scale-95 disabled:opacity-50 inline-flex items-center gap-2"
                 >
-                  {submitting
-                    ? 'Publishing...'
-                    : editingId
-                    ? 'Update Publication'
-                    : 'Publish Book / Article'}
+                  {submitting ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>{editingId ? 'Updating Publication...' : 'Publishing...'}</span>
+                    </>
+                  ) : (
+                    <span>{editingId ? 'Update Publication' : 'Publish Book / Article'}</span>
+                  )}
                 </button>
               </div>
             </form>
