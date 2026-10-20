@@ -4,6 +4,29 @@ import { verifyAccessToken } from '../utils/jwt.js';
 import { UnauthorizedError, ForbiddenError } from '../errors/AppError.js';
 import { prisma } from '../config/database.js';
 
+interface CachedUserRecord {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    isActive: boolean;
+    lockUntil: Date | null;
+  };
+  cachedAt: number;
+}
+
+const activeUserCache = new Map<string, CachedUserRecord>();
+const USER_CACHE_TTL_MS = 30 * 1000; // 30 seconds
+
+export const invalidateUserAuthCache = (userId?: string): void => {
+  if (userId) {
+    activeUserCache.delete(userId);
+  } else {
+    activeUserCache.clear();
+  }
+};
+
 export const authenticate = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -28,11 +51,22 @@ export const authenticate = async (
       return next(new UnauthorizedError('Invalid or expired authentication token'));
     }
 
-    // Verify user exists and is active in DB
-    const dbUser = await prisma.user.findUnique({
-      where: { id: payload.id },
-      select: { id: true, email: true, name: true, role: true, isActive: true, lockUntil: true }
-    });
+    // Verify user exists and is active using short-lived in-memory cache to prevent high-latency DB storms
+    let dbUser: CachedUserRecord['user'] | null = null;
+    const cachedEntry = activeUserCache.get(payload.id);
+    if (cachedEntry && Date.now() - cachedEntry.cachedAt < USER_CACHE_TTL_MS) {
+      dbUser = cachedEntry.user;
+    } else {
+      dbUser = await prisma.user.findUnique({
+        where: { id: payload.id },
+        select: { id: true, email: true, name: true, role: true, isActive: true, lockUntil: true }
+      });
+      if (dbUser) {
+        activeUserCache.set(payload.id, { user: dbUser, cachedAt: Date.now() });
+      } else {
+        activeUserCache.delete(payload.id);
+      }
+    }
 
     if (!dbUser) {
       return next(new UnauthorizedError('User account associated with token no longer exists'));

@@ -138,9 +138,8 @@ export class AuthService {
       throw new UnauthorizedError('Invalid email or password');
     }
 
-    // Check if user has optional Two-Factor Authentication (2FA) enabled
-    const twoFactor = await this.getUser2FA(user.id);
-    if (twoFactor && twoFactor.twoFactorEnabled && twoFactor.twoFactorSecret) {
+    // Check if user has optional Two-Factor Authentication (2FA) enabled using the already-fetched record
+    if (user.twoFactorEnabled && user.twoFactorSecret) {
       const tempToken = sign2FATempToken({ id: user.id, email: user.email });
       return {
         requires2FA: true,
