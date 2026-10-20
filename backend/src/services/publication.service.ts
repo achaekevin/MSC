@@ -212,8 +212,61 @@ export class PublicationService {
     };
   }
 
+  // Ensure default authentic publications exist in database
+  async ensureDefaultPublicationsSeeded() {
+    try {
+      for (const pub of DEFAULT_MSC_PUBLICATIONS) {
+        const existing = await prisma.newsArticle.findFirst({
+          where: {
+            OR: [
+              { id: pub.id },
+              { slug: pub.slug }
+            ]
+          }
+        });
+
+        if (!existing) {
+          const structuredPayload = JSON.stringify({
+            type: pub.type || pub.category || 'Book',
+            subtitle: pub.subtitle || '',
+            pdfUrl: pub.pdfUrl || '',
+            fileSize: pub.fileSize || '2.4 MB',
+            pages: pub.pages || 24,
+            readingTime: pub.readingTime || '20 min read',
+            isbn: pub.isbn || '',
+            chapters: pub.chapters || [],
+            narrative: pub.summary
+          });
+
+          await prisma.newsArticle.create({
+            data: {
+              id: pub.id,
+              title: pub.title,
+              slug: pub.slug,
+              summary: pub.summary,
+              content: structuredPayload,
+              featuredImage: pub.coverImage || '/images/mwancha-facility-main.jpg',
+              imageAlt: pub.title,
+              authorName: pub.authorName,
+              authorRole: pub.authorRole,
+              category: pub.category,
+              tags: JSON.stringify(pub.tags || ['Publication', 'Resource']),
+              isFeatured: Boolean(pub.isFeatured),
+              status: pub.status,
+              publishedAt: pub.publishedAt
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to ensure default publications are seeded:', error);
+    }
+  }
+
   // Get all public publications
   async getPublicPublications(params?: { category?: string; search?: string }) {
+    await this.ensureDefaultPublicationsSeeded();
+
     const publicationCategories = [
       'Book',
       'Policy Brief',
@@ -307,6 +360,8 @@ export class PublicationService {
 
   // Get all admin publications
   async getAdminPublications() {
+    await this.ensureDefaultPublicationsSeeded();
+
     const publicationCategories = [
       'Book',
       'Policy Brief',
@@ -333,7 +388,7 @@ export class PublicationService {
 
     const dbPublications = records.map((r) => this.formatPublication(r));
 
-    // Merge default seeds if database has no publications
+    // Fallback if records query was empty
     if (dbPublications.length === 0) {
       return DEFAULT_MSC_PUBLICATIONS.map((p) => ({
         ...p,
@@ -348,7 +403,7 @@ export class PublicationService {
 
   // Get single publication by ID for admin
   async getPublicationById(id: string) {
-    const record = await prisma.newsArticle.findUnique({
+    let record = await prisma.newsArticle.findUnique({
       where: { id }
     });
 
@@ -358,6 +413,11 @@ export class PublicationService {
 
     const fallback = DEFAULT_MSC_PUBLICATIONS.find((p) => p.id === id);
     if (fallback) {
+      await this.ensureDefaultPublicationsSeeded();
+      record = await prisma.newsArticle.findUnique({ where: { id } });
+      if (record && !record.deletedAt) {
+        return this.formatPublication(record);
+      }
       return {
         ...fallback,
         publishedAt: fallback.publishedAt.toISOString(),
@@ -392,6 +452,14 @@ export class PublicationService {
       ? data.tags
       : ['Publication', 'Resource', data.category || 'Book'];
 
+    let validUserId: string | undefined = undefined;
+    if (userId) {
+      try {
+        const userExists = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } });
+        if (userExists) validUserId = userExists.id;
+      } catch {}
+    }
+
     const article = await prisma.newsArticle.create({
       data: {
         title: data.title,
@@ -407,27 +475,39 @@ export class PublicationService {
         isFeatured: Boolean(data.isFeatured),
         status: (data.status as ContentStatus) || ContentStatus.APPROVED,
         publishedAt: data.status === 'PUBLISHED' ? new Date() : new Date(),
-        authorId: userId,
-        updatedById: userId
+        authorId: validUserId,
+        updatedById: validUserId
       }
     });
 
-    await prisma.auditLog.create({
-      data: {
-        userId,
-        action: 'CREATE',
-        entity: 'Publication',
-        entityId: article.id,
-        newData: JSON.stringify(data)
-      }
-    });
+    try {
+      await prisma.auditLog.create({
+        data: {
+          userId: validUserId,
+          action: 'CREATE',
+          entity: 'Publication',
+          entityId: article.id,
+          newData: JSON.stringify(data)
+        }
+      });
+    } catch (auditErr) {
+      console.warn('Failed to write publication create audit log:', auditErr);
+    }
 
     return this.formatPublication(article);
   }
 
   // Update existing publication
   async updatePublication(id: string, data: any, userId?: string) {
-    const existing = await prisma.newsArticle.findUnique({ where: { id } });
+    let existing = await prisma.newsArticle.findUnique({ where: { id } });
+    if (!existing || existing.deletedAt) {
+      const fallback = DEFAULT_MSC_PUBLICATIONS.find((p) => p.id === id || p.slug === id);
+      if (fallback) {
+        await this.ensureDefaultPublicationsSeeded();
+        existing = await prisma.newsArticle.findUnique({ where: { id: fallback.id } });
+      }
+    }
+
     if (!existing || existing.deletedAt) {
       throw new NotFoundError('Publication not found.');
     }
@@ -452,11 +532,20 @@ export class PublicationService {
       narrative: data.content !== undefined ? data.content : existingStructured.narrative || existing.summary
     });
 
+    let validUserId: string | undefined = undefined;
+    if (userId) {
+      try {
+        const userExists = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } });
+        if (userExists) validUserId = userExists.id;
+      } catch {}
+    }
+
     const updateData: any = {
-      updatedById: userId
+      updatedById: validUserId
     };
 
     if (data.title) updateData.title = data.title;
+    if (data.slug && data.slug !== existing.slug) updateData.slug = data.slug;
     if (data.summary) updateData.summary = data.summary;
     if (data.coverImage) updateData.featuredImage = data.coverImage;
     if (data.authorName) updateData.authorName = data.authorName;
@@ -472,46 +561,65 @@ export class PublicationService {
     }
 
     const updated = await prisma.newsArticle.update({
-      where: { id },
+      where: { id: existing.id },
       data: updateData
     });
 
-    await prisma.$transaction([
-      prisma.contentRevision.create({
-        data: {
-          entityType: 'Publication',
-          entityId: id,
-          previousVal: JSON.stringify(existing),
-          newVal: JSON.stringify(updated),
-          changeNote: data.changeNote || 'Publication details updated by admin',
-          changedById: userId
-        }
-      }),
-      prisma.auditLog.create({
-        data: {
-          userId,
-          action: 'UPDATE',
-          entity: 'Publication',
-          entityId: id,
-          newData: JSON.stringify(data)
-        }
-      })
-    ]);
+    try {
+      await prisma.$transaction([
+        prisma.contentRevision.create({
+          data: {
+            entityType: 'Publication',
+            entityId: existing.id,
+            previousVal: JSON.stringify(existing),
+            newVal: JSON.stringify(updated),
+            changeNote: data.changeNote || 'Publication details updated by admin',
+            changedById: validUserId
+          }
+        }),
+        prisma.auditLog.create({
+          data: {
+            userId: validUserId,
+            action: 'UPDATE',
+            entity: 'Publication',
+            entityId: existing.id,
+            newData: JSON.stringify(data)
+          }
+        })
+      ]);
+    } catch (auditErr) {
+      console.warn('Failed to write publication revision/audit log:', auditErr);
+    }
 
     return this.formatPublication(updated);
   }
 
   // Publish publication
   async publishPublication(id: string, userId?: string) {
-    const existing = await prisma.newsArticle.findUnique({ where: { id } });
+    let existing = await prisma.newsArticle.findUnique({ where: { id } });
+    if (!existing || existing.deletedAt) {
+      const fallback = DEFAULT_MSC_PUBLICATIONS.find((p) => p.id === id || p.slug === id);
+      if (fallback) {
+        await this.ensureDefaultPublicationsSeeded();
+        existing = await prisma.newsArticle.findUnique({ where: { id: fallback.id } });
+      }
+    }
     if (!existing || existing.deletedAt) throw new NotFoundError('Publication not found.');
 
+    let validUserId: string | undefined = undefined;
+    if (userId) {
+      try {
+        const userExists = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } });
+        if (userExists) validUserId = userExists.id;
+      } catch {}
+    }
+
     const updated = await prisma.newsArticle.update({
-      where: { id },
+      where: { id: existing.id },
       data: {
         status: ContentStatus.PUBLISHED,
         publishedAt: new Date(),
-        updatedById: userId
+        updatedById: validUserId
       }
     });
 
@@ -520,14 +628,29 @@ export class PublicationService {
 
   // Approve publication
   async approvePublication(id: string, userId?: string) {
-    const existing = await prisma.newsArticle.findUnique({ where: { id } });
+    let existing = await prisma.newsArticle.findUnique({ where: { id } });
+    if (!existing || existing.deletedAt) {
+      const fallback = DEFAULT_MSC_PUBLICATIONS.find((p) => p.id === id || p.slug === id);
+      if (fallback) {
+        await this.ensureDefaultPublicationsSeeded();
+        existing = await prisma.newsArticle.findUnique({ where: { id: fallback.id } });
+      }
+    }
     if (!existing || existing.deletedAt) throw new NotFoundError('Publication not found.');
 
+    let validUserId: string | undefined = undefined;
+    if (userId) {
+      try {
+        const userExists = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } });
+        if (userExists) validUserId = userExists.id;
+      } catch {}
+    }
+
     const updated = await prisma.newsArticle.update({
-      where: { id },
+      where: { id: existing.id },
       data: {
         status: ContentStatus.APPROVED,
-        updatedById: userId
+        updatedById: validUserId
       }
     });
 
@@ -536,25 +659,44 @@ export class PublicationService {
 
   // Soft-delete publication
   async deletePublication(id: string, userId?: string) {
-    const existing = await prisma.newsArticle.findUnique({ where: { id } });
+    let existing = await prisma.newsArticle.findUnique({ where: { id } });
+    if (!existing || existing.deletedAt) {
+      const fallback = DEFAULT_MSC_PUBLICATIONS.find((p) => p.id === id || p.slug === id);
+      if (fallback) {
+        await this.ensureDefaultPublicationsSeeded();
+        existing = await prisma.newsArticle.findUnique({ where: { id: fallback.id } });
+      }
+    }
     if (!existing || existing.deletedAt) throw new NotFoundError('Publication not found.');
 
+    let validUserId: string | undefined = undefined;
+    if (userId) {
+      try {
+        const userExists = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } });
+        if (userExists) validUserId = userExists.id;
+      } catch {}
+    }
+
     await prisma.newsArticle.update({
-      where: { id },
+      where: { id: existing.id },
       data: {
         deletedAt: new Date(),
-        updatedById: userId
+        updatedById: validUserId
       }
     });
 
-    await prisma.auditLog.create({
-      data: {
-        userId,
-        action: 'DELETE',
-        entity: 'Publication',
-        entityId: id
-      }
-    });
+    try {
+      await prisma.auditLog.create({
+        data: {
+          userId: validUserId,
+          action: 'DELETE',
+          entity: 'Publication',
+          entityId: existing.id
+        }
+      });
+    } catch (auditErr) {
+      console.warn('Failed to write delete audit log:', auditErr);
+    }
 
     return true;
   }

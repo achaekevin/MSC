@@ -237,8 +237,8 @@ export const createPublicationSchema = z.object({
   title: z.string().min(3, 'Title is required').max(255),
   subtitle: z.string().max(255).optional().nullable(),
   slug: z.string().optional(),
-  summary: z.string().min(10, 'Summary is required').max(2000),
-  content: z.union([z.string().min(20), z.array(z.string()).min(1)]),
+  summary: z.string().min(10, 'Summary is required').max(10000),
+  content: z.union([z.string(), z.array(z.string())]).optional(),
   coverImage: z.string().optional().default('/images/mwancha-facility-main.jpg'),
   pdfUrl: z.string().optional().nullable(),
   fileSize: z.string().optional().default('2.4 MB'),
@@ -248,16 +248,19 @@ export const createPublicationSchema = z.object({
   authorName: z.string().default('MSC Editorial & Research Unit'),
   authorRole: z.string().default('Research & Knowledge Hub'),
   category: z.string().default('Book'),
-  type: z.enum(['Book', 'Policy Brief', 'Field Manual', 'Annual Report', 'Research Paper', 'Article']).default('Book'),
+  type: z.string().optional().default('Book'),
   tags: z.array(z.string()).default(['Publication', 'Resource']),
   chapters: z.array(z.object({
-    title: z.string(),
-    body: z.string()
+    title: z.string().optional().default(''),
+    body: z.string().optional().default('')
   })).optional().default([]),
   isFeatured: z.boolean().default(false),
-  status: contentStatusEnum.default('APPROVED'),
+  status: contentStatusEnum.optional().default('APPROVED'),
   source: contentSourceEnum.default('OFFICIAL_PROFILE')
 });
 
-export const updatePublicationSchema = createPublicationSchema.partial();
+export const updatePublicationSchema = createPublicationSchema.partial().extend({
+  changeNote: z.string().optional()
+});
+
 
