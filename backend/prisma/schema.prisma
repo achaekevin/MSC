@@ -219,7 +219,7 @@ model Organization {
   postalCode      String?                     @default("40506") @db.VarChar(50)
   county          String                      @default("Nyamira") @db.VarChar(100)
   country         String                      @default("Kenya") @db.VarChar(100)
-  email           String                      @default("info@mwanchasenior.org") @db.VarChar(255)
+  email           String                      @default("mwanchaseniorcommunity@gmail.com") @db.VarChar(255)
   phone           String?                     @db.VarChar(100)
   helpline        String?                     @db.VarChar(100)
   vision          String                      @db.Text

@@ -5,7 +5,7 @@ import { UserRole, ROLE_PERMISSIONS } from '../src/types/index.js';
 describe('Authentication & JWT Utilities (Section 6, 7, 8)', () => {
   const mockUser = {
     id: 'user-test-uuid-1234',
-    email: 'admin@mwanchasenior.org',
+    email: 'mwanchaseniorcommunity@gmail.com',
     role: 'SUPER_ADMIN' as UserRole,
     name: 'Lead Administrator'
   };

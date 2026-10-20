@@ -110,7 +110,7 @@ async function main() {
   // ====================================================
   // 2. Initial Super Administrator (Section 10)
   // ====================================================
-  const adminEmail = process.env.INITIAL_ADMIN_EMAIL || 'admin@mwanchasenior.org';
+  const adminEmail = process.env.INITIAL_ADMIN_EMAIL || 'mwanchaseniorcommunity@gmail.com';
   const adminPassword = process.env.INITIAL_ADMIN_PASSWORD || 'Newsecurepassword2026';
   const adminName = process.env.INITIAL_ADMIN_NAME || 'MSC System Administrator';
 
@@ -166,7 +166,7 @@ async function main() {
         postalCode: '40506',
         county: 'Nyamira',
         country: 'Kenya',
-        email: 'info@mwanchasenior.org',
+        email: 'mwanchaseniorcommunity@gmail.com',
         phone: '+254 700 000000',
         helpline: '+254 700 000000',
         vision: 'A Kenyan society where senior citizens live with respect, self-reliance, physical safety, and universal community care.',
@@ -281,7 +281,7 @@ async function main() {
     {
       type: 'EMAIL',
       label: 'Official Inquiries',
-      value: 'info@mwanchasenior.org',
+      value: 'mwanchaseniorcommunity@gmail.com',
       isPrimary: true
     },
     {

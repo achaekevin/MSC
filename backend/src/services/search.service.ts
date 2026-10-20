@@ -69,7 +69,7 @@ export class SearchService {
       {
         id: 'org-contact-helpline',
         title: 'Helpline, Headquarters & Contacts',
-        summary: 'Helpline: +254 790 629439 | Email: mwachahomeforelderly@gmail.com | Ekerenyo, Nyamira County, Kenya.',
+        summary: 'Helpline: +254 790 629439 | Email: mwanchaseniorcommunity@gmail.com | Ekerenyo, Nyamira County, Kenya.',
         type: 'organization',
         path: '/contact',
         badge: 'Helpline & Office'

@@ -68,7 +68,7 @@ export class OrganizationService {
           address: 'Headquarters, Nyamira County, Kenya',
           county: 'Nyamira',
           country: 'Kenya',
-          email: 'info@mwanchasenior.org',
+          email: 'mwanchaseniorcommunity@gmail.com',
           vision: 'A Kenyan society where senior citizens live with respect, self-reliance, physical safety, and universal community care.',
           mission: 'To restore dignity, health, and holistic wellbeing for older persons while bridging intergenerational solidarity and protecting human rights.',
           values: JSON.stringify(['Integrity', 'Compassion', 'Dignity', 'Inclusivity', 'Accountability']),

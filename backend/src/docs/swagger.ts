@@ -16,7 +16,7 @@ Dedicated to the dignity, care, health, and rights protection of vulnerable olde
     `,
     contact: {
       name: 'MSC Engineering Team',
-      email: 'info@mwanchasenior.org'
+      email: 'mwanchaseniorcommunity@gmail.com'
     }
   },
   servers: [
