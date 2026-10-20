@@ -47,7 +47,7 @@ export const volunteerService = {
       console.error('Volunteer application submission error:', error);
       return {
         success: false,
-        message: error.message || 'Unable to submit your application right now. Please try again or write to mwachahomeforelderly@gmail.com.'
+        message: error.message || 'Unable to submit your application right now. Please try again or write to mwanchaseniorcommunity@gmail.com.'
       };
     }
   }

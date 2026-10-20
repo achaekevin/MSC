@@ -18,9 +18,9 @@ export const MSC_ORGANIZATION = {
   fullLocation: "Mwancha House - Ekerenyo, Ekerenyo-Obwari-Magwagwa Road, Nyamira North, P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya",
   
   // Official Contact
-  email: "mwachahomeforelderly@gmail.com",
-  secondaryEmail: "mwanchacommunity.seniors@gmail.com",
-  secondaryEmailAddress: "mwanchacommunity.seniors.com",
+  email: "mwanchaseniorcommunity@gmail.com",
+  secondaryEmail: "mwanchaseniorcommunity@gmail.com",
+  secondaryEmailAddress: "mwanchaseniorcommunity@gmail.com",
   phone: "+254 790 629439",
   whatsapp: "+254 790 629439",
   whatsappDigits: "254790629439",

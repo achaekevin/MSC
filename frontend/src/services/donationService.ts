@@ -83,7 +83,7 @@ export const donationService = {
       console.error('In-kind donation submission error:', error);
       return {
         success: false,
-        message: error.message || 'Unable to submit your pledge at this time. Please contact us directly at +254 790 629439 or mwanchacommunity.seniors@gmail.com.'
+        message: error.message || 'Unable to submit your pledge at this time. Please contact us directly at +254 790 629439 or mwanchaseniorcommunity@gmail.com.'
       };
     }
   }

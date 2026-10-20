@@ -39,7 +39,7 @@ export const contactService = {
       console.error('Contact submission error:', error);
       return {
         success: false,
-        message: error.message || 'Unable to deliver your message at this time. Please try again or write directly to mwachahomeforelderly@gmail.com.'
+        message: error.message || 'Unable to deliver your message at this time. Please try again or write directly to mwanchaseniorcommunity@gmail.com.'
       };
     }
   }

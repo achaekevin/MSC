@@ -47,7 +47,7 @@ export const partnershipService = {
       console.error('Partnership request submission error:', error);
       return {
         success: false,
-        message: error.message || 'Unable to submit your proposal at this time. Please try again or write directly to mwachahomeforelderly@gmail.com.'
+        message: error.message || 'Unable to submit your proposal at this time. Please try again or write directly to mwanchaseniorcommunity@gmail.com.'
       };
     }
   }
