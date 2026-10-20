@@ -240,8 +240,15 @@ class SecurityMonitoringService {
     return parts.join(' ');
   }
 
+  private cachedOverview: { data: any; timestamp: number } | null = null;
+  private readonly OVERVIEW_CACHE_TTL_MS = 15000;
+
   // Comprehensive overview of all monitoring subsystems
   async getOverview() {
+    if (this.cachedOverview && Date.now() - this.cachedOverview.timestamp < this.OVERVIEW_CACHE_TTL_MS) {
+      return this.cachedOverview.data;
+    }
+
     const uptimeSeconds = Math.floor(process.uptime());
     const mem = process.memoryUsage();
 
@@ -286,7 +293,7 @@ class SecurityMonitoringService {
 
     const activeAlerts = this.alerts.filter(a => !a.acknowledged);
 
-    return {
+    const overview = {
       status: dbStatus === 'CONNECTED' ? 'HEALTHY' : 'DEGRADED',
       timestamp: new Date().toISOString(),
       uptime: {
@@ -317,6 +324,13 @@ class SecurityMonitoringService {
       },
       backups: backupOverview
     };
+
+    this.cachedOverview = {
+      data: overview,
+      timestamp: Date.now()
+    };
+
+    return overview;
   }
 
   // Dependency vulnerability monitoring summary

@@ -16,30 +16,32 @@ export class DashboardService {
     }
 
     const [
-      totalPrograms,
-      publishedPrograms,
-      totalNews,
-      publishedNews,
-      totalEvents,
+      programStatusGroups,
+      newsStatusGroups,
+      eventStatusGroups,
       totalMedia,
-      pendingPrograms,
-      pendingNews,
-      pendingEvents,
       pendingTeam,
       newInquiriesCount,
       newVolunteerAppsCount,
       newPartnerAppsCount,
       recentAuditLogs
     ] = await Promise.all([
-      prisma.program.count({ where: { deletedAt: null } }),
-      prisma.program.count({ where: { status: ContentStatus.PUBLISHED, deletedAt: null } }),
-      prisma.newsArticle.count({ where: { deletedAt: null } }),
-      prisma.newsArticle.count({ where: { status: ContentStatus.PUBLISHED, deletedAt: null } }),
-      prisma.event.count({ where: { deletedAt: null } }),
+      prisma.program.groupBy({
+        by: ['status'],
+        where: { deletedAt: null },
+        _count: { _all: true }
+      }),
+      prisma.newsArticle.groupBy({
+        by: ['status'],
+        where: { deletedAt: null },
+        _count: { _all: true }
+      }),
+      prisma.event.groupBy({
+        by: ['status'],
+        where: { deletedAt: null },
+        _count: { _all: true }
+      }),
       prisma.media.count({ where: { deletedAt: null } }),
-      prisma.program.count({ where: { status: ContentStatus.IN_REVIEW, deletedAt: null } }),
-      prisma.newsArticle.count({ where: { status: ContentStatus.IN_REVIEW, deletedAt: null } }),
-      prisma.event.count({ where: { status: ContentStatus.IN_REVIEW, deletedAt: null } }),
       prisma.teamMember.count({ where: { status: ContentStatus.IN_REVIEW, deletedAt: null } }),
       prisma.contactSubmission.count({ where: { status: ContactStatus.NEW, deletedAt: null } }),
       prisma.volunteerApplication.count({ where: { status: FormStatus.NEW, deletedAt: null } }),
@@ -52,6 +54,17 @@ export class DashboardService {
         }
       })
     ]);
+
+    const totalPrograms = programStatusGroups.reduce((acc, g) => acc + g._count._all, 0);
+    const publishedPrograms = programStatusGroups.find(g => g.status === ContentStatus.PUBLISHED)?._count._all || 0;
+    const pendingPrograms = programStatusGroups.find(g => g.status === ContentStatus.IN_REVIEW)?._count._all || 0;
+
+    const totalNews = newsStatusGroups.reduce((acc, g) => acc + g._count._all, 0);
+    const publishedNews = newsStatusGroups.find(g => g.status === ContentStatus.PUBLISHED)?._count._all || 0;
+    const pendingNews = newsStatusGroups.find(g => g.status === ContentStatus.IN_REVIEW)?._count._all || 0;
+
+    const totalEvents = eventStatusGroups.reduce((acc, g) => acc + g._count._all, 0);
+    const pendingEvents = eventStatusGroups.find(g => g.status === ContentStatus.IN_REVIEW)?._count._all || 0;
 
     const pendingReviewsCount = pendingPrograms + pendingNews + pendingEvents + pendingTeam;
 

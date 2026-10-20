@@ -3,6 +3,13 @@ import { NotFoundError } from '../errors/AppError.js';
 import { ContentStatus, ContentSource } from '@prisma/client';
 import { notificationService } from './notification.service.js';
 
+let cachedPublicMetrics: { data: any[]; timestamp: number } | null = null;
+const METRICS_CACHE_TTL_MS = 60 * 1000;
+
+export function invalidatePublicMetricsCache(): void {
+  cachedPublicMetrics = null;
+}
+
 export class ImpactService {
   private async ensureDefaultMetrics() {
     const count = await prisma.impactMetric.count({ where: { deletedAt: null } });
@@ -76,6 +83,10 @@ export class ImpactService {
   }
 
   async getPublicMetrics() {
+    if (cachedPublicMetrics && Date.now() - cachedPublicMetrics.timestamp < METRICS_CACHE_TTL_MS) {
+      return cachedPublicMetrics.data;
+    }
+
     await this.ensureDefaultMetrics();
 
     const metrics = await prisma.impactMetric.findMany({
@@ -86,7 +97,7 @@ export class ImpactService {
       orderBy: { displayOrder: 'asc' }
     });
 
-    return metrics.map(m => ({
+    const formatted = metrics.map(m => ({
       id: m.id,
       label: m.name,
       name: m.name,
@@ -105,6 +116,13 @@ export class ImpactService {
         source: m.source.toLowerCase()
       }
     }));
+
+    cachedPublicMetrics = {
+      data: formatted,
+      timestamp: Date.now()
+    };
+
+    return formatted;
   }
 
   async getAdminMetrics() {

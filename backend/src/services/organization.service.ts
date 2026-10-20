@@ -2,8 +2,19 @@ import { prisma } from '../config/database.js';
 import { NotFoundError } from '../errors/AppError.js';
 import { ContentStatus } from '@prisma/client';
 
+let cachedPublicOrg: { data: any; timestamp: number } | null = null;
+const ORG_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+export function invalidateOrganizationCache(): void {
+  cachedPublicOrg = null;
+}
+
 export class OrganizationService {
   async getPublicOrganization() {
+    if (cachedPublicOrg && Date.now() - cachedPublicOrg.timestamp < ORG_CACHE_TTL_MS) {
+      return cachedPublicOrg.data;
+    }
+
     let org = await prisma.organization.findFirst({
       where: {
         status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] }
@@ -18,7 +29,7 @@ export class OrganizationService {
       throw new NotFoundError('Organization profile data is currently pending client approval');
     }
 
-    return {
+    const formatted = {
       name: org.name,
       formerName: org.formerName,
       tagline: org.tagline,
@@ -36,6 +47,13 @@ export class OrganizationService {
       legalStatus: org.legalStatus,
       coreGoal: org.coreGoal
     };
+
+    cachedPublicOrg = {
+      data: formatted,
+      timestamp: Date.now()
+    };
+
+    return formatted;
   }
 
   async getAdminOrganization() {
@@ -112,6 +130,8 @@ export class OrganizationService {
         }
       })
     ]);
+
+    invalidateOrganizationCache();
 
     return {
       ...updated,

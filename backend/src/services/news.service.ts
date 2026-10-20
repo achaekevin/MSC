@@ -4,6 +4,13 @@ import { ContentStatus, ContentSource } from '@prisma/client';
 import { generateUniqueSlug } from '../utils/slugify.js';
 import { notificationService } from './notification.service.js';
 
+const publicNewsCache = new Map<string, { data: any; timestamp: number }>();
+const NEWS_CACHE_TTL_MS = 60 * 1000;
+
+export function invalidatePublicNewsCache(): void {
+  publicNewsCache.clear();
+}
+
 export class NewsService {
   private formatArticle(a: any) {
     let contentParsed: string[] = [];
@@ -74,6 +81,12 @@ export class NewsService {
   }
 
   async getPublicNews(page = 1, limit = 10, category?: string) {
+    const cacheKey = `${page}:${limit}:${category || 'all'}`;
+    const cached = publicNewsCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < NEWS_CACHE_TTL_MS) {
+      return cached.data;
+    }
+
     const skip = (page - 1) * limit;
     const where: any = {
       status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
@@ -101,7 +114,7 @@ export class NewsService {
       })
     ]);
 
-    return {
+    const result = {
       items: articles.map(a => this.formatArticle(a)),
       pagination: {
         page,
@@ -110,6 +123,10 @@ export class NewsService {
         totalPages: Math.ceil(total / limit)
       }
     };
+
+    publicNewsCache.set(cacheKey, { data: result, timestamp: Date.now() });
+
+    return result;
   }
 
   async getPublicNewsBySlug(slug: string) {

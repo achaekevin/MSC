@@ -4,6 +4,13 @@ import { ContentStatus, ContentSource } from '@prisma/client';
 import { generateUniqueSlug } from '../utils/slugify.js';
 import { notificationService } from './notification.service.js';
 
+let cachedPublicPrograms: { data: any[]; timestamp: number } | null = null;
+const PROGRAMS_CACHE_TTL_MS = 60 * 1000; // 60 seconds
+
+export function invalidatePublicProgramsCache(): void {
+  cachedPublicPrograms = null;
+}
+
 export class ProgramService {
   private formatProgram(p: any) {
     return {
@@ -18,6 +25,10 @@ export class ProgramService {
   }
 
   async getPublicPrograms() {
+    if (cachedPublicPrograms && Date.now() - cachedPublicPrograms.timestamp < PROGRAMS_CACHE_TTL_MS) {
+      return cachedPublicPrograms.data;
+    }
+
     const programs = await prisma.program.findMany({
       where: {
         status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
@@ -29,7 +40,12 @@ export class ProgramService {
       orderBy: { displayOrder: 'asc' }
     });
 
-    return programs.map(p => this.formatProgram(p));
+    const formatted = programs.map(p => this.formatProgram(p));
+    cachedPublicPrograms = {
+      data: formatted,
+      timestamp: Date.now()
+    };
+    return formatted;
   }
 
   async getPublicProgramBySlug(slug: string) {
