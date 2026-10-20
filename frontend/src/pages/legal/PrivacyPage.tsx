@@ -97,7 +97,7 @@ export const PrivacyPage: React.FC = () => {
                 <p className="font-bold">Mwancha Senior Community Secretariat</p>
                 <p>{MSC_ORGANIZATION.physicalFacility}, {MSC_ORGANIZATION.road}</p>
                 <p>{MSC_ORGANIZATION.postalAddress}, {MSC_ORGANIZATION.subCounty}, {MSC_ORGANIZATION.county}, {MSC_ORGANIZATION.country}</p>
-                <p>Email: <a href={`mailto:${MSC_ORGANIZATION.email}`} className="text-forest-800 underline">{MSC_ORGANIZATION.email}</a> / <a href={`mailto:${MSC_ORGANIZATION.secondaryEmail || 'mwanchacommunity.seniors@gmail.com'}`} className="text-forest-800 underline">{MSC_ORGANIZATION.secondaryEmailAddress || MSC_ORGANIZATION.secondaryEmail}</a></p>
+                <p>Email: <a href={`mailto:${MSC_ORGANIZATION.email}`} className="text-forest-800 underline">{MSC_ORGANIZATION.email}</a></p>
               </div>
             </div>
           </div>

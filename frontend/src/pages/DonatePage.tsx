@@ -332,11 +332,11 @@ export const DonatePage: React.FC = () => {
                     Call Logistics: +254 790 629439
                   </a>
                   <a
-                    href={`mailto:mwanchacommunity.seniors@gmail.com?subject=In-Kind%20Donation%20Inquiry`}
+                    href={`mailto:mwanchaseniorcommunity@gmail.com?subject=In-Kind%20Donation%20Inquiry`}
                     className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-forest-800 hover:bg-forest-700 text-white font-bold text-sm border border-forest-600 transition-all"
                   >
                     <Mail className="w-4 h-4" />
-                    Email: mwanchacommunity.seniors@gmail.com
+                    Email: mwanchaseniorcommunity@gmail.com
                   </a>
                 </div>
               </div>

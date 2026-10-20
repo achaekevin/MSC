@@ -216,17 +216,19 @@ export const Footer: React.FC = () => {
                   <a
                     href={`mailto:${MSC_ORGANIZATION.email}`}
                     className="hover:text-earth-300 underline underline-offset-2 break-all block text-xs"
-                    title="Primary Email"
+                    title="Official Email"
                   >
                     {MSC_ORGANIZATION.email}
                   </a>
-                  <a
-                    href={`mailto:${MSC_ORGANIZATION.secondaryEmail || 'mwanchacommunity.seniors@gmail.com'}`}
-                    className="hover:text-earth-300 underline underline-offset-2 break-all block text-xs text-forest-300"
-                    title="Secondary Email"
-                  >
-                    {MSC_ORGANIZATION.secondaryEmailAddress || MSC_ORGANIZATION.secondaryEmail}
-                  </a>
+                  {MSC_ORGANIZATION.secondaryEmail && MSC_ORGANIZATION.secondaryEmail !== MSC_ORGANIZATION.email && (
+                    <a
+                      href={`mailto:${MSC_ORGANIZATION.secondaryEmail}`}
+                      className="hover:text-earth-300 underline underline-offset-2 break-all block text-xs text-forest-300"
+                      title="Secondary Email"
+                    >
+                      {MSC_ORGANIZATION.secondaryEmailAddress || MSC_ORGANIZATION.secondaryEmail}
+                    </a>
+                  )}
                 </div>
               </li>
               {MSC_ORGANIZATION.phone && (

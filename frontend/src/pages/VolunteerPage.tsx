@@ -189,7 +189,7 @@ export const VolunteerPage: React.FC = () => {
         setErrorMessage(response.message || 'Submission failed. Please check your details and try again.');
       }
     } catch (err: any) {
-      const msg = err.response?.data?.error?.message || err.message || 'Unable to connect to the volunteer application service. Please verify your connection or email info@mwancha.org directly.';
+      const msg = err.response?.data?.error?.message || err.message || 'Unable to connect to the volunteer application service. Please verify your connection or email mwanchaseniorcommunity@gmail.com directly.';
       setErrorMessage(msg);
     } finally {
       setLoading(false);

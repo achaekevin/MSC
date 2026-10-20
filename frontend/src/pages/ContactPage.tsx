@@ -88,7 +88,7 @@ export const ContactPage: React.FC = () => {
         setErrorMessage(response.message || 'Unable to send message. Please try again.');
       }
     } catch (err: any) {
-      const msg = err.response?.data?.error?.message || err.message || 'Could not deliver your message. Please write directly to mwachahomeforelderly@gmail.com.';
+      const msg = err.response?.data?.error?.message || err.message || 'Could not deliver your message. Please write directly to mwanchaseniorcommunity@gmail.com.';
       setErrorMessage(msg);
     } finally {
       setLoading(false);
@@ -167,21 +167,11 @@ export const ContactPage: React.FC = () => {
                       <span className="font-bold text-charcoal-900 block mb-0.5">Official Communication Emails</span>
                       <div className="space-y-1">
                         <div>
-                          <span className="text-[11px] font-bold uppercase text-charcoal-400 block">Primary:</span>
                           <a
                             href={`mailto:${MSC_ORGANIZATION.email}`}
                             className="text-forest-800 hover:text-forest-950 underline underline-offset-2 break-all font-medium text-xs sm:text-sm"
                           >
                             {MSC_ORGANIZATION.email}
-                          </a>
-                        </div>
-                        <div>
-                          <span className="text-[11px] font-bold uppercase text-charcoal-400 block">Secondary:</span>
-                          <a
-                            href={`mailto:${MSC_ORGANIZATION.secondaryEmail || 'mwanchacommunity.seniors@gmail.com'}`}
-                            className="text-forest-800 hover:text-forest-950 underline underline-offset-2 break-all font-medium text-xs sm:text-sm"
-                          >
-                            {MSC_ORGANIZATION.secondaryEmailAddress || MSC_ORGANIZATION.secondaryEmail}
                           </a>
                         </div>
                       </div>

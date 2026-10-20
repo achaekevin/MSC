@@ -122,7 +122,7 @@ export const PartnerPage: React.FC = () => {
         setErrorMessage(response.message || 'Submission failed. Please try again.');
       }
     } catch (err: any) {
-      const msg = err.response?.data?.error?.message || err.message || 'Unable to connect to the partnership service. Please try again later or reach out directly to mwachahomeforelderly@gmail.com.';
+      const msg = err.response?.data?.error?.message || err.message || 'Unable to connect to the partnership service. Please try again later or reach out directly to mwanchaseniorcommunity@gmail.com.';
       setErrorMessage(msg);
     } finally {
       setLoading(false);
@@ -198,12 +198,8 @@ export const PartnerPage: React.FC = () => {
                   Ekerenyo-Obwari-Magwagwa Road, Nyamira North<br />
                   P.O. Box 162-40506 Ekerenyo-Nyamira, Kenya<br />
                   Email:{' '}
-                  <a href="mailto:mwachahomeforelderly@gmail.com" className="underline underline-offset-2">
-                    mwachahomeforelderly@gmail.com
-                  </a>{' '}
-                  /{' '}
-                  <a href="mailto:mwanchacommunity.seniors@gmail.com" className="underline underline-offset-2">
-                    mwanchacommunity.seniors.com
+                  <a href="mailto:mwanchaseniorcommunity@gmail.com" className="underline underline-offset-2">
+                    mwanchaseniorcommunity@gmail.com
                   </a>
                 </p>
               </div>
