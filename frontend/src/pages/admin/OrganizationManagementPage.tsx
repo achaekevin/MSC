@@ -38,7 +38,7 @@ export const OrganizationManagementPage: React.FC = () => {
     postalCode: '162-40506',
     county: 'Nyamira County',
     country: 'Kenya',
-    email: 'mwanchacommunity.seniors@gmail.com',
+    email: 'mwanchaseniorcommunity@gmail.com',
     phone: '+254 790 629439',
     helpline: '+254 790 629439',
     vision: 'A dignified, resilient, and inclusive society where older persons live free from discrimination and neglect.',

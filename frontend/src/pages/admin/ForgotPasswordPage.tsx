@@ -112,7 +112,7 @@ export const ForgotPasswordPage: React.FC = () => {
                     if (error) setError(null);
                   }}
                   className="w-full px-3.5 py-2.5 pl-10 rounded-xl border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 placeholder-charcoal-400 focus:outline-none focus:ring-2 focus:ring-forest-600 focus:border-transparent text-sm"
-                  placeholder="admin@mwanchasenior.com"
+                  placeholder="mwanchaseniorcommunity@gmail.com"
                   disabled={isSubmitting}
                 />
                 <Mail className="w-4 h-4 text-charcoal-400 absolute left-3.5 top-3" />

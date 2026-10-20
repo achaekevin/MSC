@@ -183,7 +183,7 @@ export const VerifyEmailPage: React.FC = () => {
                         type="email"
                         value={emailForResend}
                         onChange={(e) => setEmailForResend(e.target.value)}
-                        placeholder="admin@mwanchasenior.org"
+                        placeholder="mwanchaseniorcommunity@gmail.com"
                         className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-warm-300 dark:border-charcoal-600 bg-white dark:bg-charcoal-800 text-charcoal-900 dark:text-warm-50 focus:outline-none focus:ring-2 focus:ring-forest-600"
                         required
                       />

@@ -169,7 +169,7 @@ export const DashboardPage: React.FC = () => {
             createdAt: new Date().toISOString(),
             user: {
               name: 'Administrator',
-              email: 'admin@mwancha.org',
+              email: 'mwanchaseniorcommunity@gmail.com',
               role: 'SUPER_ADMIN'
             }
           }

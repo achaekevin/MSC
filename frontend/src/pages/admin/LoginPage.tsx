@@ -276,7 +276,7 @@ export const LoginPage: React.FC = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   className="mt-1 appearance-none relative block w-full px-3.5 py-2.5 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-forest-600 focus:border-forest-600 sm:text-sm transition-colors"
-                  placeholder="admin@mwanchasenior.com"
+                  placeholder="mwanchaseniorcommunity@gmail.com"
                   disabled={isSubmitting}
                 />
               </div>
