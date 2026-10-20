@@ -85,30 +85,60 @@
       })();
     </script>
 
-    <!-- Service Worker and Cache Cleanup (Ensures no stale workers intercept requests on localhost) -->
+    <!-- Aggressive Service Worker & Cache Cleanup
+         Removes ALL service workers (including stale ones from other localhost projects
+         like KilimoMarket that share the same origin) and clears all caches. -->
     <script>
+      // 1. IMMEDIATELY force the correct title (override any stale cached title)
+      document.title = 'Mwancha Senior Community (MSC) | Dignity, Care & Wellbeing for Older Persons';
+
+      // 2. Unregister ALL service workers (especially stale KilimoMarket SW from other projects)
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
           for (var i = 0; i < registrations.length; i++) {
-            registrations[i].unregister();
+            registrations[i].unregister().then(function(success) {
+              if (success) console.log('[MSC] Unregistered stale service worker');
+            });
           }
         });
+        // Also clear the SW controller immediately
+        if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+        }
       }
+
+      // 3. Delete ALL caches (especially kilimomarket-* caches from the crop prediction project)
       if ('caches' in window) {
         caches.keys().then(function(names) {
           for (var i = 0; i < names.length; i++) {
             caches.delete(names[i]);
+            console.log('[MSC] Deleted stale cache:', names[i]);
           }
         });
       }
+
+      // 4. Watch for any external title mutations and override them
+      var correctTitle = 'Mwancha Senior Community (MSC) | Dignity, Care & Wellbeing for Older Persons';
+      var titleEl = document.querySelector('title');
+      if (titleEl && typeof MutationObserver !== 'undefined') {
+        var titleObserver = new MutationObserver(function() {
+          // If title gets overwritten with something containing "KilimoMarket", fix it
+          if (document.title.indexOf('KilimoMarket') !== -1 || document.title.indexOf('Crop Price') !== -1) {
+            document.title = correctTitle;
+          }
+        });
+        titleObserver.observe(titleEl, { childList: true, characterData: true, subtree: true });
+        // Stop observing after 10s (React will manage titles after hydration)
+        setTimeout(function() { titleObserver.disconnect(); }, 10000);
+      }
     </script>
-    <script type="module" crossorigin src="/assets/index-Dn9ho48x.js"></script>
+    <script type="module" crossorigin src="/assets/index-BYfAig6l.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-hePW80VL.js">
     <link rel="modulepreload" crossorigin href="/assets/jsx-runtime-BNakU3Ej.js">
     <link rel="modulepreload" crossorigin href="/assets/apiConfig-BrsLP64h.js">
     <link rel="modulepreload" crossorigin href="/assets/api-DDSk7W4Z.js">
     <link rel="modulepreload" crossorigin href="/assets/createLucideIcon-Cn6LRB4K.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-CmC-rG39.css">
+    <link rel="stylesheet" crossorigin href="/assets/index-DGXiKQEG.css">
   </head>
   <body class="bg-warm-50 dark:bg-charcoal-950 text-charcoal-900 dark:text-warm-100 font-sans antialiased selection:bg-forest-100 selection:text-forest-900 min-h-screen">
     <div id="root"></div>
