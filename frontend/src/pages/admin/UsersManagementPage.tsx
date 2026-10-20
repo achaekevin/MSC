@@ -54,6 +54,11 @@ const ROLE_CONFIG: Record<
     label: 'Form Manager',
     badgeClass: 'bg-teal-100 text-teal-900 border-teal-200 dark:bg-teal-950/60 dark:text-teal-300 dark:border-teal-800',
     description: 'Manages inquiries, volunteer applications, and donations'
+  },
+  ACCOUNTANT: {
+    label: 'Accountant & Financial Auditor',
+    badgeClass: 'bg-amber-100 text-amber-900 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800',
+    description: 'Access to financial ledger, transaction audits, and payment reconciliation'
   }
 };
 

@@ -17,7 +17,8 @@ export type UserRole =
   | 'CONTENT_ADMIN' 
   | 'EDITOR'
   | 'REVIEWER'
-  | 'FORM_MANAGER';
+  | 'FORM_MANAGER'
+  | 'ACCOUNTANT';
 
 export type Permission =
   | 'CONTENT_CREATE'
@@ -32,7 +33,10 @@ export type Permission =
   | 'FORM_UPDATE'
   | 'USER_MANAGE'
   | 'AUDIT_READ'
-  | 'SETTINGS_MANAGE';
+  | 'SETTINGS_MANAGE'
+  | 'FINANCE_READ'
+  | 'FINANCE_MANAGE'
+  | 'PAYMENT_RECONCILE';
 
 export interface LoginCredentials {
   email: string;

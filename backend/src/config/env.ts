@@ -44,7 +44,25 @@ const envSchema = z.object({
   INITIAL_ADMIN_PASSWORD: z.string().min(1).default('admin@1'),
   INITIAL_ADMIN_NAME: z.string().default('MSC System Administrator'),
 
-  ADMIN_INVITE_CODE: z.string().default('MSC-ADMIN-2024-SECURE')
+  ADMIN_INVITE_CODE: z.string().default('MSC-ADMIN-2024-SECURE'),
+
+  // Safaricom Daraja M-Pesa API settings
+  MPESA_ENVIRONMENT: z.enum(['sandbox', 'production']).default('sandbox'),
+  MPESA_CONSUMER_KEY: z.string().default(''),
+  MPESA_CONSUMER_SECRET: z.string().default(''),
+  MPESA_PASSKEY: z.string().default(''),
+  MPESA_SHORTCODE: z.string().default('174379'),
+  MPESA_INITIATOR_NAME: z.string().default('testapi'),
+  MPESA_CALLBACK_URL: z.string().default(''),
+
+  // Digital Commerce & Downloads
+  DEFAULT_CURRENCY: z.string().default('KES'),
+  MINIMUM_DONATION_AMOUNT: z.coerce.number().default(50),
+  MAX_DOWNLOADS_PER_PURCHASE: z.coerce.number().default(10),
+  DOWNLOAD_TOKEN_SECRET: z.string().min(16).default('msc_download_token_secret_high_entropy_2026_secure'),
+  DOWNLOAD_TOKEN_EXPIRY_SECONDS: z.coerce.number().default(3600),
+  PRIVATE_STORAGE_PATH: z.string().default('./storage/private_publications'),
+  FINANCE_NOTIFICATION_EMAIL: z.string().default('mwanchaseniorcommunity@gmail.com')
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
