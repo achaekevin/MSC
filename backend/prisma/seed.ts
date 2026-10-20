@@ -844,12 +844,82 @@ async function main() {
       source: ContentSource.PLACEHOLDER
     },
     {
-      name: 'MEAL Coordinator',
-      position: 'Monitoring, Evaluation, Accountability & Learning',
+      name: 'Dietician / Nutritionist',
+      position: 'Geriatric Nutrition & Dietary Planning',
       department: 'Professional Staff',
-      biography: 'Directs data collection protocols, case verification, impact metrics measurement, and learning documentation across programs.',
+      biography: 'Designs personalized nutrition interventions, manages therapeutic dietary plans for chronic conditions, and oversees balanced meal programs.',
       isPlaceholder: true,
       displayOrder: 6,
+      status: ContentStatus.APPROVED,
+      source: ContentSource.PLACEHOLDER
+    },
+    {
+      name: 'Physiotherapist',
+      position: 'Geriatric Rehabilitation & Mobility Care',
+      department: 'Professional Staff',
+      biography: 'Provides physical rehabilitation, mobility therapy, fall prevention training, and pain management for elderly beneficiaries.',
+      isPlaceholder: true,
+      displayOrder: 7,
+      status: ContentStatus.APPROVED,
+      source: ContentSource.PLACEHOLDER
+    },
+    {
+      name: 'Counsellor',
+      position: 'Psychosocial Support & Mental Wellbeing',
+      department: 'Professional Staff',
+      biography: 'Delivers mental wellness counselling, trauma recovery, grief support, and cognitive wellbeing interventions for senior citizens.',
+      isPlaceholder: true,
+      displayOrder: 8,
+      status: ContentStatus.APPROVED,
+      source: ContentSource.PLACEHOLDER
+    },
+    {
+      name: 'Centre Nurse',
+      position: 'Primary Nursing & Clinical Care',
+      department: 'Professional Staff',
+      biography: 'Manages clinical assessments, vital signs monitoring, medication reconciliation, and emergency triage at the MSC wellness centre.',
+      isPlaceholder: true,
+      displayOrder: 9,
+      status: ContentStatus.APPROVED,
+      source: ContentSource.PLACEHOLDER
+    },
+    {
+      name: 'Clinical Team',
+      position: 'Medical Outreach & Geriatric Consultations',
+      department: 'Professional Staff',
+      biography: 'Conducts medical checkups, diagnostic screenings, chronic disease management, and specialized geriatric healthcare referrals.',
+      isPlaceholder: true,
+      displayOrder: 10,
+      status: ContentStatus.APPROVED,
+      source: ContentSource.PLACEHOLDER
+    },
+    {
+      name: 'Medico-Social Officer',
+      position: 'Medical Social Work & Patient Advocacy',
+      department: 'Professional Staff',
+      biography: 'Bridges clinical care and social welfare systems, coordinating health insurance, specialist hospital visits, and patient advocacy.',
+      isPlaceholder: true,
+      displayOrder: 11,
+      status: ContentStatus.APPROVED,
+      source: ContentSource.PLACEHOLDER
+    },
+    {
+      name: 'Chaplain',
+      position: 'Spiritual Care & Pastoral Support',
+      department: 'Support Staff',
+      biography: 'Provides holistic spiritual guidance, pastoral counseling, bereavement support, and faith-based accompaniment for elderly community members.',
+      isPlaceholder: true,
+      displayOrder: 12,
+      status: ContentStatus.APPROVED,
+      source: ContentSource.PLACEHOLDER
+    },
+    {
+      name: 'Legal Team',
+      position: 'Legal Aid & Elder Rights Defense',
+      department: 'Support Staff',
+      biography: 'Protects elder rights, assists with succession, estate planning, safeguarding against exploitation, and provides paralegal advice.',
+      isPlaceholder: true,
+      displayOrder: 13,
       status: ContentStatus.APPROVED,
       source: ContentSource.PLACEHOLDER
     }

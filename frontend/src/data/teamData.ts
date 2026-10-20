@@ -55,11 +55,51 @@ export const TEAM_DATA: TeamMember[] = [
 
   // Professional Staff
   {
-    id: 'team-meal-officer',
-    name: 'MEAL Coordinator',
-    role: 'Monitoring, Evaluation, Accountability & Learning',
+    id: 'team-dietician',
+    name: 'Dietician / Nutritionist',
+    role: 'Geriatric Nutrition & Dietary Planning',
     department: 'Professional Staff',
-    bio: 'Leads beneficiary data management, longitudinal surveys, program monitoring frameworks, and organizational learning outputs.',
+    bio: 'Designs personalized nutrition interventions, manages therapeutic dietary plans for chronic conditions, and oversees balanced meal programs.',
+    isPlaceholder: true
+  },
+  {
+    id: 'team-physiotherapist',
+    name: 'Physiotherapist',
+    role: 'Geriatric Rehabilitation & Mobility Care',
+    department: 'Professional Staff',
+    bio: 'Provides physical rehabilitation, mobility therapy, fall prevention training, and pain management for elderly beneficiaries.',
+    isPlaceholder: true
+  },
+  {
+    id: 'team-counsellor',
+    name: 'Counsellor',
+    role: 'Psychosocial Support & Mental Wellbeing',
+    department: 'Professional Staff',
+    bio: 'Delivers mental wellness counselling, trauma recovery, grief support, and cognitive wellbeing interventions for senior citizens.',
+    isPlaceholder: true
+  },
+  {
+    id: 'team-centre-nurse',
+    name: 'Centre Nurse',
+    role: 'Primary Nursing & Clinical Care',
+    department: 'Professional Staff',
+    bio: 'Manages clinical assessments, vital signs monitoring, medication reconciliation, and emergency triage at the MSC wellness centre.',
+    isPlaceholder: true
+  },
+  {
+    id: 'team-clinical-team',
+    name: 'Clinical Team',
+    role: 'Medical Outreach & Geriatric Consultations',
+    department: 'Professional Staff',
+    bio: 'Conducts medical checkups, diagnostic screenings, chronic disease management, and specialized geriatric healthcare referrals.',
+    isPlaceholder: true
+  },
+  {
+    id: 'team-medicosocial-officer',
+    name: 'Medico-Social Officer',
+    role: 'Medical Social Work & Patient Advocacy',
+    department: 'Professional Staff',
+    bio: 'Bridges clinical care and social welfare systems, coordinating health insurance, specialist hospital visits, and patient advocacy.',
     isPlaceholder: true
   },
   {
@@ -73,11 +113,19 @@ export const TEAM_DATA: TeamMember[] = [
 
   // Support Staff
   {
-    id: 'team-community-liaison',
-    name: 'Community Liaison & Logistics Officer',
-    role: 'Field Coordination & Outreach Support',
+    id: 'team-chaplain',
+    name: 'Chaplain',
+    role: 'Spiritual Care & Pastoral Support',
     department: 'Support Staff',
-    bio: 'Coordinates community barazas, distribution logistics for relief provisions, and emergency response escorts.',
+    bio: 'Provides holistic spiritual guidance, pastoral counseling, bereavement support, and faith-based accompaniment for elderly community members.',
+    isPlaceholder: true
+  },
+  {
+    id: 'team-legal-team',
+    name: 'Legal Team',
+    role: 'Legal Aid & Elder Rights Defense',
+    department: 'Support Staff',
+    bio: 'Protects elder rights, assists with succession, estate planning, safeguarding against exploitation, and provides paralegal advice.',
     isPlaceholder: true
   },
 

@@ -110,7 +110,27 @@ export const StructurePage: React.FC = () => {
                   <ul className="text-xs sm:text-sm text-charcoal-600 space-y-2 mt-3">
                     <li className="flex items-start gap-1.5">
                       <ChevronRight className="w-4 h-4 text-forest-700 flex-shrink-0 mt-0.5" />
-                      <span>MEAL Coordinator (Accountability & Surveys)</span>
+                      <span>Dietician / Nutritionist</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <ChevronRight className="w-4 h-4 text-forest-700 flex-shrink-0 mt-0.5" />
+                      <span>Physiotherapist</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <ChevronRight className="w-4 h-4 text-forest-700 flex-shrink-0 mt-0.5" />
+                      <span>Counsellor</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <ChevronRight className="w-4 h-4 text-forest-700 flex-shrink-0 mt-0.5" />
+                      <span>Centre Nurse</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <ChevronRight className="w-4 h-4 text-forest-700 flex-shrink-0 mt-0.5" />
+                      <span>Clinical Team</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <ChevronRight className="w-4 h-4 text-forest-700 flex-shrink-0 mt-0.5" />
+                      <span>Medico-Social Officer</span>
                     </li>
                     <li className="flex items-start gap-1.5">
                       <ChevronRight className="w-4 h-4 text-forest-700 flex-shrink-0 mt-0.5" />
@@ -128,7 +148,7 @@ export const StructurePage: React.FC = () => {
               <div className="bg-white rounded-2xl p-6 border border-warm-200 shadow-sm flex flex-col justify-between">
                 <div>
                   <span className="text-xs font-bold text-earth-700 uppercase tracking-wider block mb-1">
-                    Administration & Field Operations
+                    Pastoral & Legal Support
                   </span>
                   <h4 className="text-lg font-bold text-charcoal-900 font-display mb-2">
                     Support Staff
@@ -136,15 +156,11 @@ export const StructurePage: React.FC = () => {
                   <ul className="text-xs sm:text-sm text-charcoal-600 space-y-2 mt-3">
                     <li className="flex items-start gap-1.5">
                       <ChevronRight className="w-4 h-4 text-earth-700 flex-shrink-0 mt-0.5" />
-                      <span>Finance & Administrative Officer</span>
+                      <span>Chaplain</span>
                     </li>
                     <li className="flex items-start gap-1.5">
                       <ChevronRight className="w-4 h-4 text-earth-700 flex-shrink-0 mt-0.5" />
-                      <span>Community Liaison & Logistics Officer</span>
-                    </li>
-                    <li className="flex items-start gap-1.5">
-                      <ChevronRight className="w-4 h-4 text-earth-700 flex-shrink-0 mt-0.5" />
-                      <span>Front Office & Records Assistant</span>
+                      <span>Legal Team</span>
                     </li>
                   </ul>
                 </div>
