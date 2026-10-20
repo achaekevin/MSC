@@ -219,7 +219,7 @@ export const validateFileMagicBytes = (
     if (dimensions.width > MAX_DIMENSION || dimensions.height > MAX_DIMENSION) {
       return next(
         new BadRequestError(
-          `Image resolution exceeds maximum allowed limit (${MAX_DIMENSION}x${MAX_DIMENSION} pixels). Uploaded image is ${dimensions.width}x${dimensions.height}.`
+          `Image resolution exceeds maximum allowed limit (${MAX_DIMENSION}x${MAX_DIMENSION} pixels). Uploaded image is ${dimensions.width}x${dimensions.width}.`
         )
       );
     }
@@ -228,3 +228,86 @@ export const validateFileMagicBytes = (
 
   next();
 };
+
+/**
+ * PDF Upload Filter and Validation
+ */
+const pdfFilter = (
+  req: any,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
+  const originalNameLower = file.originalname.toLowerCase().replace(/[\x00-\x1f\x80-\x9f]/g, '');
+
+  if (path.extname(originalNameLower) !== '.pdf' || file.mimetype !== 'application/pdf') {
+    return cb(new BadRequestError('Invalid file type. Only official PDF documents (.pdf) are permitted.'));
+  }
+
+  const randomSuffix = crypto.randomBytes(16).toString('hex');
+  file.filename = `pub_${Date.now()}_${randomSuffix}.pdf`;
+  cb(null, true);
+};
+
+export const uploadPdf = multer({
+  storage,
+  limits: {
+    fileSize: 25 * 1024 * 1024, // 25 MB max
+    files: 1
+  },
+  fileFilter: pdfFilter
+});
+
+export const validatePdfMagicBytes = (
+  req: any,
+  res: any,
+  next: any
+): void => {
+  if (!req.file || !req.file.buffer) {
+    return next();
+  }
+
+  const buffer: Buffer = req.file.buffer;
+  if (buffer.length < 5) {
+    return next(new BadRequestError('Uploaded PDF file is corrupted or too small.'));
+  }
+
+  // PDF signature: %PDF- (0x25 0x50 0x44 0x46 0x2D)
+  const isPdf =
+    buffer[0] === 0x25 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x44 &&
+    buffer[3] === 0x46 &&
+    buffer[4] === 0x2D;
+
+  if (!isPdf) {
+    securityMonitoringService.recordSuspiciousActivity({
+      type: 'SPOOFED_PDF_HEADER_DETECTED',
+      severity: 'HIGH',
+      message: `Spoofed PDF header detected: ${req.file.originalname}`,
+      ip: req.ip
+    });
+    return next(new BadRequestError('Security verification failed: File binary header does not match genuine PDF signatures.'));
+  }
+
+  // Scan for malicious embedded scripts
+  const bufferString = buffer.toString('latin1', 0, Math.min(buffer.length, 1024 * 64));
+  const maliciousSignatures = [
+    '<?php', '<?=', '<script', '<iframe', '<object', '<embed',
+    'powershell', 'cmd.exe', '/bin/sh', '/bin/bash'
+  ];
+
+  for (const sig of maliciousSignatures) {
+    if (bufferString.toLowerCase().includes(sig)) {
+      securityMonitoringService.recordSuspiciousActivity({
+        type: 'MALICIOUS_PAYLOAD_IN_PDF',
+        severity: 'CRITICAL',
+        message: `Malicious payload (${sig}) detected inside PDF buffer: ${req.file.originalname}`,
+        ip: req.ip
+      });
+      return next(new BadRequestError('Security alert: Malicious payload detected in uploaded document.'));
+    }
+  }
+
+  next();
+};
+

@@ -3,12 +3,19 @@ import { publicationController } from '../controllers/publication.controller.js'
 import { authenticate } from '../middleware/authenticate.js';
 import { requirePermissions } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
+import { uploadPdf, validatePdfMagicBytes } from '../middleware/upload.js';
 import { createPublicationSchema, updatePublicationSchema } from '../schemas/content.schema.js';
 
 const router = Router();
 
 // Public collection route
 router.get('/', (req, res, next) => publicationController.getPublicPublications(req, res, next));
+
+// Customer purchased library route (placed before parameterized routes)
+router.get('/customer/library', (req, res, next) => publicationController.getCustomerLibrary(req, res, next));
+
+// Gated PDF download streaming route
+router.get('/:id/download', (req, res, next) => publicationController.downloadPublication(req, res, next));
 
 // Admin management routes
 router.get(
@@ -62,7 +69,18 @@ router.post(
   (req, res, next) => publicationController.approvePublication(req, res, next)
 );
 
+// Admin upload private PDF document
+router.post(
+  '/admin/:id/upload-pdf',
+  authenticate,
+  requirePermissions('CONTENT_UPDATE'),
+  uploadPdf.single('file'),
+  validatePdfMagicBytes,
+  (req, res, next) => publicationController.uploadPrivatePdf(req, res, next)
+);
+
 // Public single article lookup by slug (placed after all admin routes to avoid collisions)
 router.get('/:slug', (req, res, next) => publicationController.getPublicPublicationBySlug(req, res, next));
 
 export default router;
+

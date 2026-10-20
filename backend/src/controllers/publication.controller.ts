@@ -96,6 +96,73 @@ export class PublicationController {
       next(error);
     }
   }
+
+  /**
+   * Public / Customer: Authorized PDF streaming download
+   */
+  async downloadPublication(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { token, email } = req.query as { token?: string; email?: string };
+
+      const fileResult = await publicationService.getDownloadStream(id, token, email);
+
+      if (fileResult.type === 'redirect') {
+        return res.redirect(fileResult.redirectUrl);
+      }
+
+      res.setHeader('Content-Type', fileResult.mimeType);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${fileResult.fileName}"`
+      );
+
+      fileResult.stream.pipe(res);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Admin: Upload official private PDF document
+   */
+  async uploadPrivatePdf(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      if (!req.file || !req.file.buffer) {
+        return res.status(400).json({
+          success: false,
+          error: { code: 'BAD_REQUEST', message: 'No PDF file uploaded.' }
+        });
+      }
+
+      const updated = await publicationService.savePrivatePdf(id, req.file.buffer, req.file.originalname);
+      return sendSuccess(res, updated, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Customer: View purchased publications library
+   */
+  async getCustomerLibrary(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.query as { email?: string };
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          error: { code: 'BAD_REQUEST', message: 'Customer email is required.' }
+        });
+      }
+
+      const library = await publicationService.getCustomerLibrary(email);
+      return sendSuccess(res, library, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const publicationController = new PublicationController();
+

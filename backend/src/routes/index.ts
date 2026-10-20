@@ -14,6 +14,8 @@ import testimonialRoutes from './testimonial.routes.js';
 import storyRoutes from './story.routes.js';
 import publicationRoutes from './publication.routes.js';
 import newsletterRoutes from './newsletter.routes.js';
+import paymentRoutes from './payment.routes.js';
+import sponsorshipRoutes from './sponsorship.routes.js';
 import adminRoutes from './admin.routes.js';
 
 const apiV1Router = Router();
@@ -29,6 +31,8 @@ apiV1Router.use('/gallery', galleryRoutes);
 apiV1Router.use('/testimonials', testimonialRoutes);
 apiV1Router.use('/stories', storyRoutes);
 apiV1Router.use('/publications', publicationRoutes);
+apiV1Router.use('/payments', paymentRoutes);
+apiV1Router.use('/sponsorships', sponsorshipRoutes);
 apiV1Router.use('/newsletter', newsletterRoutes);
 apiV1Router.use('/donations', donationRoutes);
 apiV1Router.use('/search', searchRoutes);
