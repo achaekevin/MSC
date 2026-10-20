@@ -4,12 +4,21 @@ import { logger } from './config/logger.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
 import { backupSchedulerService } from './services/backupScheduler.service.js';
 import { startDbKeepAlive, stopDbKeepAlive } from './utils/dbKeepAlive.js';
+import { paymentOrchestrator } from './services/payment/payment.orchestrator.js';
 
 const PORT = env.PORT || 5000;
 const HOST = env.HOST || '0.0.0.0';
 
 const startServer = async () => {
   logger.info(`Starting Mwancha Senior Community (MSC) backend service in ${env.NODE_ENV} mode...`);
+
+  // Validate active payment provider configuration
+  try {
+    paymentOrchestrator.validateConfiguration();
+  } catch (err: any) {
+    logger.error({ err: err.message }, 'Payment gateway configuration validation failed');
+    if (env.NODE_ENV === 'production') throw err;
+  }
 
   // Connect to database
   const dbConnected = await connectDatabase();

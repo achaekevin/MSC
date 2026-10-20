@@ -46,6 +46,9 @@ const envSchema = z.object({
 
   ADMIN_INVITE_CODE: z.string().default('MSC-ADMIN-2024-SECURE'),
 
+  // Payment Provider Gateway Architecture
+  PAYMENT_PROVIDER: z.enum(['daraja', 'payhero']).default('daraja'),
+
   // Safaricom Daraja M-Pesa API settings
   MPESA_ENVIRONMENT: z.enum(['sandbox', 'production']).default('sandbox'),
   MPESA_CONSUMER_KEY: z.string().default(''),
@@ -54,6 +57,23 @@ const envSchema = z.object({
   MPESA_SHORTCODE: z.string().default('174379'),
   MPESA_INITIATOR_NAME: z.string().default('testapi'),
   MPESA_CALLBACK_URL: z.string().default(''),
+  MPESA_CALLBACK_SECRET: z.string().default(''),
+
+  DARAJA_ENVIRONMENT: z.enum(['sandbox', 'production']).default('sandbox'),
+  DARAJA_CONSUMER_KEY: z.string().default(''),
+  DARAJA_CONSUMER_SECRET: z.string().default(''),
+  DARAJA_PASSKEY: z.string().default(''),
+  DARAJA_SHORTCODE: z.string().default('174379'),
+  DARAJA_CALLBACK_URL: z.string().default(''),
+  DARAJA_CALLBACK_SECRET: z.string().default(''),
+
+  // PayHero Kenya API settings
+  PAYHERO_API_USERNAME: z.string().default(''),
+  PAYHERO_API_PASSWORD: z.string().default(''),
+  PAYHERO_CHANNEL_ID: z.string().default(''),
+  PAYHERO_WEBHOOK_SECRET: z.string().default(''),
+  PAYHERO_BASE_URL: z.string().default('https://backend.payhero.co.ke/api/v2'),
+  PAYHERO_CALLBACK_URL: z.string().default(''),
 
   // Digital Commerce & Downloads
   DEFAULT_CURRENCY: z.string().default('KES'),
