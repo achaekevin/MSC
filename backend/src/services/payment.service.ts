@@ -11,6 +11,7 @@ import {
   DonationFrequency
 } from '@prisma/client';
 import { darajaService } from './daraja.service.js';
+import { paymentOrchestrator } from './payment/payment.orchestrator.js';
 import { mailService } from '../config/mail.js';
 
 export interface InitiatePublicationPurchaseInput {
@@ -61,6 +62,7 @@ export class PaymentService {
       throw new BadRequestError('Invalid publication price configured on the system.');
     }
 
+    const activeProvider = paymentOrchestrator.getActiveProvider();
     const formattedPhone = darajaService.formatPhoneNumber(input.phoneNumber);
     const referenceCode = this.generateReferenceCode('PUB');
 
@@ -76,7 +78,8 @@ export class PaymentService {
         payerName: input.customerName.trim(),
         payerEmail: input.customerEmail.toLowerCase().trim(),
         accountReference: referenceCode,
-        status: PaymentStatus.INITIATED
+        status: PaymentStatus.INITIATED,
+        metadata: JSON.stringify({ gatewayProvider: activeProvider.providerName })
       }
     });
 
@@ -94,22 +97,28 @@ export class PaymentService {
       }
     });
 
-    // Initiate STK Push via Daraja
+    // Initiate STK Push via Orchestrator (Daraja or PayHero)
     try {
-      const stkResult = await darajaService.initiateStkPush({
+      const stkResult = await paymentOrchestrator.initiateStkPush({
         phoneNumber: formattedPhone,
         amount: price,
         referenceCode,
-        description: `Buy ${publication.title}`
+        description: `Buy ${publication.title}`,
+        customerName: input.customerName.trim(),
+        customerEmail: input.customerEmail.toLowerCase().trim()
       });
 
-      // Update transaction with Daraja request IDs
+      // Update transaction with provider request IDs
       const updatedTx = await prisma.paymentTransaction.update({
         where: { id: transaction.id },
         data: {
-          merchantRequestId: stkResult.merchantRequestId,
-          checkoutRequestId: stkResult.checkoutRequestId,
-          status: PaymentStatus.PENDING
+          merchantRequestId: stkResult.merchantRequestId || null,
+          checkoutRequestId: stkResult.checkoutRequestId || null,
+          status: PaymentStatus.PENDING,
+          metadata: JSON.stringify({
+            gatewayProvider: stkResult.provider,
+            ...stkResult.rawResponse
+          })
         }
       });
 
@@ -143,6 +152,7 @@ export class PaymentService {
       throw new BadRequestError(`Minimum donation amount is KES ${minAmount}.`);
     }
 
+    const activeProvider = paymentOrchestrator.getActiveProvider();
     const formattedPhone = darajaService.formatPhoneNumber(input.phoneNumber);
     const referenceCode = this.generateReferenceCode('DON');
     const donorName = (input.donorName || '').trim() || (input.isAnonymous ? 'Anonymous Supporter' : 'Friend of MSC');
@@ -159,7 +169,8 @@ export class PaymentService {
         payerName: donorName,
         payerEmail: input.donorEmail ? input.donorEmail.toLowerCase().trim() : null,
         accountReference: referenceCode,
-        status: PaymentStatus.INITIATED
+        status: PaymentStatus.INITIATED,
+        metadata: JSON.stringify({ gatewayProvider: activeProvider.providerName })
       }
     });
 
@@ -182,19 +193,25 @@ export class PaymentService {
     });
 
     try {
-      const stkResult = await darajaService.initiateStkPush({
+      const stkResult = await paymentOrchestrator.initiateStkPush({
         phoneNumber: formattedPhone,
         amount: input.amount,
         referenceCode,
-        description: 'MSC Elder Care Donation'
+        description: 'MSC Elder Care Donation',
+        customerName: donorName,
+        customerEmail: input.donorEmail ? input.donorEmail.toLowerCase().trim() : 'supporter@mwanchasenior.org'
       });
 
       const updatedTx = await prisma.paymentTransaction.update({
         where: { id: transaction.id },
         data: {
-          merchantRequestId: stkResult.merchantRequestId,
-          checkoutRequestId: stkResult.checkoutRequestId,
-          status: PaymentStatus.PENDING
+          merchantRequestId: stkResult.merchantRequestId || null,
+          checkoutRequestId: stkResult.checkoutRequestId || null,
+          status: PaymentStatus.PENDING,
+          metadata: JSON.stringify({
+            gatewayProvider: stkResult.provider,
+            ...stkResult.rawResponse
+          })
         }
       });
 
@@ -220,27 +237,28 @@ export class PaymentService {
   }
 
   /**
-   * Processes the official Safaricom Daraja STK Push Callback Webhook
-   * Idempotent & resilient against duplicate callback invocations.
+   * Universal provider-independent callback handler (Daraja, PayHero, etc.)
+   * Resilient, idempotent, and transactional.
    */
-  async handleMpesaCallback(payload: any) {
-    logger.info({ payload }, 'Received M-Pesa STK Callback notification');
+  async handleProviderCallback(provider: string, payload: any, headers?: any) {
+    logger.info({ provider, payload }, 'Received payment provider callback notification');
 
-    const callback = payload?.Body?.stkCallback;
-    if (!callback) {
-      logger.warn('Invalid callback payload structure received.');
-      return { ResultCode: 1, ResultDesc: 'Invalid payload structure' };
+    const normalized = await paymentOrchestrator.parseCallback(provider, payload, headers);
+
+    const orConditions: any[] = [];
+    if (normalized.checkoutRequestId) orConditions.push({ checkoutRequestId: normalized.checkoutRequestId });
+    if (normalized.referenceCode) orConditions.push({ referenceCode: normalized.referenceCode });
+    if (normalized.providerTransactionId) orConditions.push({ checkoutRequestId: normalized.providerTransactionId });
+
+    if (orConditions.length === 0) {
+      logger.warn({ provider, payload }, 'Unable to extract transaction identifiers from provider callback');
+      return provider === 'daraja'
+        ? { ResultCode: 1, ResultDesc: 'Missing transaction identifiers' }
+        : { success: false, message: 'Missing transaction identifiers' };
     }
 
-    const { MerchantRequestID, CheckoutRequestID, ResultCode, ResultDesc } = callback;
-
     const transaction = await prisma.paymentTransaction.findFirst({
-      where: {
-        OR: [
-          { checkoutRequestId: CheckoutRequestID },
-          { merchantRequestId: MerchantRequestID }
-        ]
-      },
+      where: { OR: orConditions },
       include: {
         publicationPurchase: { include: { publication: true } },
         donationRecord: true
@@ -248,39 +266,33 @@ export class PaymentService {
     });
 
     if (!transaction) {
-      logger.warn({ CheckoutRequestID, MerchantRequestID }, 'Transaction not found for Daraja callback');
-      return { ResultCode: 0, ResultDesc: 'Accepted' }; // Always return 0 to Daraja to avoid infinite retries
+      logger.warn({ orConditions, provider }, 'Transaction not found for provider callback');
+      return provider === 'daraja'
+        ? { ResultCode: 0, ResultDesc: 'Accepted' }
+        : { success: true, message: 'Acknowledged' };
     }
 
-    // Idempotency: If transaction is already completed (SUCCESSFUL or FAILED), do not re-process
+    // Idempotency: If transaction is already completed (SUCCESSFUL), do not re-process
     if (transaction.status === PaymentStatus.SUCCESSFUL) {
       logger.info({ id: transaction.id }, 'Transaction was already confirmed successful. Skipping duplicate callback.');
-      return { ResultCode: 0, ResultDesc: 'Already processed' };
+      return provider === 'daraja'
+        ? { ResultCode: 0, ResultDesc: 'Already processed' }
+        : { success: true, message: 'Already processed' };
     }
 
-    // Extract metadata items if payment was successful (ResultCode === 0)
-    if (ResultCode === 0) {
-      let mpesaReceipt = '';
-      let paidAmount = 0;
-      let transactionDate = '';
-      let phoneNumber = '';
-
-      const items = callback.CallbackMetadata?.Item || [];
-      for (const item of items) {
-        if (item.Name === 'MpesaReceiptNumber') mpesaReceipt = String(item.Value);
-        if (item.Name === 'Amount') paidAmount = Number(item.Value);
-        if (item.Name === 'TransactionDate') transactionDate = String(item.Value);
-        if (item.Name === 'PhoneNumber') phoneNumber = String(item.Value);
-      }
+    if (normalized.isSuccessful) {
+      const receipt = normalized.providerReference;
 
       // Check if providerReference already exists to prevent duplicate receipts
-      const existingReceipt = mpesaReceipt
-        ? await prisma.paymentTransaction.findUnique({ where: { providerReference: mpesaReceipt } })
+      const existingReceipt = receipt
+        ? await prisma.paymentTransaction.findUnique({ where: { providerReference: receipt } })
         : null;
 
       if (existingReceipt && existingReceipt.id !== transaction.id) {
-        logger.error({ mpesaReceipt, txId: transaction.id }, 'M-Pesa receipt collision detected.');
-        return { ResultCode: 0, ResultDesc: 'Duplicate receipt' };
+        logger.error({ receipt, txId: transaction.id }, 'Receipt collision detected.');
+        return provider === 'daraja'
+          ? { ResultCode: 0, ResultDesc: 'Duplicate receipt' }
+          : { success: false, message: 'Duplicate receipt' };
       }
 
       // Atomically update transaction and activate entitlement in transaction
@@ -290,10 +302,10 @@ export class PaymentService {
           where: { id: transaction.id },
           data: {
             status: PaymentStatus.SUCCESSFUL,
-            providerReference: mpesaReceipt || `REC-${Date.now()}`,
-            resultCode: ResultCode,
-            resultDesc: ResultDesc || 'Success',
-            metadata: JSON.stringify(callback),
+            providerReference: receipt || `REC-${Date.now()}`,
+            resultCode: typeof normalized.resultCode === 'number' ? normalized.resultCode : 0,
+            resultDesc: normalized.resultDesc || 'Success',
+            metadata: JSON.stringify(normalized.rawPayload || payload),
             completedAt: new Date()
           }
         });
@@ -338,9 +350,10 @@ export class PaymentService {
             entity: 'PaymentTransaction',
             entityId: transaction.id,
             newData: JSON.stringify({
+              provider,
               referenceCode: transaction.referenceCode,
-              receipt: mpesaReceipt,
-              amount: paidAmount || transaction.amount,
+              receipt,
+              amount: normalized.amount || transaction.amount,
               category: transaction.category
             })
           }
@@ -348,30 +361,41 @@ export class PaymentService {
       });
 
       // Send confirmation receipt email asynchronously
-      this.sendPaymentReceiptEmail(transaction, mpesaReceipt).catch((err) => {
+      this.sendPaymentReceiptEmail(transaction, receipt).catch((err) => {
         logger.warn({ err }, 'Failed to deliver automated payment receipt email');
       });
 
-      logger.info({ id: transaction.id, mpesaReceipt }, 'M-Pesa payment successfully verified and recorded.');
-      return { ResultCode: 0, ResultDesc: 'Payment confirmed successfully' };
+      logger.info({ id: transaction.id, receipt, provider }, 'Payment confirmed and recorded successfully.');
+      return provider === 'daraja'
+        ? { ResultCode: 0, ResultDesc: 'Payment confirmed successfully' }
+        : { success: true, message: 'Payment confirmed successfully' };
     } else {
-      // User cancelled or transaction failed
-      const newStatus = ResultCode === 1032 ? PaymentStatus.CANCELLED : PaymentStatus.FAILED;
+      const newStatus = normalized.isCancelled ? PaymentStatus.CANCELLED : PaymentStatus.FAILED;
 
       await prisma.paymentTransaction.update({
         where: { id: transaction.id },
         data: {
           status: newStatus,
-          resultCode: ResultCode,
-          resultDesc: ResultDesc || 'Transaction was cancelled or declined by user.',
-          metadata: JSON.stringify(callback),
+          resultCode: typeof normalized.resultCode === 'number' ? normalized.resultCode : 1,
+          resultDesc: normalized.resultDesc || 'Transaction was cancelled or declined by user.',
+          metadata: JSON.stringify(normalized.rawPayload || payload),
           completedAt: new Date()
         }
       });
 
-      logger.info({ id: transaction.id, ResultCode, newStatus }, 'M-Pesa transaction marked as cancelled/failed.');
-      return { ResultCode: 0, ResultDesc: 'Failed status recorded' };
+      logger.info({ id: transaction.id, newStatus, provider }, 'Transaction marked as cancelled/failed.');
+      return provider === 'daraja'
+        ? { ResultCode: 0, ResultDesc: 'Failed status recorded' }
+        : { success: false, message: 'Failed status recorded' };
     }
+  }
+
+  /**
+   * Processes the official Safaricom Daraja STK Push Callback Webhook
+   * Backward-compatible entrypoint
+   */
+  async handleMpesaCallback(payload: any) {
+    return this.handleProviderCallback('daraja', payload);
   }
 
   /**
@@ -402,35 +426,48 @@ export class PaymentService {
       throw new NotFoundError('Transaction reference not found.');
     }
 
-    // If still pending and more than 60 seconds elapsed, query Safaricom status as fallback
+    // If still pending and more than 45 seconds elapsed, query status using originating provider
     if (
       transaction.status === PaymentStatus.PENDING &&
       transaction.checkoutRequestId &&
       Date.now() - transaction.initiatedAt.getTime() > 45000
     ) {
       try {
-        const queryRes = await darajaService.queryStkStatus(transaction.checkoutRequestId);
-        if (queryRes.resultCode === '0') {
-          // Re-trigger confirmation
+        let gatewayProvider = 'daraja';
+        try {
+          if (transaction.metadata) {
+            const meta = JSON.parse(transaction.metadata);
+            if (meta.gatewayProvider) gatewayProvider = meta.gatewayProvider;
+          }
+        } catch {
+          // fallback to default daraja
+        }
+
+        const queryRes = await paymentOrchestrator.queryStatus(gatewayProvider, {
+          checkoutRequestId: transaction.checkoutRequestId,
+          referenceCode: transaction.referenceCode
+        });
+
+        if (queryRes.status === 'SUCCESSFUL') {
           await prisma.paymentTransaction.update({
             where: { id: transaction.id },
             data: {
               status: PaymentStatus.SUCCESSFUL,
               completedAt: new Date(),
-              resultDesc: queryRes.resultDesc
+              resultDesc: queryRes.resultDesc || 'Confirmed via status query'
             }
           });
           transaction.status = PaymentStatus.SUCCESSFUL;
-        } else if (queryRes.resultCode && queryRes.resultCode !== '0') {
+        } else if (queryRes.status === 'FAILED' || queryRes.status === 'CANCELLED') {
           await prisma.paymentTransaction.update({
             where: { id: transaction.id },
             data: {
-              status: PaymentStatus.FAILED,
+              status: queryRes.status === 'CANCELLED' ? PaymentStatus.CANCELLED : PaymentStatus.FAILED,
               resultDesc: queryRes.resultDesc,
               completedAt: new Date()
             }
           });
-          transaction.status = PaymentStatus.FAILED;
+          transaction.status = queryRes.status === 'CANCELLED' ? PaymentStatus.CANCELLED : PaymentStatus.FAILED;
         }
       } catch (qErr) {
         // Log query error silently; polling continues

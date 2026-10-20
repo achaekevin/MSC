@@ -15,9 +15,14 @@ router.post('/donation/initiate', generalLimiter, (req, res, next) =>
   paymentController.initiateDonation(req, res, next)
 );
 
-// M-Pesa Safaricom Daraja STK Callback (Webhook)
+// M-Pesa Safaricom Daraja STK Callback (Webhook - Legacy/Standard)
 router.post('/mpesa/callback', (req, res, next) =>
   paymentController.handleMpesaCallback(req, res, next)
+);
+
+// Generic Multi-Provider Webhook: /api/v1/payments/:provider/callback (e.g. /daraja/callback or /payhero/callback)
+router.post('/:provider/callback', (req, res, next) =>
+  paymentController.handleProviderCallback(req, res, next)
 );
 
 // Polling status by reference code

@@ -44,12 +44,25 @@ export class PaymentController {
   }
 
   /**
-   * Public Webhook: Handle official Safaricom Daraja STK Push Callback
+   * Public Webhook: Handle official Safaricom Daraja STK Push Callback (legacy)
    */
   async handleMpesaCallback(req: Request, res: Response, next: NextFunction) {
     try {
       const result = await paymentService.handleMpesaCallback(req.body);
       // Safaricom expects standard response envelope
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Public Webhook: Handle provider-specific callback (Daraja or PayHero)
+   */
+  async handleProviderCallback(req: Request, res: Response, next: NextFunction) {
+    try {
+      const provider = req.params.provider || 'daraja';
+      const result = await paymentService.handleProviderCallback(provider, req.body, req.headers);
       return res.status(200).json(result);
     } catch (error) {
       next(error);
