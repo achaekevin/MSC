@@ -12,7 +12,7 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0', // Allow external connections
-    port: 5173,
+    port: 5179,
     strictPort: false,
     open: false, // Don't auto-open browser in network mode
     cors: true,

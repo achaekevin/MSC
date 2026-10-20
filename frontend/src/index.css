@@ -392,4 +392,50 @@ html.high-contrast textarea {
   }
 }
 
+/* ====================================================
+   PRINT / PDF EXPORT STYLES
+   Suppress browser-generated headers, footers and titles
+   that leak the page title or URL into printed/PDF output.
+   ==================================================== */
+@media print {
+  /* Remove all browser-injected header/footer (page title, URL, date, page#) */
+  @page {
+    margin: 0.5in;
+    /* Setting size explicitly prevents some browsers from adding title bars */
+    size: A4 portrait;
+  }
+
+  /* Hide all interactive UI elements during print */
+  .print\\:hidden,
+  nav,
+  header,
+  footer,
+  .sticky,
+  [class*="print:hidden"],
+  button,
+  .sidebar,
+  .progress-bar {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Remove fixed positioning that can cause repeat headers */
+  .fixed,
+  .sticky {
+    position: static !important;
+  }
+
+  /* Ensure body takes full width and no decoration */
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Prevent links from showing href URLs in print */
+  a[href]::after {
+    content: none !important;
+  }
+}
 
