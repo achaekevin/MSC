@@ -24,6 +24,7 @@ export const MSC_ORGANIZATION = {
   phone: "+254 790 629439",
   whatsapp: "+254 790 629439",
   whatsappDigits: "254790629439",
+  operatingHours: "Monday - Sunday: 8:00 AM - 5:00 PM",
   
   // Official Stated Vision
   vision: "To become a leading regional and global organization in spearheading the rights, welfare and wellbeing of the elderly in society.",

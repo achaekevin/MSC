@@ -280,7 +280,6 @@ export const DonatePage: React.FC = () => {
                   <ul className="text-xs sm:text-sm text-charcoal-600 dark:text-warm-300 space-y-1.5 list-disc list-inside">
                     <li>Walking sticks, canes & crutches</li>
                     <li>Manual & transport wheelchairs</li>
-                    <li>Adult diapers & incontinence pads</li>
                     <li>BP monitors & glucometer strips</li>
                     <li>Reading glasses & magnifying aids</li>
                   </ul>
@@ -318,7 +317,7 @@ export const DonatePage: React.FC = () => {
                     <strong>Road:</strong> Ekerenyo-Obwari-Magwagwa Road<br />
                     <strong>Location:</strong> Nyamira North, Nyamira County, Kenya<br />
                     <strong>Postal Address:</strong> P.O. Box 162-40506 Ekerenyo-Nyamira<br />
-                    <strong>Operating Hours:</strong> Monday to Saturday, 8:00 AM to 5:00 PM
+                    <strong>Operating Hours:</strong> Monday to Sunday, 8:00 AM to 5:00 PM
                   </p>
                   <p className="text-xs text-forest-300 italic pt-1">
                     * Need assistance with bulky items or field collection? Fill out the pledge form below and our 40 ward volunteers will coordinate pickup.

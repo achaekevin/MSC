@@ -230,7 +230,7 @@ export const ContactPage: React.FC = () => {
                     </div>
                     <div>
                       <span className="font-bold text-charcoal-900 block mb-0.5">Operational Desk Hours</span>
-                      <span>Monday - Friday: 08:30 AM - 05:00 PM EAT</span>
+                      <span>Monday - Sunday: 8:00 AM - 5:00 PM EAT</span>
                       <span className="block text-charcoal-500">Emergency case referrals accessible via ward volunteers</span>
                     </div>
                   </div>
