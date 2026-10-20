@@ -31,8 +31,8 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(() => authService.getUser());
+  const [isLoading, setIsLoading] = useState<boolean>(() => !authService.isAuthenticated());
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,7 +41,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const initializeAuth = async () => {
-    setIsLoading(true);
+    // Only set loading to true if there is no pre-existing valid user in local storage
+    if (!authService.isAuthenticated()) {
+      setIsLoading(true);
+    }
     setError(null);
 
     try {

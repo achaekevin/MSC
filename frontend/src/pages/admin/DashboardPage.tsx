@@ -92,14 +92,17 @@ export const DashboardPage: React.FC = () => {
   const [dependencyStatus, setDependencyStatus] = useState<DependencyStatus | null>(null);
   const [loadingMonitoringDetails, setLoadingMonitoringDetails] = useState<boolean>(false);
 
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+
   const fetchMonitoring = useCallback(async () => {
+    if (!isSuperAdmin) return;
     try {
       const overview = await monitoringService.getOverview();
       setMonitoringOverview(overview);
     } catch {
       // Non-fatal if server is starting or user does not have permission
     }
-  }, []);
+  }, [isSuperAdmin]);
 
   const openMonitoringModal = async () => {
     setShowMonitoringModal(true);
@@ -165,9 +168,9 @@ export const DashboardPage: React.FC = () => {
             entityId: 'MSC-CORE',
             createdAt: new Date().toISOString(),
             user: {
-              name: user?.name || 'Administrator',
-              email: user?.email || 'admin@mwancha.org',
-              role: user?.role || 'SUPER_ADMIN'
+              name: 'Administrator',
+              email: 'admin@mwancha.org',
+              role: 'SUPER_ADMIN'
             }
           }
         ]
@@ -175,12 +178,14 @@ export const DashboardPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     fetchDashboard();
-    fetchMonitoring();
-  }, [fetchDashboard, fetchMonitoring]);
+    if (isSuperAdmin) {
+      fetchMonitoring();
+    }
+  }, [fetchDashboard, fetchMonitoring, isSuperAdmin]);
 
   const quickActions = [
     {

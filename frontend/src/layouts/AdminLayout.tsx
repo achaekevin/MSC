@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Outlet, NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { LogOut, ExternalLink } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ConditionalRender } from '../components/auth/ProtectedRoute';
 import { AdminNotificationCenter } from '../components/admin/AdminNotificationCenter';
 import { ErrorBoundary } from '../components/common/ErrorBoundary';
+import { PageLoader } from '../components/ui/Skeleton';
 
 interface NavItem {
   name: string;
@@ -426,7 +427,9 @@ export const AdminLayout: React.FC = () => {
             <div className="py-4 sm:py-6 w-full max-w-full">
               <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full max-w-full">
                 <ErrorBoundary key={location.pathname}>
-                  <Outlet />
+                  <Suspense fallback={<PageLoader />}>
+                    <Outlet />
+                  </Suspense>
                 </ErrorBoundary>
               </div>
             </div>

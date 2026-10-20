@@ -67,10 +67,8 @@ export const CMSProvider: React.FC<CMSProviderProps> = ({ children }) => {
       refreshAll();
     };
     window.addEventListener('msc_content_updated', handleContentUpdated);
-    window.addEventListener('focus', handleContentUpdated);
     return () => {
       window.removeEventListener('msc_content_updated', handleContentUpdated);
-      window.removeEventListener('focus', handleContentUpdated);
     };
   }, [refreshAll]);
 

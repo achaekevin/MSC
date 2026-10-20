@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/navigation/Navbar';
 import { Footer } from '../components/layout/Footer';
@@ -6,6 +6,7 @@ import { WhatsAppButton } from '../components/common/WhatsAppButton';
 import { AccessibilityToolbar } from '../components/common/AccessibilityToolbar';
 import { PrivacyConsentBanner } from '../components/common/PrivacyConsentBanner';
 import { ErrorBoundary } from '../components/common/ErrorBoundary';
+import { PageLoader } from '../components/ui/Skeleton';
 import { analytics } from '../utils/analytics';
 
 export const RootLayout: React.FC = () => {
@@ -34,7 +35,9 @@ export const RootLayout: React.FC = () => {
       {/* Primary Page Content */}
       <main id="main-content" className="flex-1 focus:outline-none">
         <ErrorBoundary key={location.pathname}>
-          <Outlet />
+          <Suspense fallback={<PageLoader />}>
+            <Outlet />
+          </Suspense>
         </ErrorBoundary>
       </main>
 
