@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import fs from 'fs';
 import swaggerUi from 'swagger-ui-express';
+import compression from 'compression';
 import { corsOptions } from './config/cors.js';
 import { swaggerDocument } from './docs/swagger.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -19,6 +20,20 @@ import healthRoutes from './routes/health.routes.js';
 
 export const createApp = (): Express => {
   const app = express();
+
+  // High-performance gzip/deflate compression for static assets and API payloads
+  app.use(
+    compression({
+      level: 6,
+      threshold: 1024,
+      filter: (req, res) => {
+        if (req.headers['x-no-compression']) {
+          return false;
+        }
+        return compression.filter(req, res);
+      }
+    })
+  );
 
   const currentDir = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
 
@@ -54,7 +69,16 @@ export const createApp = (): Express => {
         res.setHeader('Expires', '0');
       } else if (filePath.includes('assets') || filePath.match(/\.[a-f0-9]{8,}\./i)) {
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (filePath.match(/\.(jpg|jpeg|png|webp|svg|ico|pdf|woff2?)$/i)) {
+        res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
       }
+    }
+  };
+
+  const imageStaticOptions = {
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    setHeaders: (res: Response) => {
+      res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
     }
   };
 
@@ -63,16 +87,16 @@ export const createApp = (): Express => {
     app.use(express.static(frontendDistPath, staticOptions));
   }
   app.use(express.static(backendPublicPath, staticOptions));
-  app.use('/images', express.static(path.join(backendPublicPath, 'images')));
+  app.use('/images', express.static(path.join(backendPublicPath, 'images'), imageStaticOptions));
   if (fs.existsSync(frontendPublicPath)) {
-    app.use('/images', express.static(path.join(frontendPublicPath, 'images')));
+    app.use('/images', express.static(path.join(frontendPublicPath, 'images'), imageStaticOptions));
   }
-  app.use('/documents', express.static(path.join(backendPublicPath, 'documents')));
+  app.use('/documents', express.static(path.join(backendPublicPath, 'documents'), imageStaticOptions));
   if (fs.existsSync(frontendPublicPath)) {
-    app.use('/documents', express.static(path.join(frontendPublicPath, 'documents')));
+    app.use('/documents', express.static(path.join(frontendPublicPath, 'documents'), imageStaticOptions));
   }
-  app.use('/logo.png', express.static(path.join(backendPublicPath, 'logo.png')));
-  app.use('/logo.jpg', express.static(path.join(backendPublicPath, 'logo.jpg')));
+  app.use('/logo.png', express.static(path.join(backendPublicPath, 'logo.png'), imageStaticOptions));
+  app.use('/logo.jpg', express.static(path.join(backendPublicPath, 'logo.jpg'), imageStaticOptions));
 
   // Trust proxy for rate limiters behind load balancers/reverse proxies
   app.set('trust proxy', 1);
