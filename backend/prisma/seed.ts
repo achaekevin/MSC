@@ -393,8 +393,8 @@ async function main() {
       displayOrder: 1
     },
     {
-      name: 'Mental Health & Inclusion',
-      slug: 'mental-health-inclusion',
+      name: 'Health, Inclusion and Development',
+      slug: 'health-inclusion-development',
       description: 'Counseling, peer socialization circles, and positive parenting for elder-headed homes.',
       displayOrder: 2
     },
@@ -505,7 +505,7 @@ async function main() {
     },
     {
       slug: 'psychosocial-support',
-      categorySlug: 'mental-health-inclusion',
+      categorySlug: 'health-inclusion-development',
       title: 'Psychosocial Support & Positive Parenting',
       summary: 'Promoting mental wellbeing, counseling, intergenerational cohesion, and positive parenting for elder-headed households.',
       description: 'Older persons in our communities frequently suffer severe loneliness, bereavement, depression, trauma from abuse, and the heavy emotional weight of raising grandchildren as OVC heads. This program provides professional counseling, peer support circles, and positive parenting training.',
