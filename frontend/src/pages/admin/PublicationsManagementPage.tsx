@@ -23,7 +23,10 @@ import {
   FileText,
   FileCheck2,
   PlusCircle,
-  MinusCircle
+  MinusCircle,
+  Lock,
+  Upload,
+  CreditCard
 } from 'lucide-react';
 
 const CATEGORY_OPTIONS = [
@@ -58,6 +61,9 @@ interface PublicationFormData {
   isbn: string;
   isFeatured: boolean;
   status: string;
+  accessType: 'FREE' | 'PAID';
+  price: number;
+  previewExcerpt: string;
   chapters: PublicationChapter[];
 }
 
@@ -77,6 +83,9 @@ const DEFAULT_FORM_DATA: PublicationFormData = {
   isbn: '',
   isFeatured: false,
   status: 'PUBLISHED',
+  accessType: 'FREE',
+  price: 0,
+  previewExcerpt: '',
   chapters: [
     { title: 'Chapter 1: Background & Context', body: '' }
   ]
@@ -104,6 +113,7 @@ export const PublicationsManagementPage: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [modalError, setModalError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedPdfFile, setSelectedPdfFile] = useState<File | null>(null);
 
   // Notification
   const [notification, setNotification] = useState<{
@@ -136,6 +146,7 @@ export const PublicationsManagementPage: React.FC = () => {
   // Open Edit
   const handleOpenEdit = (pub: PublicationItem) => {
     setEditingId(pub.id);
+    setSelectedPdfFile(null);
     setFormData({
       title: pub.title,
       subtitle: pub.subtitle || '',
@@ -152,6 +163,9 @@ export const PublicationsManagementPage: React.FC = () => {
       isbn: pub.isbn || '',
       isFeatured: Boolean(pub.isFeatured),
       status: pub.status || 'PUBLISHED',
+      accessType: (pub.accessType as any) || (pub.isPaid ? 'PAID' : 'FREE'),
+      price: pub.price || 0,
+      previewExcerpt: pub.previewExcerpt || '',
       chapters: pub.chapters && pub.chapters.length > 0
         ? pub.chapters
         : [{ title: 'Chapter 1: Overview', body: pub.content || pub.summary }]
@@ -164,6 +178,7 @@ export const PublicationsManagementPage: React.FC = () => {
   // Open Create
   const handleOpenCreate = () => {
     setEditingId(null);
+    setSelectedPdfFile(null);
     setFormData(DEFAULT_FORM_DATA);
     setFormErrors({});
     setModalError(null);
@@ -174,6 +189,7 @@ export const PublicationsManagementPage: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingId(null);
+    setSelectedPdfFile(null);
     setModalError(null);
     setFormErrors({});
   };
@@ -252,15 +268,29 @@ export const PublicationsManagementPage: React.FC = () => {
         isbn: formData.isbn.trim() || undefined,
         isFeatured: formData.isFeatured,
         status: formData.status,
+        accessType: formData.accessType,
+        price: formData.accessType === 'PAID' ? Number(formData.price) || 0 : 0,
+        previewExcerpt: formData.previewExcerpt.trim() || undefined,
         chapters: formData.chapters
       };
 
+      let savedPubId = editingId;
       if (editingId) {
         await publicationService.updatePublication(editingId, payload);
         showNotification('success', 'Publication / Book updated successfully!');
       } else {
-        await publicationService.createPublication(payload);
+        const created = await publicationService.createPublication(payload);
+        savedPubId = created.id;
         showNotification('success', 'New publication / book published successfully!');
+      }
+
+      if (selectedPdfFile && savedPubId) {
+        try {
+          await publicationService.uploadPrivatePdf(savedPubId, selectedPdfFile);
+          showNotification('success', 'Official protected PDF file uploaded and encrypted successfully.');
+        } catch (pdfErr: any) {
+          showNotification('error', `Publication saved, but PDF upload failed: ${pdfErr?.message || 'Upload error'}`);
+        }
       }
 
       handleCloseModal();
@@ -479,6 +509,7 @@ export const PublicationsManagementPage: React.FC = () => {
                 <tr>
                   <th className="py-4 px-6">Document / Book</th>
                   <th className="py-4 px-6">Category</th>
+                  <th className="py-4 px-6">Pricing & Access</th>
                   <th className="py-4 px-6">Author & Role</th>
                   <th className="py-4 px-6">Format & Pages</th>
                   <th className="py-4 px-6">Status</th>
@@ -514,6 +545,22 @@ export const PublicationsManagementPage: React.FC = () => {
                       <span className="capitalize text-xs font-bold px-2.5 py-1 rounded-full bg-forest-50 dark:bg-forest-950/80 text-forest-800 dark:text-emerald-300 border border-forest-200 dark:border-forest-800">
                         {pub.category}
                       </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      {pub.accessType === 'PAID' || pub.isPaid ? (
+                        <div className="flex flex-col gap-0.5">
+                          <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 font-mono">
+                            <Lock className="w-3 h-3" />
+                            KES {(pub.price || 0).toLocaleString()}
+                          </span>
+                          <span className="text-[10px] text-charcoal-500 font-medium">Lipa Na M-Pesa</span>
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Free Open Access
+                        </span>
+                      )}
                     </td>
                     <td className="py-4 px-6">
                       <div className="text-xs font-bold text-charcoal-800 dark:text-warm-200">
@@ -824,6 +871,116 @@ export const PublicationsManagementPage: React.FC = () => {
                 {formErrors.summary && (
                   <p className="text-xs text-rose-500 mt-1">{formErrors.summary}</p>
                 )}
+              </div>
+
+              {/* Revenue & Access Control */}
+              <div className="p-4 rounded-2xl bg-warm-100/60 dark:bg-charcoal-800/80 border border-warm-200 dark:border-charcoal-700 space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-black uppercase text-charcoal-800 dark:text-warm-200">
+                    Access Rights & Commerce
+                  </label>
+                  <span className="text-[11px] font-bold text-charcoal-500">
+                    Safaricom Daraja Integrated
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, accessType: 'FREE', price: 0 })}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      formData.accessType === 'FREE'
+                        ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-900 dark:text-emerald-200 font-bold shadow-xs'
+                        : 'bg-white dark:bg-charcoal-900 border-warm-200 dark:border-charcoal-700 text-charcoal-700 dark:text-warm-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      <span className="text-xs font-black uppercase">Free Open Access</span>
+                    </div>
+                    <p className="text-[11px] text-charcoal-500 dark:text-warm-400 mt-1">
+                      Available to the public for unrestricted online reading and direct PDF download.
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, accessType: 'PAID', price: formData.price || 450 })}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      formData.accessType === 'PAID'
+                        ? 'bg-amber-50 dark:bg-amber-950/60 border-amber-500 text-amber-900 dark:text-amber-200 font-bold shadow-xs'
+                        : 'bg-white dark:bg-charcoal-900 border-warm-200 dark:border-charcoal-700 text-charcoal-700 dark:text-warm-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-amber-600" />
+                      <span className="text-xs font-black uppercase">Paid Publication (KES)</span>
+                    </div>
+                    <p className="text-[11px] text-charcoal-500 dark:text-warm-400 mt-1">
+                      Gated by Lipa Na M-Pesa. Readers receive an instant download license after payment.
+                    </p>
+                  </button>
+                </div>
+
+                {formData.accessType === 'PAID' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-warm-200 dark:border-charcoal-700">
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-charcoal-700 dark:text-warm-300 mb-1">
+                        Price (KES) *
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        step="10"
+                        placeholder="e.g. 450"
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: Math.max(0, parseInt(e.target.value) || 0) })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-warm-200 dark:border-charcoal-700 bg-white dark:bg-charcoal-900 text-charcoal-900 dark:text-white text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-bold uppercase text-charcoal-700 dark:text-warm-300 mb-1">
+                        Preview Excerpt (Shown Before Paywall)
+                      </label>
+                      <textarea
+                        rows={2}
+                        placeholder="Provide a free preview excerpt or synopsis that unauthenticated readers can see before purchasing..."
+                        value={formData.previewExcerpt}
+                        onChange={(e) => setFormData({ ...formData, previewExcerpt: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-warm-200 dark:border-charcoal-700 bg-white dark:bg-charcoal-900 text-charcoal-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload Official PDF File */}
+                <div className="pt-2 border-t border-warm-200 dark:border-charcoal-700">
+                  <label className="block text-xs font-bold uppercase text-charcoal-700 dark:text-warm-300 mb-1">
+                    Upload Protected PDF Document (Encrypted Storage)
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-charcoal-900 border border-warm-300 dark:border-charcoal-700 text-charcoal-800 dark:text-warm-200 text-xs font-bold hover:bg-warm-100 transition-colors shadow-xs">
+                      <Upload className="w-3.5 h-3.5 text-forest-700 dark:text-emerald-400" />
+                      <span>{selectedPdfFile ? selectedPdfFile.name : 'Choose PDF File...'}</span>
+                      <input
+                        type="file"
+                        accept=".pdf,application/pdf"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            setSelectedPdfFile(e.target.files[0]);
+                          }
+                        }}
+                      />
+                    </label>
+                    {selectedPdfFile && (
+                      <span className="text-xs text-emerald-600 font-semibold">
+                        {(selectedPdfFile.size / (1024 * 1024)).toFixed(2)} MB ready to upload
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Chapters & Content Builder */}

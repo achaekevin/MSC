@@ -26,6 +26,8 @@ const StoryDetailPage = lazy(() => import('../pages/stories/StoryDetailPage').th
 
 const PublicationsPage = lazy(() => import('../pages/publications/PublicationsPage').then(m => ({ default: m.PublicationsPage })));
 const PublicationReaderPage = lazy(() => import('../pages/publications/PublicationReaderPage').then(m => ({ default: m.PublicationReaderPage })));
+const MyPublicationsPage = lazy(() => import('../pages/account/MyPublicationsPage').then(m => ({ default: m.MyPublicationsPage })));
+const FinancialManagementPage = lazy(() => import('../pages/admin/FinancialManagementPage').then(m => ({ default: m.FinancialManagementPage })));
 
 const EventsPage = lazy(() => import('../pages/events/EventsPage').then(m => ({ default: m.EventsPage })));
 const EventDetailPage = lazy(() => import('../pages/events/EventDetailPage').then(m => ({ default: m.EventDetailPage })));
@@ -99,6 +101,7 @@ export const AppRoutes: React.FC = () => {
           {/* Publications & Books Library */}
           <Route path="publications" element={<PublicationsPage />} />
           <Route path="publications/:slug" element={<PublicationReaderPage />} />
+          <Route path="my-publications" element={<MyPublicationsPage />} />
 
           {/* News */}
           <Route path="news" element={<NewsPage />} />
@@ -182,6 +185,11 @@ export const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           } />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="finance" element={
+            <ProtectedRoute requiredPermission="FINANCE_READ">
+              <FinancialManagementPage />
+            </ProtectedRoute>
+          } />
           <Route path="payments" element={
             <ProtectedRoute requiredPermission="SETTINGS_MANAGE">
               <PaymentSettingsPage />

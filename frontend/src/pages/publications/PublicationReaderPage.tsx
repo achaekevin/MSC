@@ -5,6 +5,7 @@ import { Container } from '../../components/ui/Container';
 import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { Button } from '../../components/ui/Button';
 import { SEO } from '../../components/common/SEO';
+import { MpesaCheckoutModal } from '../../components/commerce/MpesaCheckoutModal';
 import {
   BookOpen,
   Download,
@@ -26,7 +27,12 @@ import {
   Coffee,
   ZoomIn,
   ZoomOut,
-  ExternalLink
+  ExternalLink,
+  Lock,
+  CreditCard,
+  KeyRound,
+  ShoppingBag,
+  Mail
 } from 'lucide-react';
 import { MSC_ORGANIZATION } from '../../constants';
 import { downloadPublicationPdf } from '../../utils/pdfGenerator';
@@ -43,6 +49,14 @@ export const PublicationReaderPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Commerce & Entitlement states
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [customerEmail, setCustomerEmail] = useState(() => localStorage.getItem('msc_customer_email') || '');
+  const [verifyEmailInput, setVerifyEmailInput] = useState('');
+  const [verifyingEmail, setVerifyingEmail] = useState(false);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [verifySuccess, setVerifySuccess] = useState(false);
+
   // Reader Customization States
   const [readerTheme, setReaderTheme] = useState<ReaderTheme>('light');
   const [fontSize, setFontSize] = useState<FontSize>('md');
@@ -55,23 +69,54 @@ export const PublicationReaderPage: React.FC = () => {
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Fetch publication
-  useEffect(() => {
+  const fetchDoc = React.useCallback(async (email?: string) => {
     if (!slug) return;
-    const fetchDoc = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await publicationService.getPublicPublicationBySlug(slug);
-        setPublication(data);
-      } catch (err: any) {
-        setError(err?.message || 'Publication not found.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
+    setError(null);
+    try {
+      const activeEmail = email || customerEmail;
+      const data = await publicationService.getPublicPublicationBySlug(slug, activeEmail || undefined);
+      setPublication(data);
+    } catch (err: any) {
+      setError(err?.message || 'Publication not found.');
+    } finally {
+      setLoading(false);
+    }
+  }, [slug, customerEmail]);
 
+  useEffect(() => {
     fetchDoc();
-  }, [slug]);
+  }, [fetchDoc]);
+
+  // Handle restoring purchase via email
+  const handleVerifyPurchaserEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!verifyEmailInput.trim() || !verifyEmailInput.includes('@')) {
+      setVerifyError('Please enter a valid email address.');
+      return;
+    }
+
+    setVerifyingEmail(true);
+    setVerifyError(null);
+    setVerifySuccess(false);
+
+    try {
+      const email = verifyEmailInput.trim().toLowerCase();
+      const updatedDoc = await publicationService.getPublicPublicationBySlug(slug!, email);
+      if (updatedDoc.isEntitled) {
+        setPublication(updatedDoc);
+        setCustomerEmail(email);
+        localStorage.setItem('msc_customer_email', email);
+        setVerifySuccess(true);
+      } else {
+        setVerifyError('No active purchase record found for this email. Please check the spelling or proceed to unlock.');
+      }
+    } catch (err: any) {
+      setVerifyError(err?.message || 'Failed to verify purchase.');
+    } finally {
+      setVerifyingEmail(false);
+    }
+  };
 
   // Monitor scroll for reading progress bar
   useEffect(() => {
@@ -91,22 +136,31 @@ export const PublicationReaderPage: React.FC = () => {
   const handleExportPDF = () => {
     if (!publication) return;
 
+    if (publication.isPaid && !publication.isEntitled) {
+      setIsCheckoutOpen(true);
+      return;
+    }
+
     setDownloading(true);
     try {
-      downloadPublicationPdf(publication);
-      setDownloadSuccess(true);
-      setTimeout(() => setDownloadSuccess(false), 3000);
+      if (publication.hasPrivatePdf) {
+        const downloadUrl = publicationService.getDownloadUrl(publication.id, undefined, customerEmail || undefined);
+        window.open(downloadUrl, '_blank');
+        setDownloadSuccess(true);
+        setTimeout(() => setDownloadSuccess(false), 3000);
+      } else {
+        downloadPublicationPdf(publication);
+        setDownloadSuccess(true);
+        setTimeout(() => setDownloadSuccess(false), 3000);
+      }
     } catch (err) {
       console.error('Client-side PDF generation fallback:', err);
       if (publication.pdfUrl) {
         window.open(publication.pdfUrl, '_blank');
       } else {
-        // Temporarily set document.title to the publication title only
-        // so the browser doesn't inject a stale/wrong page title in the print header
         const originalTitle = document.title;
         document.title = publication.title;
         window.print();
-        // Restore original title after print dialog closes
         setTimeout(() => { document.title = originalTitle; }, 500);
       }
     } finally {
@@ -185,6 +239,8 @@ export const PublicationReaderPage: React.FC = () => {
     );
   }
 
+  const isLocked = Boolean(publication.isPaid && !publication.isEntitled);
+
   return (
     <div className="pb-24 text-left relative">
       <SEO
@@ -216,6 +272,13 @@ export const PublicationReaderPage: React.FC = () => {
             <span className="hidden sm:inline-block text-xs font-bold text-charcoal-800 dark:text-warm-200 truncate max-w-xs md:max-w-md">
               {publication.title}
             </span>
+
+            {isLocked && (
+              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-500 text-charcoal-950">
+                <Lock className="w-3 h-3" />
+                KES {publication.price?.toLocaleString()}
+              </span>
+            )}
           </div>
 
           {/* Reader Appearance & Action Controls */}
@@ -282,8 +345,8 @@ export const PublicationReaderPage: React.FC = () => {
               <span className="hidden md:inline">{copied ? 'Copied' : 'Share'}</span>
             </button>
 
-            {/* Open Original PDF Tab */}
-            {publication?.pdfUrl && (
+            {/* Open Original PDF Tab if Free or Entitled */}
+            {!isLocked && publication?.pdfUrl && (
               <a
                 href={publication.pdfUrl}
                 target="_blank"
@@ -296,30 +359,41 @@ export const PublicationReaderPage: React.FC = () => {
               </a>
             )}
 
-            {/* Export / Download as PDF Action Button */}
-            <button
-              onClick={handleExportPDF}
-              disabled={downloading}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-forest-900 dark:bg-emerald-600 hover:bg-forest-800 dark:hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 disabled:opacity-50"
-              title="Export as formatted PDF document"
-            >
-              {downloadSuccess ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>Downloaded!</span>
-                </>
-              ) : downloading ? (
-                <>
-                  <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Generating...</span>
-                </>
-              ) : (
-                <>
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Export as PDF</span>
-                </>
-              )}
-            </button>
+            {/* Export / Unlock Action Button */}
+            {isLocked ? (
+              <button
+                onClick={() => setIsCheckoutOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-charcoal-950 font-black text-xs shadow-md transition-all active:scale-95"
+                title="Unlock publication via Lipa Na M-Pesa"
+              >
+                <CreditCard className="w-3.5 h-3.5" />
+                <span>Unlock (KES {publication.price})</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleExportPDF}
+                disabled={downloading}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-forest-900 dark:bg-emerald-600 hover:bg-forest-800 dark:hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 disabled:opacity-50"
+                title="Export as formatted PDF document"
+              >
+                {downloadSuccess ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-300" />
+                    <span>Downloaded!</span>
+                  </>
+                ) : downloading ? (
+                  <>
+                    <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Export as PDF</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -478,29 +552,143 @@ export const PublicationReaderPage: React.FC = () => {
                 </p>
               </div>
 
-              {/* Chapters or Full Narrative Text */}
-              <div className={`space-y-12 text-left font-serif ${getFontSizeClass()}`}>
-                {publication.chapters && publication.chapters.length > 0 ? (
-                  publication.chapters.map((chapter, idx) => (
-                    <section
-                      key={idx}
-                      id={`chapter-${idx}`}
-                      className="space-y-4 pt-4 border-t border-current/10 first:border-t-0"
-                    >
-                      <h2 className="text-2xl sm:text-3xl font-black font-display tracking-tight text-forest-900 dark:text-emerald-400 print:text-black">
-                        {chapter.title}
-                      </h2>
-                      <div className="whitespace-pre-line leading-relaxed opacity-90 text-justify">
-                        {chapter.body}
+              {/* Chapters or Full Narrative Text vs Paywall Gating */}
+              {isLocked ? (
+                <div className="space-y-8 text-left">
+                  {/* Preview Excerpt */}
+                  {publication.previewExcerpt && (
+                    <div className="p-6 rounded-2xl bg-warm-50 dark:bg-charcoal-800/80 border border-warm-200 dark:border-charcoal-700">
+                      <span className="text-[11px] font-black uppercase tracking-wider text-forest-800 dark:text-emerald-400 block mb-2">
+                        Preview Excerpt
+                      </span>
+                      <p className="text-base leading-relaxed italic opacity-95">
+                        "{publication.previewExcerpt}"
+                      </p>
+                    </div>
+                  )}
+
+                  {/* High-conversion Paywall Card */}
+                  <div className="rounded-3xl p-8 sm:p-10 bg-gradient-to-br from-forest-950 via-forest-900 to-charcoal-950 text-white border-2 border-amber-500/50 shadow-2xl space-y-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-forest-800 pb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+                          <Lock className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <span className="text-[11px] font-black uppercase tracking-wider text-amber-400 block">
+                            Premium Institutional Resource
+                          </span>
+                          <h3 className="text-2xl font-black font-display text-white">
+                            Unlock Full Publication
+                          </h3>
+                        </div>
                       </div>
-                    </section>
-                  ))
-                ) : (
-                  <div className="whitespace-pre-line leading-relaxed opacity-90 text-justify">
-                    {publication.content || publication.fullText}
+
+                      <div className="text-left sm:text-right">
+                        <span className="text-xs text-forest-200 block">One-time Investment</span>
+                        <span className="text-3xl font-black text-amber-300 font-display">
+                          KES {publication.price?.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm text-forest-100/90 font-medium">
+                      <div className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                        <span>Instant online reading of all {publication.pages || ''} pages & chapters</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                        <span>Official high-res printable PDF download license</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                        <span>Automated Safaricom Lipa Na M-Pesa STK push</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                        <span>Digital tax receipt and download code sent to email</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 flex flex-col sm:flex-row gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setIsCheckoutOpen(true)}
+                        className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-charcoal-950 font-black text-sm shadow-xl transition-all active:scale-95 cursor-pointer"
+                      >
+                        <CreditCard className="w-4 h-4" />
+                        <span>Unlock Now via Lipa Na M-Pesa (KES {publication.price})</span>
+                      </button>
+
+                      <Link
+                        to="/my-publications"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-4 rounded-2xl bg-forest-800/80 hover:bg-forest-700 text-amber-300 font-bold text-xs border border-forest-700 transition-all"
+                      >
+                        <ShoppingBag className="w-4 h-4" />
+                        <span>Customer Library</span>
+                      </Link>
+                    </div>
+
+                    {/* Restore Purchase with Email */}
+                    <div className="pt-6 border-t border-forest-800/80">
+                      <h4 className="text-xs font-bold text-forest-200 mb-2 flex items-center gap-1.5">
+                        <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Already purchased this publication?</span>
+                      </h4>
+                      <form onSubmit={handleVerifyPurchaserEmail} className="flex flex-col sm:flex-row gap-2 max-w-lg">
+                        <input
+                          type="email"
+                          placeholder="Enter the email used during purchase..."
+                          value={verifyEmailInput}
+                          onChange={(e) => setVerifyEmailInput(e.target.value)}
+                          className="flex-1 px-4 py-2.5 rounded-xl bg-forest-900 border border-forest-700 text-white placeholder-forest-400 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        />
+                        <button
+                          type="submit"
+                          disabled={verifyingEmail}
+                          className="px-4 py-2.5 rounded-xl bg-forest-700 hover:bg-forest-600 text-white font-bold text-xs transition-all active:scale-95 disabled:opacity-50"
+                        >
+                          {verifyingEmail ? 'Verifying...' : 'Restore Access'}
+                        </button>
+                      </form>
+                      {verifyError && (
+                        <p className="text-xs text-rose-300 font-medium mt-2">{verifyError}</p>
+                      )}
+                      {verifySuccess && (
+                        <p className="text-xs text-emerald-300 font-medium mt-2">
+                          Access verified! Your document has been unlocked.
+                        </p>
+                      )}
+                    </div>
                   </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className={`space-y-12 text-left font-serif ${getFontSizeClass()}`}>
+                  {publication.chapters && publication.chapters.length > 0 ? (
+                    publication.chapters.map((chapter, idx) => (
+                      <section
+                        key={idx}
+                        id={`chapter-${idx}`}
+                        className="space-y-4 pt-4 border-t border-current/10 first:border-t-0"
+                      >
+                        <h2 className="text-2xl sm:text-3xl font-black font-display tracking-tight text-forest-900 dark:text-emerald-400 print:text-black">
+                          {chapter.title}
+                        </h2>
+                        <div className="whitespace-pre-line leading-relaxed opacity-90 text-justify">
+                          {chapter.body}
+                        </div>
+                      </section>
+                    ))
+                  ) : (
+                    <div className="whitespace-pre-line leading-relaxed opacity-90 text-justify">
+                      {publication.content || publication.fullText}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Institutional Research & Legal Verification Callout */}
               <div className="mt-12 p-6 rounded-2xl bg-forest-50 dark:bg-charcoal-800/80 border border-forest-200 dark:border-charcoal-700 text-left">
@@ -529,39 +717,51 @@ export const PublicationReaderPage: React.FC = () => {
               </footer>
             </article>
 
-            {/* Bottom Download & Sharing Bar */}
+            {/* Bottom Action Bar */}
             <div className="bg-forest-950 text-white rounded-3xl p-8 border border-forest-800 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 print:hidden">
               <div className="text-left space-y-1">
                 <h3 className="text-lg font-bold font-display text-white flex items-center gap-2">
-                  <Download className="w-5 h-5 text-emerald-400" />
-                  <span>Download or Print for Field Work</span>
+                  {isLocked ? (
+                    <>
+                      <Lock className="w-5 h-5 text-amber-400" />
+                      <span>Unlock Complete Publication</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-5 h-5 text-emerald-400" />
+                      <span>Download or Print for Field Work</span>
+                    </>
+                  )}
                 </h3>
                 <p className="text-xs text-forest-200">
-                  Export this complete publication as a high-resolution PDF for offline study or community training.
+                  {isLocked
+                    ? `Unlock instant access via Lipa Na M-Pesa (KES ${publication.price}) for full online reading and official PDF download.`
+                    : 'Export this complete publication as a high-resolution PDF for offline study or community training.'}
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-                {publication?.pdfUrl && (
-                  <a
-                    href={publication.pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/30 text-white hover:bg-white/10 font-bold text-sm transition-colors"
+                {isLocked ? (
+                  <Button
+                    onClick={() => setIsCheckoutOpen(true)}
+                    variant="primary"
+                    size="md"
+                    className="bg-amber-500 hover:bg-amber-400 text-charcoal-950 font-black border-none"
+                    icon={<CreditCard className="w-4 h-4" />}
                   >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>Open in Browser</span>
-                  </a>
+                    Unlock (KES {publication.price})
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleExportPDF}
+                    variant="primary"
+                    size="md"
+                    disabled={downloading}
+                    icon={downloadSuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
+                  >
+                    {downloadSuccess ? 'Downloaded!' : downloading ? 'Generating PDF...' : 'Download / Save as PDF'}
+                  </Button>
                 )}
-                <Button
-                  onClick={handleExportPDF}
-                  variant="primary"
-                  size="md"
-                  disabled={downloading}
-                  icon={downloadSuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
-                >
-                  {downloadSuccess ? 'Downloaded!' : downloading ? 'Generating PDF...' : 'Download / Save as PDF'}
-                </Button>
                 <Button
                   to="/publications"
                   variant="outline"
@@ -575,8 +775,33 @@ export const PublicationReaderPage: React.FC = () => {
           </div>
         </div>
       </Container>
+
+      {/* Lipa Na M-Pesa Checkout Modal */}
+      {isCheckoutOpen && (
+        <MpesaCheckoutModal
+          isOpen={isCheckoutOpen}
+          onClose={() => setIsCheckoutOpen(false)}
+          itemType="PUBLICATION"
+          itemId={publication.id}
+          itemTitle={publication.title}
+          itemSubtitle={publication.subtitle}
+          coverImage={publication.coverImage}
+          amount={publication.price || 0}
+          onSuccess={(res) => {
+            setIsCheckoutOpen(false);
+            if (res.customerEmail) {
+              setCustomerEmail(res.customerEmail);
+              localStorage.setItem('msc_customer_email', res.customerEmail);
+              fetchDoc(res.customerEmail);
+            } else {
+              fetchDoc();
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
 
 export default PublicationReaderPage;
+

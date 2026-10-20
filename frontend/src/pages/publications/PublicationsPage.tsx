@@ -8,6 +8,7 @@ import { Breadcrumb } from '../../components/ui/Breadcrumb';
 import { Button } from '../../components/ui/Button';
 import { SEO } from '../../components/common/SEO';
 import { ErrorState } from '../../components/ui/ErrorState';
+import { MpesaCheckoutModal } from '../../components/commerce/MpesaCheckoutModal';
 import {
   BookOpen,
   Download,
@@ -26,7 +27,10 @@ import {
   Bookmark,
   Share2,
   CheckCircle2,
-  Printer
+  Printer,
+  ShoppingBag,
+  CreditCard,
+  Lock
 } from 'lucide-react';
 
 const CATEGORY_TABS = [
@@ -38,6 +42,8 @@ const CATEGORY_TABS = [
   'Research Paper'
 ];
 
+type AccessFilter = 'ALL' | 'FREE' | 'PAID';
+
 export const PublicationsPage: React.FC = () => {
   const { isAuthenticated, user, hasPermission } = useAuth();
   const isAdmin = isAuthenticated && (user?.role === 'SUPER_ADMIN' || user?.role === 'CONTENT_ADMIN' || hasPermission('CONTENT_CREATE'));
@@ -47,6 +53,10 @@ export const PublicationsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Publications');
+  const [accessFilter, setAccessFilter] = useState<AccessFilter>('ALL');
+
+  // Checkout modal state
+  const [selectedPubForPurchase, setSelectedPubForPurchase] = useState<PublicationItem | null>(null);
 
   const fetchPublications = React.useCallback(async () => {
     setLoading(true);
@@ -78,9 +88,14 @@ export const PublicationsPage: React.FC = () => {
         Boolean(item.category && item.category.toLowerCase() === selectedCategory.toLowerCase()) ||
         Boolean(item.type && item.type.toLowerCase() === selectedCategory.toLowerCase());
 
-      return matchesSearch && matchesCategory;
+      const matchesAccess =
+        accessFilter === 'ALL' ||
+        (accessFilter === 'FREE' && (!item.isPaid && item.accessType !== 'PAID')) ||
+        (accessFilter === 'PAID' && (item.isPaid || item.accessType === 'PAID'));
+
+      return matchesSearch && matchesCategory && matchesAccess;
     });
-  }, [publications, searchQuery, selectedCategory]);
+  }, [publications, searchQuery, selectedCategory, accessFilter]);
 
   return (
     <div className="pb-20 space-y-12 text-left">
@@ -114,8 +129,16 @@ export const PublicationsPage: React.FC = () => {
               </p>
             </div>
 
-            {isAdmin && (
-              <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                to="/my-publications"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-forest-800/90 hover:bg-forest-700 text-amber-300 font-bold text-xs border border-forest-600/80 transition-all shadow-sm"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span>My Purchased Library</span>
+              </Link>
+
+              {isAdmin && (
                 <Button
                   to="/admin/publications"
                   variant="secondary"
@@ -124,8 +147,8 @@ export const PublicationsPage: React.FC = () => {
                 >
                   Publish New Book / Article
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </Container>
       </section>
@@ -146,28 +169,66 @@ export const PublicationsPage: React.FC = () => {
               />
             </div>
 
-            {/* Quick Stats Pill */}
-            <div className="flex items-center gap-2 text-xs font-bold text-charcoal-600 dark:text-warm-300">
-              <Layers className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>{filteredPublications.length} Documents Available for Download & Reading</span>
+            {/* Access Mode Badges (All / Free / Premium) */}
+            <div className="flex items-center gap-1.5 p-1 bg-warm-100 dark:bg-charcoal-800 rounded-2xl border border-warm-200 dark:border-charcoal-700 text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => setAccessFilter('ALL')}
+                className={`px-3 py-1.5 rounded-xl transition-all ${
+                  accessFilter === 'ALL'
+                    ? 'bg-white dark:bg-charcoal-900 text-charcoal-950 dark:text-white shadow-xs'
+                    : 'text-charcoal-600 dark:text-warm-300 hover:text-charcoal-900'
+                }`}
+              >
+                All Documents
+              </button>
+              <button
+                type="button"
+                onClick={() => setAccessFilter('FREE')}
+                className={`px-3 py-1.5 rounded-xl transition-all ${
+                  accessFilter === 'FREE'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-charcoal-600 dark:text-warm-300 hover:text-charcoal-900'
+                }`}
+              >
+                Free Access
+              </button>
+              <button
+                type="button"
+                onClick={() => setAccessFilter('PAID')}
+                className={`px-3 py-1.5 rounded-xl transition-all ${
+                  accessFilter === 'PAID'
+                    ? 'bg-amber-500 text-white shadow-xs'
+                    : 'text-charcoal-600 dark:text-warm-300 hover:text-charcoal-900'
+                }`}
+              >
+                Premium & Books
+              </button>
             </div>
           </div>
 
           {/* Category Filter Pills */}
-          <div className="flex flex-wrap gap-2 pt-2 border-t border-warm-100 dark:border-charcoal-800">
-            {CATEGORY_TABS.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setSelectedCategory(tab)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${
-                  selectedCategory === tab
-                    ? 'bg-forest-900 text-white dark:bg-emerald-600 shadow-sm'
-                    : 'bg-warm-100 text-charcoal-700 hover:bg-warm-200 dark:bg-charcoal-800 dark:text-warm-300 dark:hover:bg-charcoal-700'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-warm-100 dark:border-charcoal-800">
+            <div className="flex flex-wrap gap-2">
+              {CATEGORY_TABS.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setSelectedCategory(tab)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${
+                    selectedCategory === tab
+                      ? 'bg-forest-900 text-white dark:bg-emerald-600 shadow-sm'
+                      : 'bg-warm-100 text-charcoal-700 hover:bg-warm-200 dark:bg-charcoal-800 dark:text-warm-300 dark:hover:bg-charcoal-700'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 text-xs font-bold text-charcoal-600 dark:text-warm-300">
+              <Layers className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>{filteredPublications.length} Documents Available</span>
+            </div>
           </div>
         </div>
 
@@ -198,6 +259,7 @@ export const PublicationsPage: React.FC = () => {
               onClick={() => {
                 setSearchQuery('');
                 setSelectedCategory('All Publications');
+                setAccessFilter('ALL');
               }}
               variant="outline"
               size="sm"
@@ -208,90 +270,139 @@ export const PublicationsPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredPublications.map((pub) => (
-              <div
-                key={pub.id}
-                className="group bg-white dark:bg-charcoal-900 rounded-3xl border-2 border-warm-200 dark:border-charcoal-800 shadow-card hover:shadow-card-hover transition-all duration-300 flex flex-col justify-between overflow-hidden hover:-translate-y-1 text-left"
-              >
-                <div>
-                  {/* Book Cover Thumbnail with Aspect Ratio */}
-                  <div className="aspect-[16/10] bg-warm-100 dark:bg-charcoal-800 relative overflow-hidden border-b border-warm-200 dark:border-charcoal-800">
-                    <img
-                      src={pub.coverImage || '/images/mwancha-facility-main.jpg'}
-                      alt={pub.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/80 via-transparent to-transparent" />
+            {filteredPublications.map((pub) => {
+              const isPaid = pub.isPaid || pub.accessType === 'PAID';
+              const price = pub.price || 0;
 
-                    {/* Top Badges */}
-                    <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                      <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-forest-950/90 text-amber-300 border border-white/20 shadow-xs">
-                        {pub.category || pub.type}
-                      </span>
-                    </div>
+              return (
+                <div
+                  key={pub.id}
+                  className="group bg-white dark:bg-charcoal-900 rounded-3xl border-2 border-warm-200 dark:border-charcoal-800 shadow-card hover:shadow-card-hover transition-all duration-300 flex flex-col justify-between overflow-hidden hover:-translate-y-1 text-left"
+                >
+                  <div>
+                    {/* Book Cover Thumbnail with Aspect Ratio */}
+                    <div className="aspect-[16/10] bg-warm-100 dark:bg-charcoal-800 relative overflow-hidden border-b border-warm-200 dark:border-charcoal-800">
+                      <img
+                        src={pub.coverImage || '/images/mwancha-facility-main.jpg'}
+                        alt={pub.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/80 via-transparent to-transparent" />
 
-                    <div className="absolute bottom-3 left-3 right-3 text-white flex items-center justify-between text-xs font-semibold">
-                      <span className="flex items-center gap-1 drop-shadow-md">
-                        <Clock className="w-3.5 h-3.5 text-amber-300" />
-                        {pub.readingTime || '15 min read'}
-                      </span>
-                      {pub.pages && (
-                        <span className="bg-white/20 backdrop-blur-xs px-2 py-0.5 rounded text-[11px] drop-shadow-md">
-                          {pub.pages} Pages
+                      {/* Top Badges */}
+                      <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                        <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-forest-950/90 text-amber-300 border border-white/20 shadow-xs">
+                          {pub.category || pub.type}
                         </span>
+                      </div>
+
+                      {/* Price / Access Badge on Top Right */}
+                      <div className="absolute top-3 right-3">
+                        {isPaid ? (
+                          <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-500 text-charcoal-950 shadow-md flex items-center gap-1 border border-amber-300">
+                            <Lock className="w-3 h-3" />
+                            KES {price.toLocaleString()}
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-600 text-white shadow-md flex items-center gap-1 border border-emerald-400">
+                            <CheckCircle2 className="w-3 h-3" />
+                            FREE ACCESS
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="absolute bottom-3 left-3 right-3 text-white flex items-center justify-between text-xs font-semibold">
+                        <span className="flex items-center gap-1 drop-shadow-md">
+                          <Clock className="w-3.5 h-3.5 text-amber-300" />
+                          {pub.readingTime || '15 min read'}
+                        </span>
+                        {pub.pages && (
+                          <span className="bg-white/20 backdrop-blur-xs px-2 py-0.5 rounded text-[11px] drop-shadow-md">
+                            {pub.pages} Pages
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Body Content */}
+                    <div className="p-6">
+                      <h3 className="text-xl font-black font-display text-charcoal-950 dark:text-white group-hover:text-forest-800 dark:group-hover:text-emerald-400 transition-colors leading-snug line-clamp-2">
+                        {pub.title}
+                      </h3>
+
+                      {pub.subtitle && (
+                        <p className="text-xs text-charcoal-500 dark:text-warm-300 font-semibold mt-1 line-clamp-1 italic">
+                          {pub.subtitle}
+                        </p>
                       )}
-                    </div>
-                  </div>
 
-                  {/* Body Content */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-black font-display text-charcoal-950 dark:text-white group-hover:text-forest-800 dark:group-hover:text-emerald-400 transition-colors leading-snug line-clamp-2">
-                      {pub.title}
-                    </h3>
+                      <div className="mt-3 flex items-center gap-2 text-xs text-charcoal-600 dark:text-warm-300 font-medium">
+                        <User className="w-3.5 h-3.5 text-forest-700 dark:text-emerald-400 flex-shrink-0" />
+                        <span className="truncate">{pub.authorName}</span>
+                      </div>
 
-                    {pub.subtitle && (
-                      <p className="text-xs text-charcoal-500 dark:text-warm-300 font-semibold mt-1 line-clamp-1 italic">
-                        {pub.subtitle}
+                      <p className="mt-3 text-sm text-charcoal-700 dark:text-warm-200 line-clamp-3 leading-relaxed">
+                        {pub.summary}
                       </p>
-                    )}
-
-                    <div className="mt-3 flex items-center gap-2 text-xs text-charcoal-600 dark:text-warm-300 font-medium">
-                      <User className="w-3.5 h-3.5 text-forest-700 dark:text-emerald-400 flex-shrink-0" />
-                      <span className="truncate">{pub.authorName}</span>
                     </div>
+                  </div>
 
-                    <p className="mt-3 text-sm text-charcoal-700 dark:text-warm-200 line-clamp-3 leading-relaxed">
-                      {pub.summary}
-                    </p>
+                  {/* Footer Action Buttons */}
+                  <div className="p-6 pt-0 border-t border-warm-100 dark:border-charcoal-800/80 mt-4 flex items-center gap-3">
+                    <Link
+                      to={`/publications/${pub.slug}`}
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-forest-900 dark:bg-emerald-600 hover:bg-forest-800 dark:hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all active:scale-95"
+                    >
+                      <BookOpen className="w-3.5 h-3.5" />
+                      <span>{isPaid ? 'Preview & Read' : 'Read Online'}</span>
+                    </Link>
+
+                    {isPaid ? (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPubForPurchase(pub)}
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-charcoal-950 font-black text-xs transition-all shadow-sm border border-amber-400 cursor-pointer active:scale-95"
+                        title="Unlock publication via Lipa Na M-Pesa"
+                      >
+                        <CreditCard className="w-3.5 h-3.5" />
+                        <span>Buy KES {price}</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => downloadPublicationPdf(pub)}
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-warm-100 dark:bg-charcoal-800 hover:bg-forest-100 hover:text-forest-900 dark:hover:bg-charcoal-700 text-charcoal-800 dark:text-warm-100 font-bold text-xs transition-all border border-warm-200 dark:border-charcoal-700 cursor-pointer active:scale-95"
+                        title="Download publication as PDF"
+                      >
+                        <Download className="w-3.5 h-3.5 text-forest-800 dark:text-emerald-400" />
+                        <span>PDF</span>
+                      </button>
+                    )}
                   </div>
                 </div>
-
-                {/* Footer Action Buttons */}
-                <div className="p-6 pt-0 border-t border-warm-100 dark:border-charcoal-800/80 mt-4 flex items-center gap-3">
-                  <Link
-                    to={`/publications/${pub.slug}`}
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-forest-900 dark:bg-emerald-600 hover:bg-forest-800 dark:hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all active:scale-95"
-                  >
-                    <BookOpen className="w-3.5 h-3.5" />
-                    <span>Read Online</span>
-                  </Link>
-
-                  <button
-                    type="button"
-                    onClick={() => downloadPublicationPdf(pub)}
-                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-warm-100 dark:bg-charcoal-800 hover:bg-forest-100 hover:text-forest-900 dark:hover:bg-charcoal-700 text-charcoal-800 dark:text-warm-100 font-bold text-xs transition-all border border-warm-200 dark:border-charcoal-700 cursor-pointer active:scale-95"
-                    title="Download publication as PDF"
-                  >
-                    <Download className="w-3.5 h-3.5 text-forest-800 dark:text-emerald-400" />
-                    <span>PDF</span>
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Container>
+
+      {/* M-Pesa Checkout Modal for Card Quick Purchase */}
+      {selectedPubForPurchase && (
+        <MpesaCheckoutModal
+          isOpen={Boolean(selectedPubForPurchase)}
+          onClose={() => setSelectedPubForPurchase(null)}
+          itemType="PUBLICATION"
+          itemId={selectedPubForPurchase.id}
+          itemTitle={selectedPubForPurchase.title}
+          itemSubtitle={selectedPubForPurchase.subtitle}
+          coverImage={selectedPubForPurchase.coverImage}
+          amount={selectedPubForPurchase.price || 0}
+          onSuccess={() => {
+            fetchPublications();
+          }}
+        />
+      )}
     </div>
   );
 };

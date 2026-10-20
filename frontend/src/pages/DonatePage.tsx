@@ -28,16 +28,26 @@ import {
   PackageCheck,
   Copy,
   Check,
-  HelpCircle
+  HelpCircle,
+  ShieldCheck
 } from 'lucide-react';
 import { MSC_ORGANIZATION } from '../constants';
 import { ContentStatusBadge } from '../components/common/ContentStatusBadge';
 import { SpamProtection, SpamProtectionData } from '../components/common/SpamProtection';
+import { MpesaCheckoutModal } from '../components/commerce/MpesaCheckoutModal';
 
 export const DonatePage: React.FC = () => {
   const [methods, setMethods] = useState<DonationMethod[]>([]);
   const [loadingMethods, setLoadingMethods] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'inkind' | 'financial'>('inkind');
+
+  // M-Pesa Online Donation State
+  const [isMpesaModalOpen, setIsMpesaModalOpen] = useState(false);
+  const [donationAmount, setDonationAmount] = useState<number>(1000);
+  const [customAmount, setCustomAmount] = useState<string>('');
+  const [isCustom, setIsCustom] = useState<boolean>(false);
+  const [designation, setDesignation] = useState<string>('Elder Food & Nutritional Support');
+  const [donationSuccessMsg, setDonationSuccessMsg] = useState<string | null>(null);
 
   // In-Kind Form State
   const [inKindForm, setInKindForm] = useState<InKindDonationRequest>({
@@ -599,6 +609,131 @@ export const DonatePage: React.FC = () => {
               </div>
             )}
 
+            {/* Instant Lipa Na M-Pesa Online Donation Widget */}
+            <div className="mb-12 max-w-4xl mx-auto rounded-3xl p-8 sm:p-10 bg-gradient-to-br from-forest-950 via-forest-900 to-forest-950 text-white border-2 border-emerald-500/40 shadow-2xl text-left relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-forest-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+                    <Smartphone className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400 block">
+                      Direct Automated Giving
+                    </span>
+                    <h3 className="text-2xl sm:text-3xl font-black font-display text-white">
+                      Give Instantly via Lipa Na M-Pesa
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs font-bold text-emerald-300 bg-emerald-950/80 px-3 py-1.5 rounded-full border border-emerald-800">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span>Safaricom STK Push Active</span>
+                </div>
+              </div>
+
+              <div className="pt-6 space-y-6">
+                {/* Designation Choice */}
+                <div>
+                  <label className="block text-xs font-black uppercase tracking-wider text-forest-200 mb-2">
+                    Designate Your Gift
+                  </label>
+                  <select
+                    value={designation}
+                    onChange={(e) => setDesignation(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-forest-900 border border-forest-700 text-white font-medium text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="Elder Food & Nutritional Support">Elder Food & Nutritional Support (Emergency Baskets)</option>
+                    <option value="Geriatric Medical Care & Outreach">Geriatric Medical Care & Clinical Referrals</option>
+                    <option value="Warm Bedding & Shelter Restoration">Warm Bedding & Shelter Weatherization</option>
+                    <option value="General Senior Community Endowment">General Senior Community Care Fund</option>
+                  </select>
+                </div>
+
+                {/* Amount Presets */}
+                <div>
+                  <label className="block text-xs font-black uppercase tracking-wider text-forest-200 mb-2">
+                    Select Contribution Amount (KES)
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    {[500, 1000, 2500, 5000].map((amt) => (
+                      <button
+                        key={amt}
+                        type="button"
+                        onClick={() => {
+                          setDonationAmount(amt);
+                          setIsCustom(false);
+                        }}
+                        className={`py-3 px-2 rounded-xl text-xs font-black transition-all ${
+                          !isCustom && donationAmount === amt
+                            ? 'bg-emerald-500 text-charcoal-950 shadow-lg scale-102'
+                            : 'bg-forest-900 hover:bg-forest-800 text-white border border-forest-700'
+                        }`}
+                      >
+                        KES {amt.toLocaleString()}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setIsCustom(true)}
+                      className={`py-3 px-2 rounded-xl text-xs font-black transition-all ${
+                        isCustom
+                          ? 'bg-emerald-500 text-charcoal-950 shadow-lg scale-102'
+                          : 'bg-forest-900 hover:bg-forest-800 text-white border border-forest-700'
+                      }`}
+                    >
+                      Custom Amount
+                    </button>
+                  </div>
+
+                  {isCustom && (
+                    <div className="mt-3">
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-sm text-forest-300">KES</span>
+                        <input
+                          type="number"
+                          min="10"
+                          step="50"
+                          placeholder="Enter custom amount..."
+                          value={customAmount}
+                          onChange={(e) => {
+                            setCustomAmount(e.target.value);
+                            setDonationAmount(parseInt(e.target.value) || 0);
+                          }}
+                          className="w-full pl-14 pr-4 py-3 rounded-xl bg-forest-900 border border-forest-700 text-white font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Trigger */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-xs text-forest-200">
+                    Safaricom Daraja will trigger an instantaneous prompt on your handset to enter your M-Pesa PIN.
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsMpesaModalOpen(true)}
+                    disabled={isCustom && (!customAmount || parseInt(customAmount) < 10)}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-charcoal-950 font-black text-sm shadow-xl transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                  >
+                    <Heart className="w-4 h-4 fill-charcoal-950" />
+                    <span>Give KES {(isCustom ? parseInt(customAmount) || 0 : donationAmount).toLocaleString()} via M-Pesa</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center mb-8">
+              <span className="text-xs font-black uppercase tracking-wider text-charcoal-400">
+                Or Use Alternative Manual Channels Below
+              </span>
+            </div>
+
             {/* Donation Methods Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left max-w-5xl mx-auto">
               {methods.map((method) => {
@@ -882,6 +1017,22 @@ export const DonatePage: React.FC = () => {
           </div>
         </Container>
       </section>
+
+      {/* Lipa Na M-Pesa Online Donation Modal */}
+      {isMpesaModalOpen && (
+        <MpesaCheckoutModal
+          isOpen={isMpesaModalOpen}
+          onClose={() => setIsMpesaModalOpen(false)}
+          itemType="DONATION"
+          itemTitle={`Donation: ${designation}`}
+          itemSubtitle="Direct charitable contribution to Mwancha Senior Community"
+          amount={isCustom ? parseInt(customAmount) || 100 : donationAmount}
+          onSuccess={(res) => {
+            setIsMpesaModalOpen(false);
+            setDonationSuccessMsg(`Thank you! Your donation of KES ${res.amount.toLocaleString()} was successfully received (Receipt: ${res.receiptNumber}). An official tax acknowledgment has been emailed to you.`);
+          }}
+        />
+      )}
     </div>
   );
 };
