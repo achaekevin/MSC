@@ -62,8 +62,13 @@ export class NewsletterService {
         };
       }
 
+      // Send confirmation email in case subscriber missed it or previous delivery failed
+      this.sendSubscriberConfirmationEmail(cleanEmail, subscriberName, false).catch((err) => {
+        logger.error({ err, email: cleanEmail }, 'Failed to send newsletter subscription confirmation email.');
+      });
+
       return {
-        message: 'You are already subscribed to Mwancha Senior Community newsletters.',
+        message: 'You are subscribed to Mwancha Senior Community newsletters! A confirmation email has been sent to your inbox.',
         isNew: false
       };
     }

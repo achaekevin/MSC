@@ -40,19 +40,26 @@ export class MailService {
     // 2. Initialize Nodemailer SMTP if SMTP credentials are provided
     if (env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS) {
       try {
+        const cleanPass = env.SMTP_PASS.replace(/\s+/g, '');
+        const isPort465 = Number(env.SMTP_PORT) === 465;
+        const isSecure = isPort465 ? true : Boolean(env.SMTP_SECURE);
+
         this.smtpTransporter = nodemailer.createTransport({
           host: env.SMTP_HOST,
           port: env.SMTP_PORT,
-          secure: env.SMTP_SECURE,
+          secure: isSecure,
           auth: {
             user: env.SMTP_USER,
-            pass: env.SMTP_PASS
+            pass: cleanPass
           },
-          connectionTimeout: 10000,
-          greetingTimeout: 10000,
-          socketTimeout: 10000
+          tls: {
+            rejectUnauthorized: false
+          },
+          connectionTimeout: 15000,
+          greetingTimeout: 15000,
+          socketTimeout: 15000
         });
-        logger.info({ host: env.SMTP_HOST, port: env.SMTP_PORT }, 'Transactional email service initialized with SMTP provider.');
+        logger.info({ host: env.SMTP_HOST, port: env.SMTP_PORT, secure: isSecure }, 'Transactional email service initialized with SMTP provider.');
       } catch (err) {
         logger.error({ err }, 'Failed to initialize SMTP mail transporter.');
       }

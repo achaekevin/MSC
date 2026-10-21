@@ -33,7 +33,10 @@ const envSchema = z.object({
   // Optional SMTP Configuration (for Gmail, custom SMTP, or transactional mail)
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().default(587),
-  SMTP_SECURE: z.coerce.boolean().default(false),
+  SMTP_SECURE: z.preprocess((val) => {
+    if (typeof val === 'string') return val.toLowerCase() === 'true' || val === '1';
+    return Boolean(val);
+  }, z.boolean()).default(false),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
 
