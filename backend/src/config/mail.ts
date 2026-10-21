@@ -359,7 +359,7 @@ export const emailTemplates = {
         <div style="background-color: #F9FAFB; border-left: 4px solid #1E3A2F; padding: 12px 16px; margin: 16px 0;">
           <p style="margin: 0 0 6px 0;"><strong>Reference Number:</strong> ${referenceNumber}</p>
           <p style="margin: 0 0 6px 0;"><strong>Category:</strong> ${category}</p>
-          <p style="margin: 0;"><strong>Handover Method:</strong> ${deliveryMethod.includes('DROP_OFF') || deliveryMethod.includes('Ekerenyo') ? 'Drop-off at Mwancha House - Ekerenyo' : 'Field Volunteer Collection'}</p>
+          <p style="margin: 0;"><strong>Handover Method:</strong> ${deliveryMethod.includes('DROP_OFF') || deliveryMethod.includes('Ekerenyo') ? 'Drop-off at Mwancha House - Ekerenyo' : 'Countrywide Delivery / Collection'}</p>
         </div>
         <p><strong>Physical Facility Drop-off Location:</strong><br/>Mwancha House - Ekerenyo<br/>Ekerenyo-Obwari-Magwagwa Road, Nyamira North, Nyamira County, Kenya<br/>Helpline & WhatsApp: +254 790 629439</p>
         <p>Our Relief & Distribution Coordinator will review your submission and contact you shortly to coordinate receipt and issue an official acknowledgement receipt.</p>

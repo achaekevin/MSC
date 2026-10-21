@@ -36,6 +36,56 @@ import { ContentStatusBadge } from '../components/common/ContentStatusBadge';
 import { SpamProtection, SpamProtectionData } from '../components/common/SpamProtection';
 import { MpesaCheckoutModal } from '../components/commerce/MpesaCheckoutModal';
 
+export const KENYA_COUNTIES = [
+  'Baringo',
+  'Bomet',
+  'Bungoma',
+  'Busia',
+  'Elgeyo Marakwet',
+  'Embu',
+  'Garissa',
+  'Homa Bay',
+  'Isiolo',
+  'Kajiado',
+  'Kakamega',
+  'Kericho',
+  'Kiambu',
+  'Kilifi',
+  'Kirinyaga',
+  'Kisii',
+  'Kisumu',
+  'Kitui',
+  'Kwale',
+  'Laikipia',
+  'Lamu',
+  'Machakos',
+  'Makueni',
+  'Mandera',
+  'Marsabit',
+  'Meru',
+  'Migori',
+  'Mombasa',
+  'Murang\'a',
+  'Nairobi',
+  'Nakuru',
+  'Nandi',
+  'Narok',
+  'Nyamira',
+  'Nyandarua',
+  'Nyeri',
+  'Samburu',
+  'Siaya',
+  'Taita Taveta',
+  'Tana River',
+  'Tharaka Nithi',
+  'Trans Nzoia',
+  'Turkana',
+  'Uasin Gishu',
+  'Vihiga',
+  'Wajir',
+  'West Pokot'
+];
+
 export const DonatePage: React.FC = () => {
   const [methods, setMethods] = useState<DonationMethod[]>([]);
   const [loadingMethods, setLoadingMethods] = useState<boolean>(true);
@@ -64,6 +114,9 @@ export const DonatePage: React.FC = () => {
     notes: '',
     consent: true
   });
+
+  const [selectedCounty, setSelectedCounty] = useState<string>('');
+  const [exactPlace, setExactPlace] = useState<string>('');
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [spamData, setSpamData] = useState<SpamProtectionData | null>(null);
@@ -125,8 +178,15 @@ export const DonatePage: React.FC = () => {
     if (!inKindForm.itemDescription.trim() || inKindForm.itemDescription.trim().length < 5) {
       errors.itemDescription = 'Please describe the items you wish to donate (minimum 5 characters).';
     }
-    if (inKindForm.deliveryMethod === 'FIELD_PICKUP_REQUEST' && !inKindForm.pickupAddress?.trim()) {
-      errors.pickupAddress = 'Please provide the physical address/location for volunteer pickup.';
+    let finalPickupAddress = '';
+    if (inKindForm.deliveryMethod !== 'DROP_OFF_EKERENYO') {
+      if (!selectedCounty.trim()) {
+        errors.selectedCounty = 'Please select your county in Kenya.';
+      }
+      if (!exactPlace.trim() || exactPlace.trim().length < 3) {
+        errors.exactPlace = 'Please specify the exact place, town, landmark, or delivery address (minimum 3 characters).';
+      }
+      finalPickupAddress = `${selectedCounty} County — ${exactPlace.trim()}`.trim();
     }
     if (!spamData?.challengeAnswer?.trim()) {
       errors.challengeAnswer = 'Please solve the anti-spam question to confirm you are human.';
@@ -142,6 +202,7 @@ export const DonatePage: React.FC = () => {
     try {
       const payload: any = {
         ...inKindForm,
+        pickupAddress: inKindForm.deliveryMethod !== 'DROP_OFF_EKERENYO' ? finalPickupAddress : '',
         ...(spamData || {})
       };
       const res = await donationService.submitInKindDonation(payload);
@@ -161,6 +222,8 @@ export const DonatePage: React.FC = () => {
           notes: '',
           consent: true
         });
+        setSelectedCounty('');
+        setExactPlace('');
       } else {
         setInKindError(res.message);
       }
@@ -497,12 +560,19 @@ export const DonatePage: React.FC = () => {
                             label: 'Drop-off at Mwancha House in Ekerenyo'
                           },
                           {
-                            value: 'FIELD_PICKUP_REQUEST',
-                            label: 'Request Volunteer Field Collection (Nyamira County)'
+                            value: 'COUNTRYWIDE_DELIVERY',
+                            label: 'Countrywide Delivery / Collection (Any County in Kenya)'
                           }
                         ]}
                         value={inKindForm.deliveryMethod}
-                        onChange={(e) => setInKindForm({ ...inKindForm, deliveryMethod: e.target.value })}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setInKindForm({ ...inKindForm, deliveryMethod: val });
+                          if (val === 'DROP_OFF_EKERENYO') {
+                            setSelectedCounty('');
+                            setExactPlace('');
+                          }
+                        }}
                       />
 
                       <Input
@@ -514,16 +584,40 @@ export const DonatePage: React.FC = () => {
                       />
                     </div>
 
-                    {inKindForm.deliveryMethod === 'FIELD_PICKUP_REQUEST' && (
-                      <Input
-                        id="pickupAddress"
-                        label="Pickup Physical Address / Ward / Landmark"
-                        required
-                        placeholder="e.g. Magwagwa market center, near the chief's office"
-                        value={inKindForm.pickupAddress}
-                        onChange={(e) => setInKindForm({ ...inKindForm, pickupAddress: e.target.value })}
-                        error={formErrors.pickupAddress}
-                      />
+                    {inKindForm.deliveryMethod !== 'DROP_OFF_EKERENYO' && (
+                      <div className="space-y-4 p-5 sm:p-6 rounded-2xl bg-warm-50 dark:bg-charcoal-800/80 border border-warm-200 dark:border-charcoal-700">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-forest-700 dark:text-emerald-400" />
+                          <h4 className="text-xs font-black text-forest-900 dark:text-emerald-400 uppercase tracking-widest">
+                            Countrywide Collection / Delivery Coordinates
+                          </h4>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <Select
+                            id="selectedCounty"
+                            label="County in Kenya"
+                            required
+                            options={[
+                              { value: '', label: '-- Select County (All 47 Counties) --' },
+                              ...KENYA_COUNTIES.map((c) => ({ value: c, label: `${c} County` }))
+                            ]}
+                            value={selectedCounty}
+                            onChange={(e) => setSelectedCounty(e.target.value)}
+                            error={formErrors.selectedCounty}
+                          />
+
+                          <Input
+                            id="exactPlace"
+                            label="Exact Place / Town / Landmark / Specific Address"
+                            required
+                            placeholder="e.g. Westlands, Chiromo Rd, near Shell Petrol Station / Town center"
+                            value={exactPlace}
+                            onChange={(e) => setExactPlace(e.target.value)}
+                            error={formErrors.exactPlace}
+                          />
+                        </div>
+                      </div>
                     )}
 
                     <Textarea

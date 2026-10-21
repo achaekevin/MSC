@@ -282,7 +282,7 @@ export class DonationService {
     const categoryLabel = data.donationCategory || 'Food & Donation Materials';
     const deliveryMethodLabel = data.deliveryMethod === 'DROP_OFF_EKERENYO' 
       ? 'Drop-off at Mwancha House - Ekerenyo' 
-      : 'Request Field Volunteer Collection';
+      : 'Countrywide Delivery / Collection';
 
     const submission = await prisma.contactSubmission.create({
       data: {
