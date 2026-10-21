@@ -11,9 +11,9 @@ describe('Configurable M-Pesa Payment Gateway Tests', () => {
   });
 
   describe('Payment Orchestrator Provider Resolution', () => {
-    it('should resolve Daraja as active provider by default', () => {
+    it('should resolve configured active provider by default', () => {
       const active = paymentOrchestrator.getActiveProvider();
-      expect(active.providerName).toBe('daraja');
+      expect(active.providerName).toBe(env.PAYMENT_PROVIDER);
     });
 
     it('should resolve provider by specific key', () => {
@@ -26,7 +26,7 @@ describe('Configurable M-Pesa Payment Gateway Tests', () => {
 
     it('should gracefully fallback to active provider for unknown provider string', () => {
       const unknown = paymentOrchestrator.getProvider('unsupported_gateway');
-      expect(unknown.providerName).toBe('daraja');
+      expect(unknown.providerName).toBe(env.PAYMENT_PROVIDER);
     });
 
     it('should validate provider configuration without throwing in development', () => {
@@ -184,19 +184,26 @@ describe('Configurable M-Pesa Payment Gateway Tests', () => {
     });
 
     it('should generate simulated STK Push response in development mode', async () => {
-      const result = await payHeroAdapter.initiateStkPush({
-        phoneNumber: '0712345678',
-        amount: 500,
-        referenceCode: 'MSC-PUB-TEST-001',
-        description: 'Test Publication Purchase',
-        customerName: 'Jane Reader',
-        customerEmail: 'jane@example.com'
-      });
+      const origUser = env.PAYHERO_API_USERNAME;
+      (env as any).PAYHERO_API_USERNAME = '';
 
-      expect(result.provider).toBe('payhero');
-      expect(result.responseCode).toBe('0');
-      expect(result.checkoutRequestId).toBeDefined();
-      expect(result.checkoutRequestId).toMatch(/^PH_/);
+      try {
+        const result = await payHeroAdapter.initiateStkPush({
+          phoneNumber: '0712345678',
+          amount: 500,
+          referenceCode: 'MSC-PUB-TEST-001',
+          description: 'Test Publication Purchase',
+          customerName: 'Jane Reader',
+          customerEmail: 'jane@example.com'
+        });
+
+        expect(result.provider).toBe('payhero');
+        expect(result.responseCode).toBe('0');
+        expect(result.checkoutRequestId).toBeDefined();
+        expect(result.checkoutRequestId).toMatch(/^PH_/);
+      } finally {
+        (env as any).PAYHERO_API_USERNAME = origUser;
+      }
     });
   });
 

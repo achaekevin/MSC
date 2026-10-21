@@ -89,9 +89,8 @@ export class PayHeroAdapter implements IPaymentProvider {
 
       if (!response.ok || (data.status && data.status !== 'success' && !data.success)) {
         logger.error({ status: response.status, data }, 'PayHero STK Push rejected');
-        throw new BadRequestError(
-          data.message || data.error || 'Failed to initiate M-Pesa prompt via PayHero.'
-        );
+        const errorMessage = data.error_message || data.message || data.error || 'Failed to initiate M-Pesa prompt via PayHero.';
+        throw new BadRequestError(errorMessage);
       }
 
       const reference = data.reference || data.payment_id || `PH-${Date.now()}`;
