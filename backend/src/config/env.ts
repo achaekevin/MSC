@@ -51,6 +51,10 @@ const envSchema = z.object({
 
   // Payment Provider Gateway Architecture
   PAYMENT_PROVIDER: z.enum(['daraja', 'payhero']).default('daraja'),
+  PAYMENT_SIMULATION_MODE: z.preprocess((val) => {
+    if (typeof val === 'string') return val.toLowerCase() === 'true' || val === '1';
+    return Boolean(val);
+  }, z.boolean()).default(false),
 
   // Safaricom Daraja M-Pesa API settings
   MPESA_ENVIRONMENT: z.enum(['sandbox', 'production']).default('sandbox'),

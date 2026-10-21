@@ -295,70 +295,76 @@ export class PaymentService {
           : { success: false, message: 'Duplicate receipt' };
       }
 
-      // Atomically update transaction and activate entitlement in transaction
-      await prisma.$transaction(async (tx) => {
-        // 1. Mark transaction SUCCESSFUL
-        await tx.paymentTransaction.update({
-          where: { id: transaction.id },
-          data: {
-            status: PaymentStatus.SUCCESSFUL,
-            providerReference: receipt || `REC-${Date.now()}`,
-            resultCode: typeof normalized.resultCode === 'number' ? normalized.resultCode : 0,
-            resultDesc: normalized.resultDesc || 'Success',
-            metadata: JSON.stringify(normalized.rawPayload || payload),
-            completedAt: new Date()
-          }
-        });
-
-        // 2. If publication purchase, activate purchase and issue download entitlement
-        if (transaction.category === PaymentCategory.PUBLICATION_PURCHASE && transaction.publicationPurchase) {
-          const purchase = transaction.publicationPurchase;
-
-          await tx.publicationPurchase.update({
-            where: { id: purchase.id },
-            data: { accessGranted: true }
-          });
-
-          // Generate single-use secure download token
-          const downloadToken = crypto.randomBytes(32).toString('hex');
-          const expiresAt = new Date(Date.now() + (env.DOWNLOAD_TOKEN_EXPIRY_SECONDS || 3600) * 1000 * 24 * 30); // 30 days initial access
-
-          await tx.purchaseEntitlement.create({
+      // Atomically update transaction and activate entitlement in transaction with cloud database timeout protection
+      await prisma.$transaction(
+        async (tx) => {
+          // 1. Mark transaction SUCCESSFUL
+          await tx.paymentTransaction.update({
+            where: { id: transaction.id },
             data: {
-              purchaseId: purchase.id,
-              publicationId: purchase.publicationId,
-              customerEmail: purchase.customerEmail,
-              downloadToken,
-              maxDownloads: purchase.publication.maxDownloads || env.MAX_DOWNLOADS_PER_PURCHASE || 10,
-              downloadCount: 0,
-              isActive: true,
-              expiresAt
+              status: PaymentStatus.SUCCESSFUL,
+              providerReference: receipt || `REC-${Date.now()}`,
+              resultCode: typeof normalized.resultCode === 'number' ? normalized.resultCode : 0,
+              resultDesc: normalized.resultDesc || 'Success',
+              metadata: JSON.stringify(normalized.rawPayload || payload),
+              completedAt: new Date()
             }
           });
 
-          // Increment publication download/sales counter
-          await tx.publication.update({
-            where: { id: purchase.publicationId },
-            data: { downloadCount: { increment: 1 } }
-          });
-        }
+          // 2. If publication purchase, activate purchase and issue download entitlement
+          if (transaction.category === PaymentCategory.PUBLICATION_PURCHASE && transaction.publicationPurchase) {
+            const purchase = transaction.publicationPurchase;
 
-        // 3. Log audit event
-        await tx.auditLog.create({
-          data: {
-            action: 'PAYMENT_RECEIVED',
-            entity: 'PaymentTransaction',
-            entityId: transaction.id,
-            newData: JSON.stringify({
-              provider,
-              referenceCode: transaction.referenceCode,
-              receipt,
-              amount: normalized.amount || transaction.amount,
-              category: transaction.category
-            })
+            await tx.publicationPurchase.update({
+              where: { id: purchase.id },
+              data: { accessGranted: true }
+            });
+
+            // Generate single-use secure download token
+            const downloadToken = crypto.randomBytes(32).toString('hex');
+            const expiresAt = new Date(Date.now() + (env.DOWNLOAD_TOKEN_EXPIRY_SECONDS || 3600) * 1000 * 24 * 30); // 30 days initial access
+
+            await tx.purchaseEntitlement.create({
+              data: {
+                purchaseId: purchase.id,
+                publicationId: purchase.publicationId,
+                customerEmail: purchase.customerEmail,
+                downloadToken,
+                maxDownloads: purchase.publication.maxDownloads || env.MAX_DOWNLOADS_PER_PURCHASE || 10,
+                downloadCount: 0,
+                isActive: true,
+                expiresAt
+              }
+            });
+
+            // Increment publication download/sales counter
+            await tx.publication.update({
+              where: { id: purchase.publicationId },
+              data: { downloadCount: { increment: 1 } }
+            });
           }
-        });
-      });
+
+          // 3. Log audit event
+          await tx.auditLog.create({
+            data: {
+              action: 'PAYMENT_RECEIVED',
+              entity: 'PaymentTransaction',
+              entityId: transaction.id,
+              newData: JSON.stringify({
+                provider,
+                referenceCode: transaction.referenceCode,
+                receipt,
+                amount: normalized.amount || transaction.amount,
+                category: transaction.category
+              })
+            }
+          });
+        },
+        {
+          maxWait: 10000,
+          timeout: 25000
+        }
+      );
 
       // Send confirmation receipt email asynchronously
       this.sendPaymentReceiptEmail(transaction, receipt).catch((err) => {
@@ -424,6 +430,29 @@ export class PaymentService {
 
     if (!transaction) {
       throw new NotFoundError('Transaction reference not found.');
+    }
+
+    // In simulation mode (or when testing with simulated checkoutRequestId), confirm after 5 seconds of realistic polling
+    const isSimulatedTransaction =
+      Boolean(env.PAYMENT_SIMULATION_MODE) ||
+      transaction.checkoutRequestId?.startsWith('PH_SIM_') ||
+      transaction.checkoutRequestId?.startsWith('ws_CO_MOCK_');
+
+    if (
+      transaction.status === PaymentStatus.PENDING &&
+      isSimulatedTransaction &&
+      Date.now() - transaction.initiatedAt.getTime() > 5000
+    ) {
+      logger.info({ referenceCode }, 'Auto-confirming simulated transaction in development mode.');
+      await this.handleProviderCallback('payhero', {
+        success: true,
+        status: 'success',
+        reference: transaction.checkoutRequestId,
+        provider_reference: `MPESA-SIM-${Date.now().toString().slice(-6)}`,
+        external_reference: transaction.referenceCode,
+        amount: Number(transaction.amount)
+      });
+      return this.getPaymentStatus(referenceCode);
     }
 
     // If still pending and more than 45 seconds elapsed, query status using originating provider
