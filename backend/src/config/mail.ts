@@ -13,6 +13,7 @@ export interface EmailOptions {
   text?: string;
   replyTo?: string;
   templateName?: string;
+  headers?: Record<string, string>;
 }
 
 export interface EmailDeliveryResult {
@@ -67,6 +68,42 @@ export class MailService {
   }
 
   /**
+   * Format friendly 'From' address (e.g. "Mwancha Senior Community" <email@domain.com>)
+   */
+  private formatFromAddress(rawFrom: string): string {
+    const trimmed = rawFrom.trim();
+    if (trimmed.includes('<') && trimmed.includes('>')) {
+      return trimmed;
+    }
+    return `"Mwancha Senior Community" <${trimmed}>`;
+  }
+
+  /**
+   * Convert HTML body to clean plain-text fallback (eliminates MIME_HTML_ONLY spam penalty)
+   */
+  private htmlToPlainText(html: string): string {
+    return html
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<a\s+(?:[^>]*?\s+)?href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '$2 ($1)')
+      .replace(/<br\s*[\/]?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n\n')
+      .replace(/<\/div>/gi, '\n')
+      .replace(/<\/li>/gi, '\n')
+      .replace(/<li[^>]*>/gi, '• ')
+      .replace(/<\/h[1-6]>/gi, '\n\n')
+      .replace(/<[^>]+>/gi, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&bull;/g, '•')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  /**
    * Helper to normalize recipient list into an array of clean email addresses
    */
   private normalizeRecipients(to: string | string[]): string[] {
@@ -86,6 +123,8 @@ export class MailService {
     const recipientList = this.normalizeRecipients(options.to);
     const recipientStr = recipientList.join(', ');
     const templateName = options.templateName || 'GENERAL_TRANSACTIONAL';
+    const plainTextFallback = options.text || this.htmlToPlainText(options.html);
+    const fromAddress = this.formatFromAddress(env.EMAIL_FROM);
 
     if (recipientList.length === 0) {
       logger.warn({ options }, 'Email send skipped: No valid recipients provided.');
@@ -95,14 +134,19 @@ export class MailService {
     try {
       // 1. Try Resend if configured
       if (this.resend) {
-        const resendRes: any = await this.resend.emails.send({
-          from: env.EMAIL_FROM,
+        const resendPayload: any = {
+          from: fromAddress,
           to: recipientList,
           subject: options.subject,
           html: options.html,
-          text: options.text,
+          text: plainTextFallback,
           replyTo: options.replyTo
-        });
+        };
+        if (options.headers) {
+          resendPayload.headers = options.headers;
+        }
+
+        const resendRes: any = await this.resend.emails.send(resendPayload);
 
         const providerMessageId = resendRes?.data?.id || resendRes?.id || null;
         logger.info({ to: recipientList, subject: options.subject, provider: 'Resend' }, 'Email sent successfully via Resend.');
@@ -128,14 +172,19 @@ export class MailService {
 
       // 2. Try SMTP if configured
       if (this.smtpTransporter) {
-        const info: any = await this.smtpTransporter.sendMail({
-          from: env.EMAIL_FROM,
+        const mailOptions: any = {
+          from: fromAddress,
           to: recipientList.join(', '),
           subject: options.subject,
           html: options.html,
-          text: options.text,
+          text: plainTextFallback,
           replyTo: options.replyTo
-        });
+        };
+        if (options.headers) {
+          mailOptions.headers = options.headers;
+        }
+
+        const info: any = await this.smtpTransporter.sendMail(mailOptions);
 
         const messageId = info?.messageId || null;
         logger.info({ to: recipientList, subject: options.subject, provider: 'SMTP' }, 'Email sent successfully via SMTP transporter.');

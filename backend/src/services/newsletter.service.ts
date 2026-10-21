@@ -122,8 +122,17 @@ export class NewsletterService {
       to: email,
       subject: isReactivation
         ? 'Welcome Back to Mwancha Senior Community Updates'
-        : 'Welcome to Mwancha Senior Community - Subscription Confirmed',
+        : 'Welcome to Mwancha Senior Community - Subscription Confirmation',
       templateName: 'NEWSLETTER_WELCOME',
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeUrl}>, <mailto:${env.EMAIL_FROM}?subject=unsubscribe>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
+      },
+      text: `Mwancha Senior Community\nAdvancing Dignity, Care & Wellbeing for Older Persons in Kenya\n\nDear ${name},\n\n${
+        isReactivation
+          ? 'Your subscription to Mwancha Senior Community updates has been successfully reactivated. We are glad to have you back!'
+          : 'Thank you for subscribing to the Mwancha Senior Community newsletter. You are now part of a growing network of supporters committed to the dignity and welfare of older persons in Kenya.'
+      }\n\nWhat You Will Receive:\n- Monthly field updates from our elder care programs in Ekerenyo, Nyamira County\n- Policy briefs and advocacy news on senior citizen rights in Kenya\n- Stories of impact from our 40 ward-based community volunteers\n- Upcoming baraza schedules, medical outreach camps, and community events\n\nAbout Mwancha Senior Community (MSC):\nFounded in 2016 in Ekerenyo, Nyamira County, MSC is a registered community organization dedicated to eldercare, social protection, and intergenerational support for vulnerable older persons across Kenya.\n\nWarm regards,\nMwancha Senior Community Secretariat\nMwancha House - Ekerenyo, Nyamira County, Kenya\nP.O. Box 162-40506, Ekerenyo-Nyamira, Kenya\n\nVisit Website: ${websiteUrl}\nUnsubscribe: ${unsubscribeUrl}\n`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; line-height: 1.7; background-color: #ffffff;">
           <!-- Header Banner -->
