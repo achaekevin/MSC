@@ -148,7 +148,7 @@ export const ImpactDashboardSection: React.FC<ImpactDashboardSectionProps> = ({
       value: 'Kenya',
       category: 'coverage',
       icon: 'Globe',
-      description: 'Officially registered national mandate across Kenya, with deep community operational roots in Western Kenya.',
+      description: 'Officially registered national mandate across Kenya, with deep community operational roots in Nyanza Province.',
       source: 'MSC Constitution & Mandate',
       sourceDocument: 'Kenya NGOs Coordination Board',
       reportingPeriod: 'National Mandate'
