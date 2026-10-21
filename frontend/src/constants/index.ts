@@ -150,7 +150,7 @@ export const NAVIGATION_LINKS = [
     href: "/news",
     dropdown: [
       { name: "Latest News", href: "/news" },
-      { name: "Upcoming Events", href: "/events" },
+      { name: "Events & Barazas", href: "/events" },
       { name: "Publications & Reports", href: "/publications" },
       { name: "Media Gallery", href: "/gallery" },
     ]

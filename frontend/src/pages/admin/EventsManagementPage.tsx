@@ -57,7 +57,7 @@ interface EventFormState {
 const DEFAULT_EVENT_FORM: EventFormState = {
   title: '',
   slug: '',
-  category: 'Community Outreach',
+  category: 'Community Baraza',
   description: '',
   location: '',
   county: 'Nyamira County',
@@ -196,12 +196,17 @@ export const EventsManagementPage: React.FC = () => {
       return;
     }
 
+    if (formData.description && formData.description.trim().length > 0 && formData.description.trim().length < 10) {
+      showNotification('error', 'Description must be at least 10 characters long.');
+      return;
+    }
+
     try {
       setActionLoading(true);
       if (editingEventId) {
         await eventService.updateEvent(editingEventId, {
           title: formData.title,
-          slug: formData.slug || undefined,
+          slug: formData.slug.trim() || undefined,
           category: formData.category,
           description: formData.description,
           location: formData.location,
@@ -216,11 +221,11 @@ export const EventsManagementPage: React.FC = () => {
           image: formData.image,
           status: formData.status
         });
-        showNotification('success', 'Event updated successfully.');
+        showNotification('success', 'Event / Baraza updated successfully.');
       } else {
         await eventService.createEvent({
           title: formData.title,
-          slug: formData.slug || undefined,
+          slug: formData.slug.trim() || undefined,
           category: formData.category,
           description: formData.description,
           location: formData.location,
@@ -235,12 +240,13 @@ export const EventsManagementPage: React.FC = () => {
           image: formData.image,
           status: formData.status
         });
-        showNotification('success', formData.status === 'PUBLISHED' ? 'Event created and published live!' : 'Event created in DRAFT state.');
+        showNotification('success', formData.status === 'PUBLISHED' ? 'Event / Baraza created and published live!' : 'Event / Baraza created in DRAFT state.');
       }
       setIsEditorOpen(false);
       loadData();
-    } catch {
-      showNotification('error', 'Could not save event. Check fields and network.');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || 'Could not save event. Check fields and network.';
+      showNotification('error', msg);
     } finally {
       setActionLoading(false);
     }
@@ -375,10 +381,10 @@ export const EventsManagementPage: React.FC = () => {
             <span className="p-2 rounded-xl bg-forest-100 text-forest-800">
               <Calendar className="w-5 h-5" />
             </span>
-            <h1 className="text-2xl font-extrabold text-charcoal-900 font-display">Outreach & Events Manager</h1>
+            <h1 className="text-2xl font-extrabold text-charcoal-900 font-display">Events & Community Barazas</h1>
           </div>
           <p className="text-sm text-charcoal-600 mt-1">
-            Coordinate grassroots community forums, medical outreach camps, stakeholder assemblies, and safeguarding dialogues across Nyamira County.
+            Organize community barazas, elder consultative assemblies, medical outreach camps, and stakeholder dialogues across Nyamira County.
           </p>
         </div>
 
@@ -399,7 +405,7 @@ export const EventsManagementPage: React.FC = () => {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-forest-800 text-warm-50 hover:bg-forest-900 text-sm font-bold shadow-sm transition-all hover:scale-[1.01]"
             >
               <Plus className="w-4 h-4" />
-              <span>Schedule Event</span>
+              <span>Schedule Event / Baraza</span>
             </button>
           )}
         </div>
@@ -799,10 +805,10 @@ export const EventsManagementPage: React.FC = () => {
               </span>
               <div>
                 <h2 className="text-xl font-extrabold text-charcoal-900 font-display">
-                  {editingEventId ? 'Edit Outreach Event' : 'Schedule New Event'}
+                  {editingEventId ? 'Edit Event or Baraza' : 'Schedule New Event / Baraza'}
                 </h2>
                 <p className="text-xs text-charcoal-500">
-                  Ensure dates, venues, and registration requirements strictly reflect official plans.
+                  Ensure dates, venues, and consultative agenda strictly reflect official community mobilization plans.
                 </p>
               </div>
             </div>
@@ -857,17 +863,20 @@ export const EventsManagementPage: React.FC = () => {
                     onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
                     className="w-full px-4 py-2.5 rounded-xl border border-warm-300 text-sm focus:outline-none focus:ring-2 focus:ring-forest-600 bg-white"
                   >
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.name}>
-                        {c.name}
-                      </option>
-                    ))}
+                    <option value="Community Baraza">Community Baraza (Elders Forum & Dialogue)</option>
                     <option value="Community Outreach">Community Outreach</option>
                     <option value="Senior Engagement">Senior Engagement</option>
-                    <option value="Health Outreach">Health Outreach</option>
+                    <option value="Health Outreach">Health Outreach & Medical Camps</option>
                     <option value="Advocacy & Rights">Advocacy & Rights</option>
                     <option value="Stakeholder Meeting">Stakeholder Meeting</option>
                     <option value="Volunteer Training">Volunteer Training</option>
+                    {categories
+                      .filter((c) => !['Community Baraza', 'Community Outreach', 'Senior Engagement', 'Health Outreach', 'Advocacy & Rights', 'Stakeholder Meeting', 'Volunteer Training'].includes(c.name))
+                      .map((c) => (
+                        <option key={c.id} value={c.name}>
+                          {c.name}
+                        </option>
+                      ))}
                   </select>
                 </div>
               </div>

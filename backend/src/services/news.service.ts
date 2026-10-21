@@ -251,6 +251,7 @@ export class NewsService {
       }
     });
 
+    invalidatePublicNewsCache();
     return this.formatArticle(article);
   }
 
@@ -311,6 +312,7 @@ export class NewsService {
       })
     ]);
 
+    invalidatePublicNewsCache();
     return this.formatArticle(updated);
   }
 
@@ -332,6 +334,7 @@ export class NewsService {
       }
     });
 
+    invalidatePublicNewsCache();
     return true;
   }
 
@@ -432,6 +435,7 @@ export class NewsService {
       // Notification dispatch should not invalidate approval
     }
 
+    invalidatePublicNewsCache();
     return this.formatArticle(updated);
   }
 
@@ -491,6 +495,7 @@ export class NewsService {
       // Notification dispatch should not invalidate publication
     }
 
+    invalidatePublicNewsCache();
     return this.formatArticle(updated);
   }
 }

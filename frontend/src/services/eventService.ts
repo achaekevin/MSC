@@ -80,6 +80,7 @@ export const eventService = {
       // Fallback
     }
     return [
+      { id: 'cat-0', name: 'Community Baraza', slug: 'community-baraza' },
       { id: 'cat-1', name: 'Community Outreach', slug: 'community-outreach' },
       { id: 'cat-2', name: 'Senior Engagement', slug: 'senior-engagement' },
       { id: 'cat-3', name: 'Health Outreach', slug: 'health-outreach' },
@@ -133,13 +134,12 @@ export const eventService = {
   },
 
   async createEvent(data: Partial<EventItem>): Promise<EventItem> {
-    const payload = {
+    const payload: any = {
       title: data.title,
-      slug: data.slug,
       description: data.description,
       location: data.location,
       county: data.county || 'Nyamira',
-      category: data.category || 'Community Outreach',
+      category: data.category || 'Community Baraza',
       startDate: data.startDate || (data.date ? new Date(data.date).toISOString() : new Date().toISOString()),
       endDate: data.endDate || null,
       timeString: data.timeString || data.time || '09:00 AM - 03:00 PM EAT',
@@ -152,14 +152,17 @@ export const eventService = {
       status: data.status || 'DRAFT'
     };
 
+    if (data.slug && data.slug.trim()) {
+      payload.slug = data.slug.trim();
+    }
+
     const res = await apiClient.post<any>('/admin/events', payload);
     return res?.id ? res : (res?.data || res);
   },
 
   async updateEvent(id: string, data: Partial<EventItem>): Promise<EventItem> {
-    const payload = {
+    const payload: any = {
       title: data.title,
-      slug: data.slug,
       description: data.description,
       location: data.location,
       county: data.county,
@@ -174,6 +177,10 @@ export const eventService = {
       organizer: data.organizer,
       status: data.status
     };
+
+    if (data.slug && data.slug.trim()) {
+      payload.slug = data.slug.trim();
+    }
 
     const res = await apiClient.put<any>(`/admin/events/${id}`, payload);
     return res?.id ? res : (res?.data || res);

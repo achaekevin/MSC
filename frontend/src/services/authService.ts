@@ -321,7 +321,8 @@ class AuthService {
   }
 
   hasPermission(permission: Permission): boolean {
-    return this.user?.permissions.includes(permission) ?? false;
+    if (this.user?.role === 'SUPER_ADMIN') return true;
+    return this.user?.permissions?.includes(permission) ?? false;
   }
 
   hasAnyPermission(permissions: Permission[]): boolean {

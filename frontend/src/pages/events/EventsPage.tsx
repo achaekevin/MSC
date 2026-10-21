@@ -12,7 +12,7 @@ import { SEO } from '../../components/common/SEO';
 
 export const EventsPage: React.FC = () => {
   const [events, setEvents] = useState<EventItem[]>([]);
-  const [categories, setCategories] = useState<string[]>(['All', 'Community Outreach', 'Senior Engagement', 'Health Outreach', 'Stakeholder Meeting']);
+  const [categories, setCategories] = useState<string[]>(['All', 'Community Baraza', 'Community Outreach', 'Senior Engagement', 'Health Outreach', 'Stakeholder Meeting']);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'completed'>('upcoming');

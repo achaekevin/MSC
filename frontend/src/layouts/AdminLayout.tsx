@@ -77,7 +77,7 @@ const navigation: NavItem[] = [
     )
   },
   {
-    name: 'News',
+    name: 'News & Updates',
     href: '/admin/news',
     permission: 'CONTENT_READ',
     icon: (
@@ -87,7 +87,7 @@ const navigation: NavItem[] = [
     )
   },
   {
-    name: 'Events',
+    name: 'Events & Barazas',
     href: '/admin/events',
     permission: 'CONTENT_READ',
     icon: (

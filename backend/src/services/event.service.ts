@@ -13,10 +13,13 @@ export class EventService {
     });
 
     const defaultCategories = [
+      'Community Baraza',
       'Community Outreach',
       'Senior Engagement',
+      'Health Outreach',
       'Health & Wellness',
       'Advocacy & Rights',
+      'Stakeholder Meeting',
       'Capacity Building'
     ];
 
@@ -25,7 +28,72 @@ export class EventService {
     return combined.map(name => ({ id: name, name, slug: name.toLowerCase().replace(/\s+/g, '-') }));
   }
 
+  private async ensureDefaultEvents() {
+    try {
+      const count = await prisma.event.count({ where: { deletedAt: null } });
+      if (count === 0) {
+        const defaults = [
+          {
+            title: 'Ward-Level Community Baraza & Elder Safeguarding Assembly',
+            slug: 'ward-level-community-baraza-safeguarding',
+            description: 'A grassroots community consultative baraza convening local chiefs, elders, family caregivers, and youth to address elder neglect, land rights, and eradication of ageist stigma in Nyamira County.',
+            location: 'Ekerenyo Community Hall, Nyamira County',
+            county: 'Nyamira',
+            category: 'Community Baraza',
+            startDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+            timeString: '09:30 AM - 01:30 PM EAT',
+            isRegistrationOpen: true,
+            registrationRequired: false,
+            image: '/images/mwancha-pavilion-gathering.jpg',
+            organizer: 'Mwancha Senior Community',
+            status: ContentStatus.PUBLISHED,
+            source: ContentSource.OFFICIAL_PROFILE
+          },
+          {
+            title: 'Multi-Stakeholder Geriatric Health Outreach & Case Referral Camp',
+            slug: 'geriatric-health-outreach-case-referral-camp',
+            description: 'In partnership with local health practitioners, this outreach offers preliminary health screening, hypertension checks, mobility aid reviews, and clinical referrals for registered senior community members.',
+            location: 'Nyamira Sub-County Health Center Grounds',
+            county: 'Nyamira',
+            category: 'Health Outreach',
+            startDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            timeString: '08:30 AM - 04:00 PM EAT',
+            isRegistrationOpen: true,
+            registrationRequired: false,
+            image: '/images/mwancha-garden-pathway.jpg',
+            organizer: 'Mwancha Senior Community',
+            status: ContentStatus.PUBLISHED,
+            source: ContentSource.OFFICIAL_PROFILE
+          },
+          {
+            title: 'Annual Stakeholder & Volunteer Accountability Assembly',
+            slug: 'annual-stakeholder-volunteer-accountability-assembly',
+            description: 'Review of organizational progress at Mwancha Senior Community, presentation of field MEAL findings across 1,203+ households, and recognition of the 40 ward volunteers.',
+            location: 'Ekerenyo Training Center, Nyamira',
+            county: 'Nyamira',
+            category: 'Stakeholder Meeting',
+            startDate: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
+            timeString: '10:00 AM - 03:00 PM EAT',
+            isRegistrationOpen: false,
+            registrationRequired: false,
+            image: '/images/mwancha-community-grounds.jpg',
+            organizer: 'Mwancha Senior Community',
+            status: ContentStatus.PUBLISHED,
+            source: ContentSource.OFFICIAL_PROFILE
+          }
+        ];
+
+        for (const item of defaults) {
+          await prisma.event.create({ data: item });
+        }
+      }
+    } catch {
+      // Non-fatal if seeding encounters an error
+    }
+  }
+
   async getPublicEvents(page = 1, limit = 10, category?: string, search?: string) {
+    await this.ensureDefaultEvents();
     const skip = (page - 1) * limit;
     const where: any = {
       status: { in: [ContentStatus.APPROVED, ContentStatus.PUBLISHED] },
@@ -90,6 +158,7 @@ export class EventService {
   }
 
   async getAdminEvents(page = 1, limit = 10, status?: string, category?: string, search?: string) {
+    await this.ensureDefaultEvents();
     const skip = (page - 1) * limit;
     const where: any = { deletedAt: null };
 
