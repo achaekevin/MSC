@@ -8,6 +8,10 @@ export const requireRoles = (...allowedRoles: UserRole[]) => {
       return next(new UnauthorizedError('Authentication required'));
     }
 
+    if (req.user.role === 'SUPER_ADMIN') {
+      return next();
+    }
+
     if (!allowedRoles.includes(req.user.role)) {
       return next(
         new ForbiddenError(
@@ -24,6 +28,10 @@ export const requirePermissions = (...requiredPermissions: Permission[]) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {
       return next(new UnauthorizedError('Authentication required'));
+    }
+
+    if (req.user.role === 'SUPER_ADMIN') {
+      return next();
     }
 
     const hasPermission = requiredPermissions.every(perm =>

@@ -276,6 +276,10 @@ export class NewsService {
       tags: cleanData.tags ? JSON.stringify(cleanData.tags) : undefined
     };
 
+    if (updatePayload.slug === '' || !updatePayload.slug) {
+      delete updatePayload.slug;
+    }
+
     if (publishedAt) {
       updatePayload.publishedAt = new Date(publishedAt);
     } else if (cleanData.status === 'PUBLISHED' && !existing.publishedAt) {

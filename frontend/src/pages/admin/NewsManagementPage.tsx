@@ -191,14 +191,20 @@ export const NewsManagementPage: React.FC = () => {
     e.preventDefault();
     const errors: Record<string, string> = {};
 
-    if (!formInput.title.trim()) errors.title = 'Title is required';
-    if (!formInput.summary.trim()) errors.summary = 'Summary lead paragraph is required';
+    if (!formInput.title.trim() || formInput.title.trim().length < 5) {
+      errors.title = 'Title is required (minimum 5 characters)';
+    }
+    if (!formInput.summary.trim() || formInput.summary.trim().length < 10) {
+      errors.summary = 'Summary lead paragraph is required (minimum 10 characters)';
+    }
     if (!formInput.featuredImage.trim()) errors.featuredImage = 'Featured image URL or path is required';
     if (!formInput.imageAlt.trim()) errors.imageAlt = 'Image alt text is required for accessibility';
 
     const contentArray = Array.isArray(formInput.content) ? formInput.content : [formInput.content];
     const cleanParagraphs = contentArray.filter(p => p.trim() !== '');
-    if (!cleanParagraphs.length) errors.content = 'At least one content paragraph is required';
+    if (!cleanParagraphs.length || cleanParagraphs[0].trim().length < 10) {
+      errors.content = 'At least one detailed content paragraph is required';
+    }
 
     if (scheduleMode === 'SCHEDULE' && !scheduledDateTime) {
       errors.scheduledDateTime = 'Please select a future date and time for scheduled publication';
@@ -213,6 +219,8 @@ export const NewsManagementPage: React.FC = () => {
     try {
       const payload: NewsArticleInput = {
         ...formInput,
+        categoryId: formInput.categoryId || null,
+        slug: formInput.slug?.trim() || undefined,
         content: cleanParagraphs
       };
 
