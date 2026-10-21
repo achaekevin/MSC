@@ -180,13 +180,10 @@ export const DonatePage: React.FC = () => {
     }
     let finalPickupAddress = '';
     if (inKindForm.deliveryMethod !== 'DROP_OFF_EKERENYO') {
-      if (!selectedCounty.trim()) {
-        errors.selectedCounty = 'Please select your county in Kenya.';
-      }
       if (!exactPlace.trim() || exactPlace.trim().length < 3) {
         errors.exactPlace = 'Please specify the exact place, town, landmark, or delivery address (minimum 3 characters).';
       }
-      finalPickupAddress = `${selectedCounty} County — ${exactPlace.trim()}`.trim();
+      finalPickupAddress = exactPlace.trim();
     }
     if (!spamData?.challengeAnswer?.trim()) {
       errors.challengeAnswer = 'Please solve the anti-spam question to confirm you are human.';
@@ -560,8 +557,8 @@ export const DonatePage: React.FC = () => {
                             label: 'Drop-off at Mwancha House in Ekerenyo'
                           },
                           {
-                            value: 'COUNTRYWIDE_DELIVERY',
-                            label: 'Countrywide Delivery / Collection (Any County in Kenya)'
+                            value: 'ARRANGED_DELIVERY',
+                            label: 'Arranged Pickup / Delivery to Another Location'
                           }
                         ]}
                         value={inKindForm.deliveryMethod}
@@ -589,34 +586,19 @@ export const DonatePage: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <MapPin className="w-4 h-4 text-forest-700 dark:text-emerald-400" />
                           <h4 className="text-xs font-black text-forest-900 dark:text-emerald-400 uppercase tracking-widest">
-                            Countrywide Collection / Delivery Coordinates
+                            Pickup / Delivery Location Details
                           </h4>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <Select
-                            id="selectedCounty"
-                            label="County in Kenya"
-                            required
-                            options={[
-                              { value: '', label: '-- Select County (All 47 Counties) --' },
-                              ...KENYA_COUNTIES.map((c) => ({ value: c, label: `${c} County` }))
-                            ]}
-                            value={selectedCounty}
-                            onChange={(e) => setSelectedCounty(e.target.value)}
-                            error={formErrors.selectedCounty}
-                          />
-
-                          <Input
-                            id="exactPlace"
-                            label="Exact Place / Town / Landmark / Specific Address"
-                            required
-                            placeholder="e.g. Westlands, Chiromo Rd, near Shell Petrol Station / Town center"
-                            value={exactPlace}
-                            onChange={(e) => setExactPlace(e.target.value)}
-                            error={formErrors.exactPlace}
-                          />
-                        </div>
+                        <Input
+                          id="exactPlace"
+                          label="Location / Address for Pickup or Delivery"
+                          required
+                          placeholder="e.g. Westlands, Chiromo Rd, near Shell Petrol Station / Town center"
+                          value={exactPlace}
+                          onChange={(e) => setExactPlace(e.target.value)}
+                          error={formErrors.exactPlace}
+                        />
                       </div>
                     )}
 
