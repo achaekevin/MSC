@@ -18,7 +18,7 @@ export const TermsPage: React.FC = () => {
               Terms of Website Use
             </h1>
             <p className="mt-3 text-base text-charcoal-600">
-              Last updated: January 2025 &bull; Mwancha Senior Community
+              Last updated: October 2026 &bull; Mwancha Senior Community
             </p>
           </div>
         </Container>
