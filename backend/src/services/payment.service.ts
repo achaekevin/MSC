@@ -407,7 +407,7 @@ export class PaymentService {
   /**
    * Real-time polling check for the frontend checkout modal
    */
-  async getPaymentStatus(referenceCode: string) {
+  async getPaymentStatus(referenceCode: string): Promise<any> {
     const transaction = await prisma.paymentTransaction.findUnique({
       where: { referenceCode },
       include: {
