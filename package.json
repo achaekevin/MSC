@@ -4,11 +4,11 @@
   "private": true,
   "description": "Mwancha Senior Community (MSC) - Monorepo root configuration for Railway single-service production deployment",
   "scripts": {
-    "install:all": "npm --prefix backend install && npm --prefix frontend install",
+    "install:all": "npm --prefix backend install --include=dev && npm --prefix frontend install --include=dev",
     "sync:public": "node scripts/sync-frontend.js",
     "build:frontend": "npm --prefix frontend run build && npm run sync:public",
     "build:backend": "npm --prefix backend run build",
-    "build": "npm --prefix backend install && npm --prefix backend run prisma:generate && npm --prefix frontend install && npm --prefix frontend run build && npm run sync:public && npm --prefix backend run build",
+    "build": "npm --prefix backend install --include=dev && npm --prefix backend run prisma:generate && npm --prefix frontend install --include=dev && npm --prefix frontend run build && npm run sync:public && npm --prefix backend run build",
     "start": "node backend/dist/server.js",
     "start:backend": "npm --prefix backend start",
     "dev:backend": "npm --prefix backend run dev",
