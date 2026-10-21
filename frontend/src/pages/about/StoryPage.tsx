@@ -97,7 +97,7 @@ export const StoryPage: React.FC = () => {
                     Mwancha Senior Community Headquarters & Center
                   </p>
                   <p className="text-xs text-charcoal-600 mt-0.5">
-                    Ekerenyo, Nyamira County, Nyanza Province &bull; Operating continuously since 2016
+                    Ekerenyo, Nyamira County, Nyanza-Kenya &bull; Operating continuously since 2016
                   </p>
                 </div>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-forest-50 text-forest-800 text-xs font-bold border border-forest-200 self-start sm:self-auto">

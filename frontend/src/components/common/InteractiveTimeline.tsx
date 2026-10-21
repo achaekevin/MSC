@@ -55,7 +55,7 @@ const APPROVED_MILESTONES: TimelineMilestone[] = [
       'Mobilized ward-based alert networks for elder emergency response',
       'Established legal mediation desks with local barazas and chiefs'
     ],
-    location: 'Nyanza Province Regional Coordination',
+    location: 'Nyanza-Kenya Regional Coordination',
     image: '/images/mwancha-fellowship-gathering.jpg',
     highlightStat: '100% Documented Case Tracking'
   },

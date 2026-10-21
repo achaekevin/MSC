@@ -162,7 +162,7 @@ async function main() {
         name: 'Mwancha Senior Community',
         formerName: 'Mwancha Home for the Elderly',
         tagline: 'Dignity, Care & Wellbeing for Older Persons',
-        address: 'Headquarters: Mwancha House - Ekerenyo, Nyamira County, Nyanza Province',
+        address: 'Headquarters: Mwancha House - Ekerenyo, Nyamira County, Nyanza-Kenya',
         postalCode: '40506',
         county: 'Nyamira',
         country: 'Kenya',
@@ -275,7 +275,7 @@ async function main() {
     {
       type: 'ADDRESS',
       label: 'Headquarters & Elder Community Center',
-      value: 'Ekerenyo, Nyamira County, Nyanza Province',
+      value: 'Ekerenyo, Nyamira County, Nyanza-Kenya',
       isPrimary: true
     },
     {

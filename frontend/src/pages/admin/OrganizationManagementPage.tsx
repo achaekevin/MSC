@@ -32,7 +32,7 @@ export const OrganizationManagementPage: React.FC = () => {
     formerName: 'Mwancha Home for the Elderly',
     tagline: 'Empowering senior citizens through health, economic, social, and psychosocial development',
     legalStatus: 'Registered Community-Based Organization (Kenya)',
-    geographicScope: 'Nyamira County & Nyanza Province',
+    geographicScope: 'Nyamira County & Nyanza-Kenya',
     coreGoal: 'Promote elder rights, eliminate elder abuse, and provide holistic psychosocial support',
     address: 'Mwancha House, Ekerenyo-Obwari-Magwagwa Road',
     postalCode: '162-40506',
@@ -294,7 +294,7 @@ export const OrganizationManagementPage: React.FC = () => {
                   value={formData.geographicScope || ''}
                   onChange={e => handleChange('geographicScope', e.target.value)}
                   disabled={!canEdit}
-                  placeholder="e.g. Nyamira County & Nyanza Province"
+                  placeholder="e.g. Nyamira County & Nyanza-Kenya"
                   className="w-full px-4 py-3 rounded-xl border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-800 text-charcoal-900 dark:text-warm-100 text-sm focus:ring-2 focus:ring-forest-600 focus:outline-none"
                 />
               </div>
