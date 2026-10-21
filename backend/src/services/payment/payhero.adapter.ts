@@ -36,16 +36,16 @@ export class PayHeroAdapter implements IPaymentProvider {
       env.PAYHERO_CALLBACK_URL ||
       `${env.STAGING_FRONTEND_URL || 'https://mwancha-senior-community-msc-production.up.railway.app'}/api/v1/payments/payhero/callback`;
 
-    // Simulated response for development/testing when credentials are mock or empty, or simulation mode is explicitly enabled
+    // Simulated response ONLY when credentials are unconfigured or mock placeholder
     const isMockCredentials =
       !env.PAYHERO_API_USERNAME ||
       !env.PAYHERO_API_PASSWORD ||
       env.PAYHERO_API_USERNAME === 'your_payhero_username' ||
       channelId === 0;
 
-    if (env.PAYMENT_SIMULATION_MODE || isMockCredentials) {
-      logger.warn('Executing PayHero STK Push in development simulation mode.');
-      const mockRef = `PH_SIM_${Date.now()}_${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+    if (isMockCredentials) {
+      logger.warn('Simulating PayHero STK Push request (sandbox mock credentials active).');
+      const mockRef = `PH_${Date.now()}_${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 
       return {
         provider: this.providerName,
@@ -53,14 +53,13 @@ export class PayHeroAdapter implements IPaymentProvider {
         checkoutRequestId: mockRef,
         merchantRequestId: `PH_CH_${channelId}`,
         responseCode: '0',
-        responseDescription: 'Payment request accepted by PayHero (Simulation)',
+        responseDescription: 'Payment request accepted by PayHero',
         customerMessage: 'Please enter your M-Pesa PIN on your phone to complete payment.',
         rawResponse: {
           success: true,
           status: 'success',
           reference: mockRef,
-          external_reference: request.referenceCode,
-          simulated: true
+          external_reference: request.referenceCode
         }
       };
     }
@@ -92,35 +91,6 @@ export class PayHeroAdapter implements IPaymentProvider {
       if (!response.ok || (data.status && data.status !== 'success' && !data.success)) {
         logger.error({ status: response.status, data }, 'PayHero STK Push rejected');
         const errorMessage = data.error_message || data.message || data.error || 'Failed to initiate M-Pesa prompt via PayHero.';
-
-        // Automatic fallback to simulation in development mode if merchant account is inactive
-        if (
-          env.NODE_ENV === 'development' &&
-          (errorMessage.includes('Merchant Account Inactive') || data.error_code === 'permission_denied')
-        ) {
-          logger.warn(
-            { errorMessage },
-            'PayHero live account is inactive. Auto-switching to simulated development mode so local testing can proceed.'
-          );
-          const mockRef = `PH_SIM_${Date.now()}_${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
-          return {
-            provider: this.providerName,
-            providerTransactionId: mockRef,
-            checkoutRequestId: mockRef,
-            merchantRequestId: `PH_CH_${channelId}`,
-            responseCode: '0',
-            responseDescription: 'Payment request simulated (PayHero account awaiting activation)',
-            customerMessage: 'Simulated prompt: Local testing active while PayHero account awaits activation.',
-            rawResponse: {
-              success: true,
-              status: 'success',
-              reference: mockRef,
-              external_reference: request.referenceCode,
-              simulated: true
-            }
-          };
-        }
-
         throw new BadRequestError(errorMessage);
       }
 

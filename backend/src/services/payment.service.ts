@@ -432,29 +432,6 @@ export class PaymentService {
       throw new NotFoundError('Transaction reference not found.');
     }
 
-    // In simulation mode (or when testing with simulated checkoutRequestId), confirm after 5 seconds of realistic polling
-    const isSimulatedTransaction =
-      Boolean(env.PAYMENT_SIMULATION_MODE) ||
-      transaction.checkoutRequestId?.startsWith('PH_SIM_') ||
-      transaction.checkoutRequestId?.startsWith('ws_CO_MOCK_');
-
-    if (
-      transaction.status === PaymentStatus.PENDING &&
-      isSimulatedTransaction &&
-      Date.now() - transaction.initiatedAt.getTime() > 5000
-    ) {
-      logger.info({ referenceCode }, 'Auto-confirming simulated transaction in development mode.');
-      await this.handleProviderCallback('payhero', {
-        success: true,
-        status: 'success',
-        reference: transaction.checkoutRequestId,
-        provider_reference: `MPESA-SIM-${Date.now().toString().slice(-6)}`,
-        external_reference: transaction.referenceCode,
-        amount: Number(transaction.amount)
-      });
-      return this.getPaymentStatus(referenceCode);
-    }
-
     // If still pending and more than 45 seconds elapsed, query status using originating provider
     if (
       transaction.status === PaymentStatus.PENDING &&
