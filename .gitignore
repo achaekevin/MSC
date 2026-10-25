@@ -14,6 +14,15 @@ node_modules/
 # Documentation
 docs/
 **/docs/
+!/docs/
+/docs/*/
+/docs/*
+!docs/backup-recovery-audit.md
+!docs/backup-recovery-architecture.md
+!docs/backup-recovery-operations-runbook.md
+!docs/backup-recovery-configuration.md
+!docs/backup-recovery-test-report.md
+!docs/backup-and-recovery-guide.md
 !backend/src/docs/
 !backend/src/docs/**
 *.doc
