@@ -14,6 +14,7 @@
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
     "test": "npm --prefix backend test",
+    "backup": "npm --prefix backend run backup",
     "lint": "npm --prefix backend run lint && npm --prefix frontend run lint"
   },
   "engines": {
