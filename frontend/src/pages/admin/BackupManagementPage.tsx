@@ -4,14 +4,12 @@ import {
   Download,
   RotateCcw,
   ShieldCheck,
-  AlertTriangle,
   Clock,
   HardDrive,
   CheckCircle2,
   XCircle,
   Play,
   FileCheck2,
-  Trash2,
   RefreshCw,
   ExternalLink,
   Layers,
@@ -59,11 +57,6 @@ export const BackupManagementPage: React.FC = () => {
     details: string;
     status: 'HEALTHY' | 'FAILED';
   } | null>(null);
-
-  // Restore Modal State
-  const [restoreModalBackup, setRestoreModalBackup] = useState<BackupMetadata | null>(null);
-  const [restoreConfirmationText, setRestoreConfirmationText] = useState<string>('');
-  const [isRestoring, setIsRestoring] = useState<boolean>(false);
 
   // Media Tab State
   const [mediaAssets, setMediaAssets] = useState<MediaAssetManifestItem[]>([]);
@@ -126,7 +119,7 @@ export const BackupManagementPage: React.FC = () => {
     setSuccessAlert(null);
     try {
       const res = await backupService.createBackup(backupNotes);
-      setSuccessAlert(`Database snapshot ${res.backup.filename} created and verified.`);
+      setSuccessAlert(`Legacy local snapshot ${res.backup.filename} created; no isolated restore was performed.`);
       setShowCreateModal(false);
       setBackupNotes('');
       await fetchOverview();
@@ -149,48 +142,15 @@ export const BackupManagementPage: React.FC = () => {
         status: res.result.status
       });
       if (res.result.status === 'HEALTHY') {
-        setSuccessAlert(`Test restoration verified: ${res.message}`);
+        setSuccessAlert(`Archive integrity checks passed; no restore was performed. ${res.message}`);
       } else {
-        setErrorAlert(`Test restoration failed: ${res.result.details}`);
+        setErrorAlert(`Archive integrity check failed: ${res.result.details}`);
       }
       await fetchOverview();
     } catch (err: any) {
-      setErrorAlert(err.message || 'Error executing test restoration.');
+      setErrorAlert(err.message || 'Error checking local archive integrity.');
     } finally {
       setVerifyingId(null);
-    }
-  };
-
-  const handleRestoreExecute = async () => {
-    if (!restoreModalBackup) return;
-    setIsRestoring(true);
-    setErrorAlert(null);
-    try {
-      const res = await backupService.restoreDatabase(
-        restoreModalBackup.id,
-        restoreConfirmationText
-      );
-      setSuccessAlert(res.message);
-      setRestoreModalBackup(null);
-      setRestoreConfirmationText('');
-      await fetchOverview();
-    } catch (err: any) {
-      setErrorAlert(err.message || 'Database restore failed.');
-    } finally {
-      setIsRestoring(false);
-    }
-  };
-
-  const handleDeleteBackup = async (backupId: string, filename: string) => {
-    if (!window.confirm(`Are you sure you want to permanently delete backup snapshot "${filename}"?`)) {
-      return;
-    }
-    try {
-      await backupService.deleteBackup(backupId);
-      setSuccessAlert(`Backup snapshot ${filename} deleted.`);
-      await fetchOverview();
-    } catch (err: any) {
-      setErrorAlert(err.message || 'Failed to delete backup.');
     }
   };
 
@@ -257,9 +217,15 @@ export const BackupManagementPage: React.FC = () => {
             Automated Backups & Disaster Recovery
           </h1>
           <p className="text-sm text-charcoal-600 dark:text-warm-300 mt-1">
-            Automated MySQL dumps, retention pruning, dry-run test restorations, and external media resilience.
+            Local archive records and media references. Integrity checks do not restore a database.
           </p>
         </div>
+
+        <Alert
+          type="error"
+          title="Recovery status: not verified"
+          message="This legacy dashboard does not represent independent Backblaze backups. Raw downloads, deletion, and database restoration are disabled. A checksum or archive integrity check is not an isolated restore."
+        />
 
         <div className="flex flex-wrap items-center gap-3">
           <Button
@@ -280,7 +246,7 @@ export const BackupManagementPage: React.FC = () => {
             icon={<Database className="w-4 h-4" />}
             className="font-bold shadow"
           >
-            Create Backup Now
+            Legacy Local Snapshot (non-production only)
           </Button>
         </div>
       </div>
@@ -312,7 +278,7 @@ export const BackupManagementPage: React.FC = () => {
             </div>
             <div>
               <p className="text-xs font-bold text-charcoal-500 dark:text-warm-300 uppercase">
-                Secured Snapshots
+                Legacy Local Snapshot Records
               </p>
               <h3 className="text-xl font-extrabold text-charcoal-900 dark:text-white">
                 {summary.totalBackups} Backups
@@ -329,10 +295,10 @@ export const BackupManagementPage: React.FC = () => {
             </div>
             <div>
               <p className="text-xs font-bold text-charcoal-500 dark:text-warm-300 uppercase">
-                Restoration Health
+                Archive Integrity Checks
               </p>
               <h3 className="text-xl font-extrabold text-emerald-700 dark:text-emerald-400">
-                {summary.healthyCount} Verified Healthy
+                {summary.healthyCount} Passed (not restore-tested)
               </h3>
               <p className="text-xs text-charcoal-600 dark:text-warm-400">
                 {summary.failedCount > 0 ? `${summary.failedCount} failed verification` : 'Zero errors detected'}
@@ -357,7 +323,7 @@ export const BackupManagementPage: React.FC = () => {
                   : 'No backups yet'}
               </h3>
               <p className="text-xs text-charcoal-600 dark:text-warm-400">
-                Point-in-time state
+                Latest local archive timestamp
               </p>
             </div>
           </Card>
@@ -368,10 +334,10 @@ export const BackupManagementPage: React.FC = () => {
             </div>
             <div>
               <p className="text-xs font-bold text-charcoal-500 dark:text-warm-300 uppercase">
-                Automated Daemon
+                Local Scheduler
               </p>
               <h3 className="text-base font-extrabold text-charcoal-900 dark:text-white">
-                {config?.autoBackupEnabled ? `Active (Every ${config.frequencyHours}h)` : 'Paused'}
+                {config?.autoBackupEnabled ? `Enabled (Every ${config.frequencyHours}h)` : 'Not active'}
               </h3>
               <p className="text-xs text-charcoal-600 dark:text-warm-400">
                 Retention: {config?.retentionDays} days
@@ -486,7 +452,7 @@ export const BackupManagementPage: React.FC = () => {
                     <XCircle className="w-5 h-5 text-rose-600" />
                   )}
                   <span>
-                    Test Restoration Report for Snapshot [{verificationResult.id}]
+                    Archive Integrity Report for Snapshot [{verificationResult.id}]
                   </span>
                 </div>
                 <button
@@ -582,7 +548,7 @@ export const BackupManagementPage: React.FC = () => {
                           {bk.verificationStatus === 'HEALTHY' && (
                             <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold">
                               <CheckCircle2 className="w-4 h-4" />
-                              <span>Verified Healthy</span>
+                              <span>Integrity Checked (not restore-tested)</span>
                             </div>
                           )}
                           {bk.verificationStatus === 'FAILED' && (
@@ -612,42 +578,12 @@ export const BackupManagementPage: React.FC = () => {
                               size="sm"
                               disabled={verifyingId === bk.id}
                               onClick={() => handleTestRestore(bk.id)}
-                              title="Test restoration dry-run (verifies checksum, decompression, syntax & constraints)"
+                              title="Check local archive integrity only; no database restore is performed"
                               className="text-xs p-1.5 h-auto text-forest-800 dark:text-emerald-400 hover:bg-forest-50"
                             >
                               <FileCheck2 className={`w-4 h-4 ${verifyingId === bk.id ? 'animate-spin' : ''}`} />
                             </Button>
 
-                            <a
-                              href={backupService.getDownloadUrl(bk.id)}
-                              download={bk.filename}
-                              className="p-1.5 rounded-lg hover:bg-warm-100 dark:hover:bg-charcoal-800 text-charcoal-700 dark:text-warm-300"
-                              title="Download backup archive (.sql.gz)"
-                            >
-                              <Download className="w-4 h-4" />
-                            </a>
-
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setRestoreModalBackup(bk)}
-                              title="Restore database from this snapshot"
-                              className="text-xs p-1.5 h-auto text-amber-700 dark:text-amber-400 hover:bg-amber-50"
-                            >
-                              <RotateCcw className="w-4 h-4" />
-                            </Button>
-
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteBackup(bk.id, bk.filename)}
-                              title="Delete snapshot"
-                              className="text-xs p-1.5 h-auto text-rose-700 dark:text-rose-400 hover:bg-rose-50"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -667,10 +603,10 @@ export const BackupManagementPage: React.FC = () => {
         <Card className="p-6 sm:p-8 max-w-3xl">
           <div className="mb-6">
             <h3 className="text-xl font-bold font-display text-charcoal-900 dark:text-white">
-              Automated Retention & Scheduling Policy
+              Legacy Local Retention & Schedule Settings
             </h3>
             <p className="text-xs sm:text-sm text-charcoal-600 dark:text-warm-300 mt-1">
-              Configure background cron backups, automatic snapshot pruning, and post-backup verification routines to ensure continuous zero-loss compliance.
+              This legacy local policy is not the independent object-storage schedule or retention policy.
             </p>
           </div>
 
@@ -681,7 +617,7 @@ export const BackupManagementPage: React.FC = () => {
                   Automated Background Backups
                 </p>
                 <p className="text-xs text-charcoal-500 dark:text-warm-400">
-                  Runs background scheduler in backend server daemon.
+                  Production scheduling is disabled; this only affects non-production environments.
                 </p>
               </div>
               <input
@@ -707,7 +643,7 @@ export const BackupManagementPage: React.FC = () => {
                   <option value={168}>Every 7 Days / Weekly</option>
                 </select>
                 <p className="text-[11px] text-charcoal-500 mt-1">
-                  Interval between automatic background snapshot generation.
+                  Legacy non-production scheduler interval only.
                 </p>
               </div>
 
@@ -724,7 +660,7 @@ export const BackupManagementPage: React.FC = () => {
                   className="w-full px-3.5 py-2.5 rounded-xl border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-800 text-sm font-semibold"
                 />
                 <p className="text-[11px] text-charcoal-500 mt-1">
-                  Snapshots older than this limit are automatically pruned.
+                  Legacy local archive retention setting; production cleanup is disabled.
                 </p>
               </div>
             </div>
@@ -743,7 +679,7 @@ export const BackupManagementPage: React.FC = () => {
                   className="w-full px-3.5 py-2.5 rounded-xl border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-800 text-sm font-semibold"
                 />
                 <p className="text-[11px] text-charcoal-500 mt-1">
-                  Caps disk storage space on hosting server.
+                  Legacy local archive limit; it does not control object-storage retention.
                 </p>
               </div>
 
@@ -760,7 +696,7 @@ export const BackupManagementPage: React.FC = () => {
                   className="w-full px-3.5 py-2.5 rounded-xl border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-800 text-sm font-semibold"
                 />
                 <p className="text-[11px] text-charcoal-500 mt-1">
-                  Guaranteed number of latest snapshots never deleted.
+                  Legacy local setting only; production deletion is disabled.
                 </p>
               </div>
             </div>
@@ -771,7 +707,7 @@ export const BackupManagementPage: React.FC = () => {
                   Automated Dry-Run Verification
                 </p>
                 <p className="text-xs text-charcoal-500 dark:text-warm-400">
-                  Immediately tests restoration integrity following each backup creation.
+                  Checks local archive structure only; this does not perform a database restore.
                 </p>
               </div>
               <input
@@ -808,7 +744,7 @@ export const BackupManagementPage: React.FC = () => {
                 Externally Hosted Media Resilience
               </h3>
               <p className="text-xs sm:text-sm text-charcoal-600 dark:text-warm-300 mt-0.5">
-                Catalog of media assets hosted on Cloudinary, CDNs, and external providers with cold-storage JSON manifest export.
+                Reference inventory and reachability checks only. This tab does not back up or restore asset bytes.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2.5">
@@ -920,63 +856,20 @@ export const BackupManagementPage: React.FC = () => {
               MSC Disaster Recovery Runbook & Cold-Start Procedures
             </h3>
             <p className="text-xs sm:text-sm text-charcoal-600 dark:text-warm-300 mt-1">
-              Follow these verified instructions to recover the MSC platform in the event of hardware failure, catastrophic database corruption, or server migration.
+              This draft is not a tested recovery procedure. No isolated restore has succeeded.
             </p>
           </div>
 
           <div className="space-y-6 text-xs sm:text-sm text-charcoal-800 dark:text-warm-200 leading-relaxed">
-            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700 text-amber-950 dark:text-amber-100 space-y-2">
-              <h4 className="font-black text-sm flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-600" />
-                <span>Pre-Restore Golden Rule</span>
-              </h4>
-              <p>
-                The automated system creates an emergency <code>PRE_RESTORE_SAFEGUARD</code> snapshot automatically before any point-in-time restore executes. Never attempt manual table drops without verifying you have an uncorrupted <code>.sql.gz</code> snapshot.
+            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700 text-amber-950 dark:text-amber-100">
+              <p className="font-bold">Do not use this page to restore production.</p>
+              <p className="mt-2">
+                The current local archive checks do not restore SQL into an isolated database. The destructive restore endpoint, raw dump download, and deletion actions have been disabled. The new private B2 backup runner is not connected to this dashboard.
               </p>
             </div>
-
-            <div className="space-y-3">
-              <h4 className="font-extrabold text-base text-charcoal-900 dark:text-white flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-forest-900 text-white flex items-center justify-center text-xs">1</span>
-                <span>In-App Point-in-Time Database Recovery (Zero CLI Required)</span>
-              </h4>
-              <ol className="list-decimal list-inside space-y-1.5 pl-2 text-charcoal-700 dark:text-warm-300">
-                <li>Navigate to the <strong>Snapshots</strong> tab above.</li>
-                <li>Locate the target verified backup snapshot.</li>
-                <li>Click the <strong>Test Restoration</strong> icon (<FileCheck2 className="w-3.5 h-3.5 inline text-forest-700" />) to execute a dry-run integrity verification.</li>
-                <li>Click the <strong>Restore Database</strong> icon (<RotateCcw className="w-3.5 h-3.5 inline text-amber-700" />).</li>
-                <li>Type <code>CONFIRM RESTORE</code> into the confirmation dialog and confirm.</li>
-                <li>The system will take a safety snapshot of current data, apply the archive transactions, and record an audit log entry.</li>
-              </ol>
-            </div>
-
-            <div className="space-y-3">
-              <h4 className="font-extrabold text-base text-charcoal-900 dark:text-white flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-forest-900 text-white flex items-center justify-center text-xs">2</span>
-                <span>Cold-Start Bare-Metal Recovery (CLI Procedure)</span>
-              </h4>
-              <p>
-                If the server or web container is completely unresponsive, restore directly from the host operating system:
-              </p>
-              <div className="bg-charcoal-950 text-emerald-300 p-4 rounded-2xl font-mono text-xs overflow-x-auto space-y-2">
-                <p className="text-gray-400"># 1. Unpack compressed snapshot</p>
-                <p>gunzip -c storage/backups/backup-msc-YYYY-MM-DD.sql.gz &gt; restore.sql</p>
-                <p className="text-gray-400"># 2. Rehydrate into MySQL instance</p>
-                <p>mysql -u root -p mwancha_community &lt; restore.sql</p>
-                <p className="text-gray-400"># 3. Clean up temporary uncompressed dump</p>
-                <p>rm restore.sql</p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h4 className="font-extrabold text-base text-charcoal-900 dark:text-white flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-forest-900 text-white flex items-center justify-center text-xs">3</span>
-                <span>Externally Hosted Media Recovery</span>
-              </h4>
-              <p>
-                All image metadata, Cloudinary identifiers, and entity attachments are preserved in the database backup. To maintain cold-storage redundancy of remote media, periodically download the <strong>Media Manifest (JSON)</strong>. In the event of Cloudinary account migration, a hydration script can read this manifest and re-sync all assets to a new bucket.
-              </p>
-            </div>
+            <p>
+              The repository operations runbook and configuration guide are drafts for non-production use. A production recovery process requires an approved isolated target and a successful restore test before it can be offered here.
+            </p>
           </div>
         </Card>
       )}
@@ -996,7 +889,7 @@ export const BackupManagementPage: React.FC = () => {
                   Create Manual Database Snapshot
                 </h3>
                 <p className="text-xs text-charcoal-500 dark:text-warm-400">
-                  Captures all active database tables and generates compressed archive.
+                  Creates a legacy local snapshot in non-production only.
                 </p>
               </div>
             </div>
@@ -1039,73 +932,6 @@ export const BackupManagementPage: React.FC = () => {
         </div>
       )}
 
-      {/* =========================================================================
-          MODAL: RESTORE CONFIRMATION DIALOG
-          ========================================================================= */}
-      {restoreModalBackup && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-charcoal-900 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 border-2 border-amber-400 shadow-2xl text-left">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-400 flex items-center justify-center flex-shrink-0">
-                <AlertTriangle className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-black font-display text-charcoal-900 dark:text-white">
-                  Confirm Database Point-in-Time Restore
-                </h3>
-                <p className="text-xs text-charcoal-600 dark:text-warm-300">
-                  Target Snapshot: <span className="font-mono font-bold">{restoreModalBackup.filename}</span>
-                </p>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-950 dark:text-amber-200 space-y-1.5 leading-relaxed">
-              <p className="font-bold">⚠️ Warning: High impact operation.</p>
-              <p>
-                Restoring will replace the current active database with data from this snapshot ({new Date(restoreModalBackup.timestamp).toLocaleString()}). An automatic safeguard snapshot will be taken immediately prior to execution.
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-charcoal-800 dark:text-warm-200 mb-1.5">
-                Type <span className="font-mono text-rose-700 dark:text-rose-400 font-black">CONFIRM RESTORE</span> to proceed:
-              </label>
-              <input
-                type="text"
-                placeholder="CONFIRM RESTORE"
-                value={restoreConfirmationText}
-                onChange={(e) => setRestoreConfirmationText(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-800 font-mono text-sm font-bold text-charcoal-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setRestoreModalBackup(null);
-                  setRestoreConfirmationText('');
-                }}
-                disabled={isRestoring}
-              >
-                Abort
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={handleRestoreExecute}
-                disabled={isRestoring || restoreConfirmationText !== 'CONFIRM RESTORE'}
-                className="font-black bg-amber-600 hover:bg-amber-500 text-white shadow"
-              >
-                {isRestoring ? 'Executing Restoration...' : 'Execute Restore'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
