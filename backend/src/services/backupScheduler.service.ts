@@ -6,6 +6,12 @@ export class BackupSchedulerService {
   private isRunningCheck = false;
 
   public start() {
+    if (process.env.NODE_ENV === 'production') {
+      logger.warn(
+        'Legacy in-process local backups are disabled in production. Configure the independently managed backup job separately.'
+      );
+      return;
+    }
     logger.info('Initializing MSC Automated Backup & Retention Daemon...');
     // Initial check after 30 seconds of server boot
     setTimeout(() => {

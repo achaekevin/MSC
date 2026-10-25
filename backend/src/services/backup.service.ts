@@ -308,6 +308,12 @@ export class BackupService {
     triggeredBy?: string;
     notes?: string;
   } = {}): Promise<BackupMetadata> {
+    if (process.env.NODE_ENV === 'production') {
+      throw new BadRequestError(
+        'The legacy local backup is disabled in production. Use the independently managed backup job.'
+      );
+    }
+
     const timestampStr = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
     const id = `bk_${Date.now()}`;
     const filename = `backup-msc-${timestampStr}.sql.gz`;
@@ -444,7 +450,7 @@ export class BackupService {
       // 5. Test parse row count
       const insertMatches = sqlText.match(/INSERT INTO/g) || [];
       const now = new Date().toISOString();
-      const details = `PASSED: Checksum verified (SHA-256), valid gzip compression, verified ${meta.tableCount} tables, verified ${insertMatches.length} batch insert transactions (~${meta.recordCount} rows). Zero syntax errors.`;
+      const details = `Archive integrity checks passed: SHA-256, gzip decompression, required SQL markers, ${meta.tableCount} recorded tables, and ${insertMatches.length} insert statements (~${meta.recordCount} rows). No database restore or SQL execution was performed.`;
 
       meta.verificationStatus = 'HEALTHY';
       meta.lastVerifiedAt = now;
@@ -524,83 +530,16 @@ export class BackupService {
     return { purgedCount: purgedFiles.length, purgedFiles };
   }
 
-  /**
-   * Point-in-Time Database Restore
-   * Rehydrates database from chosen verified snapshot with safety confirmation and pre-restore safeguard.
-   */
+  /** Restore remains unavailable until an isolated restore workflow is implemented. */
   public async restoreDatabase(
     backupId: string,
     options: { confirmation: string; triggeredBy?: string }
   ): Promise<{ success: boolean; message: string; safeguardBackupId: string }> {
-    if (options.confirmation !== 'CONFIRM RESTORE') {
-      throw new BadRequestError('Restoration aborted: You must provide exact confirmation text "CONFIRM RESTORE".');
-    }
-
-    const manifest = this.loadManifest();
-    const meta = manifest.find(b => b.id === backupId);
-    if (!meta) {
-      throw new NotFoundError(`Backup with ID ${backupId} not found.`);
-    }
-
-    const filepath = path.resolve(this.backupDir, meta.filename);
-    if (!fs.existsSync(filepath)) {
-      throw new NotFoundError(`Backup archive ${meta.filename} does not exist on disk.`);
-    }
-
-    logger.warn({ backupId, file: meta.filename }, '⚠️ DATABASE RESTORATION INITIATED. Creating safety safeguard snapshot first...');
-
-    // 1. Create immediate safeguard snapshot
-    const safeguard = await this.createBackup({
-      type: 'PRE_RESTORE_SAFEGUARD',
-      triggeredBy: options.triggeredBy || 'MSC Administrator',
-      notes: `Automatic pre-restore safeguard snapshot created prior to restoring ${meta.filename}`
-    });
-
-    logger.info({ safeguardId: safeguard.id }, 'Safeguard snapshot successfully created. Executing restoration...');
-
-    try {
-      const compressedData = fs.readFileSync(filepath);
-      const sqlText = zlib.gunzipSync(compressedData).toString('utf-8');
-
-      // Execute SQL in transactions via Prisma raw queries or mysql client
-      // Split into statements safely
-      const statements = sqlText
-        .split(/;\s*$/m)
-        .map(s => s.trim())
-        .filter(s => s.length > 0 && !s.startsWith('--'));
-
-      logger.info(`Executing ${statements.length} SQL restoration statements in safety mode...`);
-
-      // Execute sequentially
-      for (const statement of statements) {
-        if (!statement) continue;
-        try {
-          await prisma.$executeRawUnsafe(statement);
-        } catch (execErr: any) {
-          // Log but continue if non-fatal
-          logger.warn({ err: execErr.message, querySnippet: statement.slice(0, 100) }, 'Query execution notice during restoration.');
-        }
-      }
-
-      await prisma.auditLog.create({
-        data: {
-          action: 'RESTORE_DATABASE',
-          entity: 'Backup',
-          entityId: backupId,
-          newData: JSON.stringify({ restoredSnapshot: meta.filename, safeguardBackup: safeguard.filename })
-        }
-      });
-
-      logger.info('Database restore successfully completed.');
-      return {
-        success: true,
-        message: `Database successfully restored from snapshot ${meta.filename}. Safeguard snapshot ${safeguard.filename} was saved prior to restoration.`,
-        safeguardBackupId: safeguard.id
-      };
-    } catch (restoreErr: any) {
-      logger.error({ err: restoreErr }, 'Database restoration failed!');
-      throw new Error(`Restoration failed: ${restoreErr.message}. You can roll back using safeguard snapshot ${safeguard.filename}.`);
-    }
+    void backupId;
+    void options;
+    throw new BadRequestError(
+      'Database restoration is disabled until an isolated restore workflow and separate production approval process are implemented.'
+    );
   }
 
   /**
@@ -763,6 +702,9 @@ export class BackupService {
   public getBackupsOverview() {
     const manifest = this.loadManifest();
     const config = this.getConfig();
+    if (process.env.NODE_ENV === 'production') {
+      config.autoBackupEnabled = false;
+    }
 
     const totalSizeBytes = manifest.reduce((acc, b) => acc + (b.sizeBytes || 0), 0);
     const healthyCount = manifest.filter(b => b.verificationStatus === 'HEALTHY').length;
@@ -804,6 +746,12 @@ export class BackupService {
   }
 
   public deleteBackup(backupId: string) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new BadRequestError(
+        'Legacy local backup deletion is disabled in production until remote retention safeguards are implemented.'
+      );
+    }
+
     const manifest = this.loadManifest();
     const index = manifest.findIndex(b => b.id === backupId);
     if (index === -1) throw new NotFoundError('Backup not found');

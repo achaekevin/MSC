@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { backupService } from '../services/backup.service.js';
 import { sendSuccess } from '../utils/apiResponse.js';
 import { AuthenticatedRequest } from '../types/index.js';
+import { BadRequestError } from '../errors/AppError.js';
 
 export class BackupController {
   async getOverview(req: Request, res: Response, next: NextFunction) {
@@ -37,8 +38,8 @@ export class BackupController {
       const result = await backupService.testRestoreBackup(id);
       return sendSuccess(res, {
         message: result.status === 'HEALTHY'
-          ? 'Backup integrity & test restoration verified successfully.'
-          : 'Backup verification detected integrity errors.',
+          ? 'Local archive integrity checks passed. No database restore was performed.'
+          : 'Local archive integrity verification failed.',
         result
       }, 200);
     } catch (error) {
@@ -47,42 +48,21 @@ export class BackupController {
   }
 
   async restoreDatabase(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const { confirmation } = req.body || {};
-      const adminName = req.user?.name || req.user?.email || 'MSC Administrator';
-
-      const result = await backupService.restoreDatabase(id, {
-        confirmation,
-        triggeredBy: adminName
-      });
-
-      return sendSuccess(res, result, 200);
-    } catch (error) {
-      next(error);
-    }
+    next(new BadRequestError(
+      'Database restoration is disabled until an isolated restore workflow and separate production approval process are implemented.'
+    ));
   }
 
   async downloadBackup(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const { filepath, filename } = backupService.getBackupFilePath(id);
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      res.setHeader('Content-Type', 'application/gzip');
-      return res.sendFile(filepath);
-    } catch (error) {
-      next(error);
-    }
+    next(new BadRequestError(
+      'Raw backup archive downloads are disabled. Use the approved private recovery procedure.'
+    ));
   }
 
   async deleteBackup(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const result = backupService.deleteBackup(id);
-      return sendSuccess(res, result, 200);
-    } catch (error) {
-      next(error);
-    }
+    next(new BadRequestError(
+      'Backup deletion is disabled until independently verified retention safeguards are implemented.'
+    ));
   }
 
   async getMediaManifest(req: Request, res: Response, next: NextFunction) {
